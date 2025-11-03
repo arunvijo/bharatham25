@@ -29,7 +29,7 @@ const EditParticipant = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`https://bharatham-1.onrender.com/participant/${id}/`)
+      .get(`https://bharatham-backend-j9s1.onrender.com/participant/${id}/`)
       .then((response) => {
         setFullName(response.data.fullName);
         setUID(response.data.uid);
@@ -56,7 +56,7 @@ const EditParticipant = () => {
     setLoading(true);
     console.log(data);
     axios
-      .put(`https://bharatham-1.onrender.com/participant/${id}/`, data)
+      .put(`https://bharatham-backend-j9s1.onrender.com/participant/${id}/`, data)
       .then((response) => {
         setLoading(false);
         enqueueSnackbar("Participant Edited successfully", {

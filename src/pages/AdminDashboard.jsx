@@ -50,7 +50,7 @@ const AdminDashboard = () => {
         }
 
         const houseResponse = await axios.get(
-          `https://bharatham-1.onrender.com/house/by-captain/${user.nickname}`
+          `https://bharatham-backend-j9s1.onrender.com/house/by-captain/${user.nickname}`
         );
 
         if (houseResponse?.data.filter((d) => d.name == "Admin").length > 0) {
@@ -69,10 +69,10 @@ const AdminDashboard = () => {
           registrationResponse,
           scoreResponse,
         ] = await Promise.all([
-          axios.get("https://bharatham-1.onrender.com/participant/"),
-          axios.get("https://bharatham-1.onrender.com/event/"),
-          axios.get("https://bharatham-1.onrender.com/registration/"),
-          axios.get("https://bharatham-1.onrender.com/score/"),
+          axios.get("https://bharatham-backend-j9s1.onrender.com/participant/"),
+          axios.get("https://bharatham-backend-j9s1.onrender.com/event/"),
+          axios.get("https://bharatham-backend-j9s1.onrender.com/registration/"),
+          axios.get("https://bharatham-backend-j9s1.onrender.com/score/"),
         ]);
 
         setParticipants(participantResponse.data.data);
@@ -136,7 +136,7 @@ const AdminDashboard = () => {
     try {
       await Promise.all(
         participants.map((p) =>
-          axios.put(`https://bharatham-1.onrender.com/participant/${p._id}/`, p)
+          axios.put(`https://bharatham-backend-j9s1.onrender.com/participant/${p._id}/`, p)
         )
       );
       enqueueSnackbar("Participation counts updated successfully!", {

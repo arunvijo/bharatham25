@@ -21,12 +21,12 @@ const EventPage = () => {
     const fetchData = async () => {
       try {
         const eventResponse = await axios.get(
-          `https://bharatham-1.onrender.com/event/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/event/${id}`
         );
         const event = eventResponse.data;
 
         const registrationResponse = await axios.get(
-          `https://bharatham-1.onrender.com/registration/by-event/${id}/`
+          `https://bharatham-backend-j9s1.onrender.com/registration/by-event/${id}/`
         );
         const registrations = registrationResponse.data.data;
 

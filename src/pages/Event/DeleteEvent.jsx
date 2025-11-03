@@ -27,7 +27,7 @@ const DeleteEvent = () => {
   const handleDeleteEvent = () => {
     setLoading(true);
     axios
-      .delete(`https://bharatham-1.onrender.com/event/${id}/`)
+      .delete(`https://bharatham-backend-j9s1.onrender.com/event/${id}/`)
       .then(() => {
         enqueueSnackbar("Event Deleted successfully", { variant: "success" });
         navigate("/admin");

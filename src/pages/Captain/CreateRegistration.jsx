@@ -32,7 +32,7 @@ const CreateRegistration = () => {
         setLoading(true);
         // Get captain's house
         const houseResponse = await axios.get(
-          `https://bharatham-1.onrender.com/house/by-captain/${user.nickname}`
+          `https://bharatham-backend-j9s1.onrender.com/house/by-captain/${user.nickname}`
         );
         const captainHouse = houseResponse.data.filter(
           (d) => d.name !== "Admin"
@@ -46,19 +46,19 @@ const CreateRegistration = () => {
 
         // Get participants for captain's house
         const participantResponse = await axios.get(
-          `https://bharatham-1.onrender.com/participant/by-house/${captainHouse.name}`
+          `https://bharatham-backend-j9s1.onrender.com/participant/by-house/${captainHouse.name}`
         );
         setParticipantList(participantResponse.data.data);
 
         // Get all events
         const eventResponse = await axios.get(
-          `https://bharatham-1.onrender.com/event/`
+          `https://bharatham-backend-j9s1.onrender.com/event/`
         );
         setEvents(eventResponse.data.data);
 
         // Get existing registrations
         const registrationResponse = await axios.get(
-          `https://bharatham-1.onrender.com/registration/by-house/${captainHouse.name}`
+          `https://bharatham-backend-j9s1.onrender.com/registration/by-house/${captainHouse.name}`
         );
         setRegistrations(registrationResponse.data.data);
       } catch (error) {
@@ -272,7 +272,7 @@ const CreateRegistration = () => {
 
     setLoading(true);
     axios
-      .post("https://bharatham-1.onrender.com/registration/", data)
+      .post("https://bharatham-backend-j9s1.onrender.com/registration/", data)
       .then((response) => {
         setLoading(false);
         setRegistrations((old) => [...old, response.data]);
@@ -287,7 +287,7 @@ const CreateRegistration = () => {
             await Promise.all(
               updatedParticipants.map((participant) =>
                 axios.put(
-                  `https://bharatham-1.onrender.com/participant/${participant._id}`,
+                  `https://bharatham-backend-j9s1.onrender.com/participant/${participant._id}`,
                   participant
                 )
               )

@@ -25,7 +25,7 @@ const DeleteRegistration = () => {
 
     // First, get the registration data
     axios
-      .get(`https://bharatham-1.onrender.com/registration/${id}/`)
+      .get(`https://bharatham-backend-j9s1.onrender.com/registration/${id}/`)
       .then((response) => {
         const registration = response.data;
         if (!registration) {
@@ -41,7 +41,7 @@ const DeleteRegistration = () => {
 
         // Fetch event details
         return axios
-          .get(`https://bharatham-1.onrender.com/event/`)
+          .get(`https://bharatham-backend-j9s1.onrender.com/event/`)
           .then((eventResponse) => {
             const event = eventResponse.data.data.find(
               (e) => e.name === eventName
@@ -65,7 +65,7 @@ const DeleteRegistration = () => {
           registration.participants.map((participant) =>
             axios
               .get(
-                `https://bharatham-1.onrender.com/participant/${participant._id}`
+                `https://bharatham-backend-j9s1.onrender.com/participant/${participant._id}`
               )
               .then((response) => response.data)
           )
@@ -151,7 +151,7 @@ const DeleteRegistration = () => {
             updatedParticipants.map((participant) =>
               axios
                 .put(
-                  `https://bharatham-1.onrender.com/participant/${participant._id}`,
+                  `https://bharatham-backend-j9s1.onrender.com/participant/${participant._id}`,
                   participant
                 )
                 .then((response) => {
@@ -170,7 +170,7 @@ const DeleteRegistration = () => {
       .then(() => {
         // After participants are updated, delete the registration
         return axios.delete(
-          `https://bharatham-1.onrender.com/registration/${id}/`
+          `https://bharatham-backend-j9s1.onrender.com/registration/${id}/`
         );
       })
       .then(() => {

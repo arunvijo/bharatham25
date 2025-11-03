@@ -49,7 +49,7 @@ const EditEvent = () => {
   useEffect(() => {
     setLoading(true);
     axios
-      .get(`https://bharatham-1.onrender.com/event/${id}/`)
+      .get(`https://bharatham-backend-j9s1.onrender.com/event/${id}/`)
       .then((response) => {
         setName(response.data.name);
         setImage(response.data.image);
@@ -89,7 +89,7 @@ const EditEvent = () => {
     };
     setLoading(true);
     axios
-      .put(`https://bharatham-1.onrender.com/event/${id}/`, data)
+      .put(`https://bharatham-backend-j9s1.onrender.com/event/${id}/`, data)
       .then((response) => {
         setLoading(false);
         enqueueSnackbar("Event edited successfully", { variant: "success" });

@@ -25,17 +25,17 @@ const AdminEventView = () => {
     const fetchData = async () => {
       try {
         const participantResponse = await axios.get(
-          `https://bharatham-1.onrender.com/participant/`
+          `https://bharatham-backend-j9s1.onrender.com/participant/`
         );
         const participantList = participantResponse.data.data;
 
         const eventResponse = await axios.get(
-          `https://bharatham-1.onrender.com/event/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/event/${id}`
         );
         const event = eventResponse.data;
 
         const registrationResponse = await axios.get(
-          `https://bharatham-1.onrender.com/registration/by-event/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/registration/by-event/${id}`
         );
         const registrations = registrationResponse.data.data;
 
@@ -59,7 +59,7 @@ const AdminEventView = () => {
 
     // First, get the registration data
     axios
-      .get(`https://bharatham-1.onrender.com/registration/${id}`)
+      .get(`https://bharatham-backend-j9s1.onrender.com/registration/${id}`)
       .then((response) => {
         const registration = response.data;
         if (!registration) {
@@ -75,7 +75,7 @@ const AdminEventView = () => {
 
         // Fetch event details
         return axios
-          .get(`https://bharatham-1.onrender.com/event/`)
+          .get(`https://bharatham-backend-j9s1.onrender.com/event/`)
           .then((eventResponse) => {
             const event = eventResponse.data.data.find(
               (e) => e.name === eventName
@@ -99,7 +99,7 @@ const AdminEventView = () => {
           registration.participants.map((participant) =>
             axios
               .get(
-                `https://bharatham-1.onrender.com/participant/${participant._id}`
+                `https://bharatham-backend-j9s1.onrender.com/participant/${participant._id}`
               )
               .then((response) => response.data)
           )
@@ -185,7 +185,7 @@ const AdminEventView = () => {
             updatedParticipants.map((participant) =>
               axios
                 .put(
-                  `https://bharatham-1.onrender.com/participant/${participant._id}`,
+                  `https://bharatham-backend-j9s1.onrender.com/participant/${participant._id}`,
                   participant
                 )
                 .then((response) => {
@@ -204,7 +204,7 @@ const AdminEventView = () => {
       .then(() => {
         // After participants are updated, delete the registration
         return axios.delete(
-          `https://bharatham-1.onrender.com/registration/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/registration/${id}`
         );
       })
       .then(() => {

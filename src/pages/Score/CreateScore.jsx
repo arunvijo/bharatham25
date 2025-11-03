@@ -29,12 +29,12 @@ const CreateScore = () => {
     const fetchData = async () => {
       try {
         const eventResponse = await axios.get(
-          `https://bharatham-1.onrender.com/event/`
+          `https://bharatham-backend-j9s1.onrender.com/event/`
         );
         const events = eventResponse.data.data;
 
         const registrationResponse = await axios.get(
-          `https://bharatham-1.onrender.com/registration/`
+          `https://bharatham-backend-j9s1.onrender.com/registration/`
         );
         const registrations = registrationResponse.data.data;
 
@@ -68,7 +68,7 @@ const CreateScore = () => {
     setLoading(true);
     console.log(data);
     axios
-      .post("https://bharatham-1.onrender.com/score/", data)
+      .post("https://bharatham-backend-j9s1.onrender.com/score/", data)
       .then((response) => {
         setLoading(false);
         enqueueSnackbar("Score Created successfully", {

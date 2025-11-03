@@ -43,7 +43,7 @@ const CreateEvent = () => {
     setLoading(true);
     console.log(data);
     axios
-      .post("https://bharatham-1.onrender.com/event/", data)
+      .post("https://bharatham-backend-j9s1.onrender.com/event/", data)
       .then((response) => {
         setLoading(false);
         enqueueSnackbar("Event Created successfully", {

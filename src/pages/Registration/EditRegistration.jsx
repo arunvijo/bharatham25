@@ -52,7 +52,7 @@ const EditRegistration = () => {
     console.log(user, isAuthenticated, isLoading);
     if (!isAuthenticated && !isLoading) navigate("/");
     axios
-      .get(`https://bharatham-1.onrender.com/registration/${id}/`)
+      .get(`https://bharatham-backend-j9s1.onrender.com/registration/${id}/`)
       .then((response) => {
         setEvent(response.data.event);
         setHouse(response.data.house);
@@ -75,7 +75,7 @@ const EditRegistration = () => {
     setLoading(true);
     console.log(data);
     axios
-      .put(`https://bharatham-1.onrender.com/registration/${id}/`, data)
+      .put(`https://bharatham-backend-j9s1.onrender.com/registration/${id}/`, data)
       .then((response) => {
         setLoading(false);
         enqueueSnackbar("Registration Edited successfully", {

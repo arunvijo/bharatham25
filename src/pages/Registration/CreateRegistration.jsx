@@ -29,22 +29,22 @@ const CreateRegisration = () => {
     const fetchData = async () => {
       try {
         const houseResponse = await axios.get(
-          `https://bharatham-1.onrender.com/house/`
+          `https://bharatham-backend-j9s1.onrender.com/house/`
         );
         const houses = houseResponse.data.data;
 
         const participantResponse = await axios.get(
-          `https://bharatham-1.onrender.com/participant/`
+          `https://bharatham-backend-j9s1.onrender.com/participant/`
         );
         const participantList = participantResponse.data.data;
 
         const eventResponse = await axios.get(
-          `https://bharatham-1.onrender.com/event/`
+          `https://bharatham-backend-j9s1.onrender.com/event/`
         );
         const events = eventResponse.data.data;
 
         const registrationResponse = await axios.get(
-          `https://bharatham-1.onrender.com/registration/`
+          `https://bharatham-backend-j9s1.onrender.com/registration/`
         );
         const registrations = registrationResponse.data.data;
 
@@ -226,7 +226,7 @@ const CreateRegisration = () => {
 
     setLoading(true);
     axios
-      .post("https://bharatham-1.onrender.com/registration/", data)
+      .post("https://bharatham-backend-j9s1.onrender.com/registration/", data)
       .then((response) => {
         setLoading(false);
         setRegistrations((old) => [...old, response.data]);
@@ -241,7 +241,7 @@ const CreateRegisration = () => {
             await Promise.all(
               updatedParticipants.map((participant) =>
                 axios.put(
-                  `https://bharatham-1.onrender.com/participant/${participant._id}`,
+                  `https://bharatham-backend-j9s1.onrender.com/participant/${participant._id}`,
                   participant
                 )
               )

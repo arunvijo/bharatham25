@@ -50,7 +50,7 @@ const Scoreboard = () => {
     const fetchData = async () => {
       try {
         const scoreResponse = await axios.get(
-          `https://bharatham-1.onrender.com/score/`
+          `https://bharatham-backend-j9s1.onrender.com/score/`
         );
         const scores = scoreResponse.data.data;
 

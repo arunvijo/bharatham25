@@ -25,7 +25,7 @@ const DeleteParticipant = () => {
   const handleDeleteParticipant = () => {
     setLoading(true);
     axios
-      .delete(`https://bharatham-1.onrender.com/participant/${id}/`)
+      .delete(`https://bharatham-backend-j9s1.onrender.com/participant/${id}/`)
       .then(() => {
         setLoading(false);
         enqueueSnackbar('Participant Deleted successfully', {variant: 'success'})

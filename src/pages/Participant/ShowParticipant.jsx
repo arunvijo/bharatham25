@@ -21,30 +21,30 @@ const ShowParticipant = () => {
     const fetchData = async () => {
       try {
         const participantResponse = await axios.get(
-          `https://bharatham-1.onrender.com/participant/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/participant/${id}`
         );
         const data = participantResponse.data;
 
         const registrationResponse = await axios.get(
-          `https://bharatham-1.onrender.com/registration/by-participant/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/registration/by-participant/${id}`
         );
         console.log(
-          `https://bharatham-1.onrender.com/registration/by-participant/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/registration/by-participant/${id}`
         );
         const registrations = registrationResponse.data.data;
 
         const scoreResponse = await axios.get(
-          `https://bharatham-1.onrender.com/score/by-participant/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/score/by-participant/${id}`
         );
         console.log(
-          `https://bharatham-1.onrender.com/score/by-participant/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/score/by-participant/${id}`
         );
         const scores = scoreResponse.data.data;
 
         const eventResponse = await axios.get(
-          `https://bharatham-1.onrender.com/event/`
+          `https://bharatham-backend-j9s1.onrender.com/event/`
         );
-        console.log(`https://bharatham-1.onrender.com/event/`);
+        console.log(`https://bharatham-backend-j9s1.onrender.com/event/`);
         const events = eventResponse.data.data;
 
         setParticipant(data);

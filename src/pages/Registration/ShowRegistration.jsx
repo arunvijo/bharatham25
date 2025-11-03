@@ -19,7 +19,7 @@ const ShowRegistration = () => {
     console.log(user, isAuthenticated, isLoading);
     if (!isAuthenticated && !isLoading) navigate("/");
     axios
-      .get(`https://bharatham-1.onrender.com/registration/${id}/`)
+      .get(`https://bharatham-backend-j9s1.onrender.com/registration/${id}/`)
       .then((response) => {
         setRegistration(response.data);
         setLoading(false);

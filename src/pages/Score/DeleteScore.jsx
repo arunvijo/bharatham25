@@ -25,7 +25,7 @@ const DeleteScore = () => {
   const handleDeleteScore = () => {
     setLoading(true);
     axios
-      .delete(`https://bharatham-1.onrender.com/score/${id}/`)
+      .delete(`https://bharatham-backend-j9s1.onrender.com/score/${id}/`)
       .then(() => {
         setLoading(false);
         enqueueSnackbar("Score Deleted successfully", { variant: "success" });

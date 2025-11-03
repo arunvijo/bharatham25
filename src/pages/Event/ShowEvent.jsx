@@ -19,7 +19,7 @@ const ShowEvent = () => {
     console.log(user, isAuthenticated, isLoading);
     if (!isAuthenticated && !isLoading) navigate("/");
     axios
-      .get(`https://bharatham-1.onrender.com/event/${id}/`)
+      .get(`https://bharatham-backend-j9s1.onrender.com/event/${id}/`)
       .then((response) => {
         setEvent(response.data);
         setLoading(false);

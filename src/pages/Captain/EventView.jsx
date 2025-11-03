@@ -27,23 +27,23 @@ const EventView = () => {
     const fetchData = async () => {
       try {
         const houseResponse = await axios.get(
-          `https://bharatham-1.onrender.com/house/by-captain/${user.nickname}`
+          `https://bharatham-backend-j9s1.onrender.com/house/by-captain/${user.nickname}`
         );
         const house = houseResponse.data[0].name;
         setHouse(house);
 
         const participantResponse = await axios.get(
-          `https://bharatham-1.onrender.com/participant/by-house/${house}`
+          `https://bharatham-backend-j9s1.onrender.com/participant/by-house/${house}`
         );
         const participantList = participantResponse.data.data;
 
         const eventResponse = await axios.get(
-          `https://bharatham-1.onrender.com/event/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/event/${id}`
         );
         const event = eventResponse.data;
 
         const registrationResponse = await axios.get(
-          `https://bharatham-1.onrender.com/registration/by-house-event/${id}/${house}`
+          `https://bharatham-backend-j9s1.onrender.com/registration/by-house-event/${id}/${house}`
         );
         const registrations = registrationResponse.data.data;
         const now = Date.now();
@@ -166,7 +166,7 @@ const EventView = () => {
 
     setLoading(true);
     axios
-      .post("https://bharatham-1.onrender.com/registration/", data)
+      .post("https://bharatham-backend-j9s1.onrender.com/registration/", data)
       .then((response) => {
         setLoading(false);
         setRegistrations((old) => [...old, response.data]);
@@ -181,7 +181,7 @@ const EventView = () => {
             await Promise.all(
               updatedParticipants.map((participant) =>
                 axios.put(
-                  `https://bharatham-1.onrender.com/participant/${participant._id}`,
+                  `https://bharatham-backend-j9s1.onrender.com/participant/${participant._id}`,
                   participant
                 )
               )
@@ -213,7 +213,7 @@ const EventView = () => {
 
     // First, get the registration data
     axios
-      .get(`https://bharatham-1.onrender.com/registration/${id}`)
+      .get(`https://bharatham-backend-j9s1.onrender.com/registration/${id}`)
       .then((response) => {
         const registration = response.data;
         if (!registration) {
@@ -229,7 +229,7 @@ const EventView = () => {
 
         // Fetch event details
         return axios
-          .get(`https://bharatham-1.onrender.com/event/`)
+          .get(`https://bharatham-backend-j9s1.onrender.com/event/`)
           .then((eventResponse) => {
             const event = eventResponse.data.data.find(
               (e) => e.name === eventName
@@ -253,7 +253,7 @@ const EventView = () => {
           registration.participants.map((participant) =>
             axios
               .get(
-                `https://bharatham-1.onrender.com/participant/${participant._id}`
+                `https://bharatham-backend-j9s1.onrender.com/participant/${participant._id}`
               )
               .then((response) => response.data)
           )
@@ -341,7 +341,7 @@ const EventView = () => {
             updatedParticipants.map((participant) =>
               axios
                 .put(
-                  `https://bharatham-1.onrender.com/participant/${participant._id}`,
+                  `https://bharatham-backend-j9s1.onrender.com/participant/${participant._id}`,
                   participant
                 )
                 .then((response) => {
@@ -360,7 +360,7 @@ const EventView = () => {
       .then(() => {
         // After participants are updated, delete the registration
         return axios.delete(
-          `https://bharatham-1.onrender.com/registration/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/registration/${id}`
         );
       })
       .then(() => {

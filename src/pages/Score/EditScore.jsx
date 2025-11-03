@@ -37,17 +37,17 @@ const EditScore = () => {
     const fetchData = async () => {
       try {
         const scoreResponse = await axios.get(
-          `https://bharatham-1.onrender.com/score/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/score/${id}`
         );
         const score = scoreResponse.data;
 
         const eventResponse = await axios.get(
-          `https://bharatham-1.onrender.com/event/`
+          `https://bharatham-backend-j9s1.onrender.com/event/`
         );
         const events = eventResponse.data.data;
 
         const registrationResponse = await axios.get(
-          `https://bharatham-1.onrender.com/registration/`
+          `https://bharatham-backend-j9s1.onrender.com/registration/`
         );
         const registrations = registrationResponse.data.data;
 
@@ -84,7 +84,7 @@ const EditScore = () => {
     setLoading(true);
     console.log(data);
     axios
-      .put(`https://bharatham-1.onrender.com/score/${id}`, data)
+      .put(`https://bharatham-backend-j9s1.onrender.com/score/${id}`, data)
       .then((response) => {
         setLoading(false);
         console.log(response.data)

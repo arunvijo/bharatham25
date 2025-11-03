@@ -19,7 +19,7 @@ const ShowScore = () => {
     console.log(user, isAuthenticated, isLoading);
     if (!isAuthenticated && !isLoading) navigate("/");
     axios
-      .get(`https://bharatham-1.onrender.com/score/${id}/`)
+      .get(`https://bharatham-backend-j9s1.onrender.com/score/${id}/`)
       .then((response) => {
         setScore(response.data);
         console.log(response.data);

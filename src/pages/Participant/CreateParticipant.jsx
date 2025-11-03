@@ -35,7 +35,7 @@ const CreateParticipant = () => {
     setLoading(true);
     console.log(data);
     axios
-      .post("https://bharatham-1.onrender.com/participant/", data)
+      .post("https://bharatham-backend-j9s1.onrender.com/participant/", data)
       .then((response) => {
         setLoading(false);
         enqueueSnackbar("Participant Created successfully", {

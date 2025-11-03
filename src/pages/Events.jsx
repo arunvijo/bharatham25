@@ -31,7 +31,7 @@ const Events = () => {
         setLoading(true);
 
         const eventResponse = await axios.get(
-          "https://bharatham-1.onrender.com/event/"
+          "https://bharatham-backend-j9s1.onrender.com/event/"
         );
         const events = eventResponse.data.data;
         console.log(eventResponse.data.data);

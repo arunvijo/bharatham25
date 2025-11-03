@@ -28,7 +28,7 @@ const CaptainDashboard = () => {
 
     // First, get the registration data
     axios
-      .get(`https://bharatham-1.onrender.com/registration/${id}`)
+      .get(`https://bharatham-backend-j9s1.onrender.com/registration/${id}`)
       .then((response) => {
         const registration = response.data;
         if (!registration) {
@@ -44,7 +44,7 @@ const CaptainDashboard = () => {
 
         // Fetch event details
         return axios
-          .get(`https://bharatham-1.onrender.com/event/`)
+          .get(`https://bharatham-backend-j9s1.onrender.com/event/`)
           .then((eventResponse) => {
             const event = eventResponse.data.data.find(
               (e) => e.name === eventName
@@ -68,7 +68,7 @@ const CaptainDashboard = () => {
           registration.participants.map((participant) =>
             axios
               .get(
-                `https://bharatham-1.onrender.com/participant/${participant._id}`
+                `https://bharatham-backend-j9s1.onrender.com/participant/${participant._id}`
               )
               .then((response) => response.data)
           )
@@ -154,7 +154,7 @@ const CaptainDashboard = () => {
             updatedParticipants.map((participant) =>
               axios
                 .put(
-                  `https://bharatham-1.onrender.com/participant/${participant._id}`,
+                  `https://bharatham-backend-j9s1.onrender.com/participant/${participant._id}`,
                   participant
                 )
                 .then((response) => {
@@ -173,7 +173,7 @@ const CaptainDashboard = () => {
       .then(() => {
         // After participants are updated, delete the registration
         return axios.delete(
-          `https://bharatham-1.onrender.com/registration/${id}`
+          `https://bharatham-backend-j9s1.onrender.com/registration/${id}`
         );
       })
       .then(() => {
@@ -215,7 +215,7 @@ const CaptainDashboard = () => {
 
         console.log("Fetching house data for captain:", user.nickname);
         const houseResponse = await axios.get(
-          `https://bharatham-1.onrender.com/house/by-captain/${user.nickname}`
+          `https://bharatham-backend-j9s1.onrender.com/house/by-captain/${user.nickname}`
         );
         console.log("House response:", houseResponse.data);
 
@@ -247,7 +247,7 @@ const CaptainDashboard = () => {
 
         console.log("Fetching participant data for house:", house);
         const participantResponse = await axios.get(
-          `https://bharatham-1.onrender.com/participant/by-house/${house}`
+          `https://bharatham-backend-j9s1.onrender.com/participant/by-house/${house}`
         );
         console.log(
           "Participant data received:",
@@ -258,7 +258,7 @@ const CaptainDashboard = () => {
 
         console.log("Fetching all events...");
         const eventResponse = await axios.get(
-          `https://bharatham-1.onrender.com/event/`
+          `https://bharatham-backend-j9s1.onrender.com/event/`
         );
         console.log(
           "Events data received:",
@@ -269,7 +269,7 @@ const CaptainDashboard = () => {
 
         console.log("Fetching registrations for house:", house);
         const registrationResponse = await axios.get(
-          `https://bharatham-1.onrender.com/registration/by-house/${house}`
+          `https://bharatham-backend-j9s1.onrender.com/registration/by-house/${house}`
         );
         console.log(
           "Registrations data received:",
