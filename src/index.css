@@ -1,23 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap");
-
 @font-face {
+  /* font-family: 'Reality Stone';
+  src: url('/fonts/Reality Stone.otf') format('opentype'); */
   font-family: "Mont";
   src: url("/fonts/Mont-Heavy.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }
 
-html,
+/* Global Readability Fixes */
 body {
-  margin: 0;
-  padding: 0;
-  background-color: #fbf5ee;
+  font-family: 'Inter', sans-serif;
+  color: #0F0F0F; /* Darkest text by default */
+  font-size: 16px; /* Ensure base size is decent */
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-#root {
-  min-height: 100vh;
+/* Boost contrast for all inputs and selects */
+input, select, textarea {
+  color: #0F0F0F !important;
+  font-weight: 500 !important; /* Make input text slightly bolder */
+  font-size: 1rem !important;
+}
+
+/* Make placeholders visible but distinct */
+::placeholder {
+  color: #78716C !important; /* Stone-500 */
+  opacity: 1;
+}
+
+/* Fix Card Borders to be visible */
+.border-stone-200 {
+  border-color: #D6D3D1 !important; /* Slightly darker border for better separation */
+}
+
+/* The Desi Pattern Background */
+.bg-desi-pattern {
+  background-color: #FDFBF7;
+  background-image: radial-gradient(#D97706 0.5px, transparent 0.5px), radial-gradient(#D97706 0.5px, #FDFBF7 0.5px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  background-attachment: fixed;
 }
