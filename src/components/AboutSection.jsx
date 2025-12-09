@@ -12,7 +12,7 @@ export default function About() {
     absolute 
     top-1/2 -translate-y-1/2 
     left-0 -translate-x-full
-    w-[80px] sm:w-[140px] lg:w-[180px]
+    w-[80px] sm:w-[140px] lg:w-[150px]
     pointer-events-none
     z-[20]
   "
@@ -21,7 +21,7 @@ export default function About() {
 
   {/* SHADOW (responsive diagonal offset) */}
   <img
-    src="/images/combined.png"
+    src="/images/about.png"
     alt=""
     className="
       absolute top-0 left-0 
@@ -38,7 +38,7 @@ export default function About() {
 
   {/* REAL IMAGE with border */}
   <img
-    src="/images/combined.png"
+    src="/images/about.png"
     alt="About Bharatham"
     className="
       relative w-full h-auto object-cover

@@ -4,7 +4,7 @@ export default function Houses() {
   const marqueeRef = useRef(null);
   const animationRef = useRef(null);
   const positionRef = useRef(0);
-  const speedRef = useRef(1.5);
+  const speedRef = useRef(2.5);
   const directionRef = useRef(1); // 1 = left, -1 = right
 
   const marqueeItems = ["MUSIC", "DANCE", "THEATRE", "CULTURE"];

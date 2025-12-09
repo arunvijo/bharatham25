@@ -4,6 +4,8 @@ import HomeVideo from "../components/HomeVideo";
 import About from "../components/AboutSection";
 import Houses from "../components/Houses";
 import Events from "../components/Events";
+import Gallery from "../components/Gallery";
+import Footer from "../components/Footer";
 
 export default function Home() {
   return (
@@ -18,6 +20,8 @@ export default function Home() {
       <About />
       <Houses />
       <Events />
+      <Gallery />
+      <Footer />
     </div>
   );
 }
