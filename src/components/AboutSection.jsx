@@ -1,6 +1,6 @@
 export default function About() {
   return (
-    <section className="w-full px-6 py-16 md:py-24 bg-white">
+    <section className="w-full px-6 py-16 md:py-24">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
 <div className="relative w-[70%] mx-auto">

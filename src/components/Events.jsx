@@ -7,7 +7,7 @@ export default function Events() {
   ];
 
   return (
-    <section className="w-full bg-white">
+    <section className="w-full">
       {/* PARTITION SVG AT TOP */}
       <div className="w-full">
         <img
