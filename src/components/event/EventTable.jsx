@@ -15,11 +15,11 @@ const EventTable = ({ events, admin = false }) => {
 
   const filteredEvents = events.filter(
     (event) =>
-      event.name.toLowerCase().includes(filter.toLowerCase()) ||
-      event.venue.toLowerCase().includes(filter.toLowerCase()) ||
-      event.type.toLowerCase().includes(filter.toLowerCase()) ||
-      event.participation.toLowerCase().includes(filter.toLowerCase()) ||
-      event.category.toLowerCase().includes(filter.toLowerCase())
+      event.name?.toLowerCase().includes(filter.toLowerCase()) ||
+      event.venue?.toLowerCase().includes(filter.toLowerCase()) ||
+      event.type?.toLowerCase().includes(filter.toLowerCase()) ||
+      event.participation?.toLowerCase().includes(filter.toLowerCase()) ||
+      event.category?.toLowerCase().includes(filter.toLowerCase())
   );
 
   return (
@@ -28,8 +28,8 @@ const EventTable = ({ events, admin = false }) => {
       {/* Header & Search Card */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-5 rounded-xl shadow-sm border-l-4 border-desi-saffron">
         
-        <div className="flex items-center gap-4">
-            <h3 className="text-2xl font-bold text-black font-reality tracking-wide flex items-center gap-2">
+        <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+            <h3 className="text-xl md:text-2xl font-bold text-black font-reality tracking-wide flex items-center gap-2">
               <MdEvent className="text-desi-saffron" />
               Events <span className="text-stone-400 text-base font-sans font-normal">({events?.length})</span>
             </h3>
@@ -53,7 +53,7 @@ const EventTable = ({ events, admin = false }) => {
             
             <Link 
                 to="/event/create" 
-                className="p-2 bg-desi-saffron text-white rounded-full shadow-lg hover:bg-amber-700 hover:scale-105 transition-all"
+                className="p-2 bg-desi-saffron text-white rounded-full shadow-lg hover:bg-amber-700 hover:scale-105 transition-all shrink-0"
                 title="Create Event"
             >
               <MdOutlineAdd className="text-2xl" />
@@ -68,12 +68,24 @@ const EventTable = ({ events, admin = false }) => {
             <table className="min-w-full divide-y divide-stone-200">
             <thead className="bg-stone-50">
                 <tr>
-                {['No', 'Name', 'Participation', 'Type', 'Category', 'Date', 'Venue', 'Min', 'Max', 'Team', 'Status'].map((head) => (
-                    <th key={head} className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider">
-                        {head}
-                    </th>
-                ))}
-                {admin && <th className="px-6 py-4 text-right text-xs font-bold text-stone-500 uppercase tracking-wider">Actions</th>}
+                <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap">No</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap sticky left-0 z-10 bg-stone-50 shadow-sm md:shadow-none">Name</th>
+                
+                {/* Hide detailed info on mobile, show on desktop */}
+                <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap hidden md:table-cell">Participation</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap hidden lg:table-cell">Type</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap hidden lg:table-cell">Category</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap hidden xl:table-cell">Date</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap hidden xl:table-cell">Venue</th>
+                
+                {/* Numeric limits often important */}
+                <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap" title="Minimum Team Size">Min Size</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap" title="Maximum Team Size">Max Size</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap" title="Max Registrations per House">Limit</th>
+                
+                <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap">Status</th>
+                
+                {admin && <th className="px-6 py-4 text-right text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap">Actions</th>}
                 </tr>
             </thead>
             <tbody className="bg-white divide-y divide-stone-200">
@@ -81,35 +93,46 @@ const EventTable = ({ events, admin = false }) => {
                 <tr key={event._id} className="hover:bg-orange-50/30 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-400">{index + 1}</td>
                     
-                    {/* Event Name Link */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-stone-800">
+                    {/* Event Name Link - Sticky on Mobile */}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-stone-800 sticky left-0 z-10 bg-white group-hover:bg-orange-50/30 shadow-sm md:shadow-none">
                         {admin ? (
                             <Link to={`/admin/event/view/${event._id}`} className="hover:text-desi-saffron transition-colors">
                                 {event.name}
                             </Link>
                         ) : event.name}
+                        {/* Mobile-only sub-details */}
+                        <div className="md:hidden text-[10px] font-normal text-stone-500 mt-1">
+                            {event.category} • {event.participation}
+                        </div>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600">{event.participation}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600">{event.type}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600">{event.category}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600 hidden md:table-cell">{event.participation}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600 hidden lg:table-cell">{event.type}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600 hidden lg:table-cell">{event.category}</td>
                     
-                    {/* Formatted Date */}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-stone-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-stone-500 hidden xl:table-cell">
                         {event?.date ? new Date(event.date).toLocaleDateString() : 'TBD'}
                     </td>
                     
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600">{event.venue}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-500">{event.minIndividualLimit}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-500">{event.maxIndividualLimit}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-500">{event.teamLimit}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600 hidden xl:table-cell">{event.venue}</td>
+                    
+                    {/* Corrected Field Mappings */}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-500 font-medium">
+                        {event.minTeamSize ?? event.minIndividualLimit ?? '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-500 font-medium">
+                        {event.maxTeamSize ?? event.maxIndividualLimit ?? '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-500 font-medium">
+                        {event.maxRegistrations ?? event.teamLimit ?? '-'}
+                    </td>
 
                     {/* Status Badge */}
                     <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                        <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border
                             ${event.registrationEnabled 
-                                ? "bg-green-100 text-green-800 border border-green-200" 
-                                : "bg-red-100 text-red-800 border border-red-200"}`}
+                                ? "bg-green-100 text-green-800 border-green-200" 
+                                : "bg-red-100 text-red-800 border-red-200"}`}
                         >
                             {event.registrationEnabled ? "Open" : "Closed"}
                         </span>
@@ -118,22 +141,25 @@ const EventTable = ({ events, admin = false }) => {
                     {/* Actions */}
                     {admin && (
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                        <div className="flex justify-end gap-2">
                             <Link 
                                 to={`/event/details/${event._id}`} 
                                 className="text-stone-400 hover:text-blue-600 hover:bg-blue-50 p-1.5 rounded-md transition-colors"
+                                title="View Details"
                             >
                                 <MdOutlineInfo size={18} />
                             </Link>
                             <Link 
                                 to={`/event/edit/${event._id}`} 
                                 className="text-stone-400 hover:text-desi-saffron hover:bg-orange-50 p-1.5 rounded-md transition-colors"
+                                title="Edit"
                             >
                                 <AiOutlineEdit size={18} />
                             </Link>
                             <Link 
                                 to={`/event/delete/${event._id}`} 
                                 className="text-stone-400 hover:text-desi-maroon hover:bg-red-50 p-1.5 rounded-md transition-colors"
+                                title="Delete"
                             >
                                 <MdOutlineDelete size={18} />
                             </Link>

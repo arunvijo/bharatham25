@@ -23,7 +23,7 @@ const Sidebar = ({ role = "Captain" }) => {
     <div className="h-screen w-64 bg-[#1a1614] text-white fixed left-0 top-0 flex flex-col shadow-2xl z-50">
       {/* Brand Header */}
       <div className="h-16 flex items-center justify-center border-b border-white/10">
-        <h1 className="font-reality text-2xl tracking-wider text-desi-saffron">BHARATHAM</h1>
+        <h1 className="font-qawatone text-2xl tracking-wider text-desi-saffron">BHARATHAM</h1>
       </div>
 
       {/* Navigation Links */}

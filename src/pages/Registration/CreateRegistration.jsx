@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import { useAuth0 } from "@auth0/auth0-react";
-import { MdDelete, MdPersonAdd, MdSave, MdEvent, MdGroups, MdArrowBack } from "react-icons/md";
+import { MdDelete, MdPersonAdd, MdSave, MdGroups, MdArrowBack } from "react-icons/md";
 
 // UI Components
 import DashboardLayout from "../../components/layout/DashboardLayout";
@@ -22,17 +22,26 @@ const CreateRegistration = () => {
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(false);
   
-  // Special Fields
+  // --- SPECIFIC FIELDS (Per PDF Requirements) ---
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [performanceType, setPerformanceType] = useState("");
+  const [gender, setGender] = useState("");
+  const [danceType, setDanceType] = useState("");
+  const [instrumentType, setInstrumentType] = useState("");
 
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { isAuthenticated, isLoading } = useAuth0();
 
-  // Constants
-  const literaryEvents = ["Essay Writing", "Short Story", "Poetry"];
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
+
+  // --- RULE CONFIGURATION ---
+  // Events that require specific dropdowns
+  const languageEvents = ["Essay Writing", "Short Story", "Poetry", "Recitation", "Extempore"];
+  const diversityRuleEvents = ["Essay Writing", "Short Story", "Poetry"]; // Only these need 2+ languages per house
+  const musicEvents = ["Light Music", "Western Vocal", "Classical Music"];
+  const danceEvents = ["Classical Dance"];
+  const instrumentEvents = ["Instruments"];
 
   // --- DATA FETCHING ---
   useEffect(() => {
@@ -44,8 +53,6 @@ const CreateRegistration = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
-        // Admin Needs ALL Data
         const [houseRes, partRes, eventRes, regRes] = await Promise.all([
            axios.get(`${apiUrl}/house/`),
            axios.get(`${apiUrl}/participant/`),
@@ -72,21 +79,20 @@ const CreateRegistration = () => {
   // --- HANDLERS ---
   const handleAddParticipants = () => {
     if (participantData) {
-      // Basic Validations
       if (!house) { enqueueSnackbar("Select a house first", { variant: "error" }); return; }
       if (!event) { enqueueSnackbar("Select an event first", { variant: "error" }); return; }
 
       const selectedEvent = events.find((e) => e.name === event);
       
-      // Check Limits
+      // 1. Check Limits
       const maxLimit = selectedEvent.maxTeamSize || selectedEvent.maxIndividualLimit || 1;
       if (participants.length >= maxLimit) {
         enqueueSnackbar(`Maximum limit of ${maxLimit} reached`, { variant: "error" });
         return;
       }
 
-      // Check Special Fields
-      if (literaryEvents.includes(event) && !selectedLanguage) {
+      // 2. Check Special Fields (Validation)
+      if (languageEvents.includes(event) && !selectedLanguage) {
         enqueueSnackbar("Please select a language", { variant: "warning" });
         return;
       }
@@ -94,26 +100,44 @@ const CreateRegistration = () => {
         enqueueSnackbar("Please enter the act type", { variant: "warning" });
         return;
       }
+      if (musicEvents.includes(event) && !gender) {
+        enqueueSnackbar("Please select a gender category", { variant: "warning" });
+        return;
+      }
+      if (danceEvents.includes(event) && !danceType) {
+        enqueueSnackbar("Please select a dance form", { variant: "warning" });
+        return;
+      }
+      if (instrumentEvents.includes(event) && !instrumentType) {
+        enqueueSnackbar("Please select an instrument", { variant: "warning" });
+        return;
+      }
 
-      // Check Duplicates
+      // 3. Check Duplicates
       if (participants.some((p) => p.uid === participantData)) {
         enqueueSnackbar("Participant already added", { variant: "warning" });
         return;
       }
 
-      // Add to List
+      // 4. Add to List
       const pObj = participantList.find((p) => p.uid === participantData);
       if (pObj) {
         setParticipants(old => [...old, {
           ...pObj,
           language: selectedLanguage || null,
-          performanceType: performanceType || null
+          performanceType: performanceType || null,
+          gender: gender || null,
+          danceType: danceType || null,
+          instrumentType: instrumentType || null
         }]);
         
         // Reset Inputs
         setParticipantData("");
         setSelectedLanguage("");
         setPerformanceType("");
+        setGender("");
+        setDanceType("");
+        setInstrumentType("");
       }
     }
   };
@@ -130,14 +154,14 @@ const CreateRegistration = () => {
 
     const selectedEvent = events.find((e) => e.name === event);
     
-    // Validation 1: Min Participants
+    // Rule: Min Participants
     const minLimit = selectedEvent.minTeamSize || selectedEvent.minIndividualLimit || 1;
     if (participants.length < minLimit) {
       enqueueSnackbar(`Minimum ${minLimit} participants required`, { variant: "error" });
       return;
     }
 
-    // Validation 2: House Limit
+    // Rule: House Limit
     const houseLimit = selectedEvent.maxRegistrations || selectedEvent.teamLimit || 1;
     const currentRegs = registrations.filter(r => r.event === event && r.house === house);
     if (currentRegs.length >= houseLimit) {
@@ -145,11 +169,11 @@ const CreateRegistration = () => {
       return;
     }
 
-    // Validation 3: Language Diversity
-    if (literaryEvents.includes(event)) {
+    // Rule: Language Diversity (Specific Pre-Events only)
+    if (diversityRuleEvents.includes(event)) {
       const langs = new Set(participants.map(p => p.language));
       if (langs.size < 2) {
-        enqueueSnackbar("Must include participants from at least 2 languages", { variant: "error" });
+        enqueueSnackbar("Must include participants from at least 2 different languages", { variant: "error" });
         return;
       }
     }
@@ -170,8 +194,6 @@ const CreateRegistration = () => {
   };
 
   // Helper Variables
-  const isLiterary = literaryEvents.includes(event);
-  const isOpenMic = event === "Open Mic";
   const currentEventObj = events.find(e => e.name === event);
 
   if (loading) return <div className="h-screen flex items-center justify-center bg-desi-cream"><Spinner /></div>;
@@ -192,7 +214,6 @@ const CreateRegistration = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* House Selector (Admin Only Feature) */}
             <div>
                 <label className="block text-xs font-bold text-stone-400 uppercase mb-1 ml-1">House</label>
                 <select
@@ -210,7 +231,6 @@ const CreateRegistration = () => {
                 </select>
             </div>
 
-            {/* Event Selector */}
             <div>
                 <label className="block text-xs font-bold text-stone-400 uppercase mb-1 ml-1">Event</label>
                 <select
@@ -218,8 +238,12 @@ const CreateRegistration = () => {
                     onChange={(e) => {
                         setEvent(e.target.value);
                         setParticipants([]); 
+                        // Reset all conditionals
                         setSelectedLanguage("");
                         setPerformanceType("");
+                        setGender("");
+                        setDanceType("");
+                        setInstrumentType("");
                     }}
                     className="w-full p-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-saffron outline-none transition-all"
                 >
@@ -235,12 +259,12 @@ const CreateRegistration = () => {
             <div className="mt-4 p-3 bg-stone-50 rounded border border-stone-100 text-xs font-medium text-stone-500 uppercase tracking-wider flex gap-4">
               <span>Min: {currentEventObj.minTeamSize || 1}</span>
               <span>Max: {currentEventObj.maxTeamSize || 1}</span>
-              {isLiterary && <span className="text-orange-600 font-bold">Requires 2+ Languages</span>}
+              {diversityRuleEvents.includes(event) && <span className="text-orange-600 font-bold">Requires 2+ Languages</span>}
             </div>
           )}
         </div>
 
-        {/* 2. Participant Selection (Only shows if configs selected) */}
+        {/* 2. Participant Selection */}
         {event && house && (
           <div className="bg-white p-6 rounded-xl shadow-sm border-t-4 border-desi-teal animate-fade-in">
             <div className="flex items-center gap-2 mb-6 text-stone-800 font-bold text-lg">
@@ -248,8 +272,9 @@ const CreateRegistration = () => {
               <h3>Add {house} Participants</h3>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 items-end">
-              {/* Student Search (Filtered by House) */}
+            <div className="flex flex-col md:flex-row gap-4 items-end bg-stone-50 p-4 rounded-lg">
+              
+              {/* Student Search */}
               <div className="flex-1 w-full">
                 <SearchableDropdown
                   options={participantList.filter((p) => p.house.toLowerCase() === house.toLowerCase())}
@@ -260,14 +285,16 @@ const CreateRegistration = () => {
                 />
               </div>
 
-              {/* Language Input (Conditional) */}
-              {isLiterary && (
-                <div className="w-full md:w-48">
+              {/* === CONDITIONAL INPUTS BASED ON EVENT TYPE === */}
+
+              {/* Language (Literary / Recitation / Extempore) */}
+              {languageEvents.includes(event) && (
+                <div className="w-full md:w-40">
                   <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Language</label>
                   <select
                     value={selectedLanguage}
                     onChange={(e) => setSelectedLanguage(e.target.value)}
-                    className="w-full p-2.5 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-teal outline-none"
+                    className="w-full p-2.5 bg-white border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-teal outline-none"
                   >
                     <option value="">Select</option>
                     <option value="English">English</option>
@@ -277,8 +304,60 @@ const CreateRegistration = () => {
                 </div>
               )}
 
-              {/* Open Mic Input (Conditional) */}
-              {isOpenMic && (
+              {/* Gender (Music Events) */}
+              {musicEvents.includes(event) && (
+                <div className="w-full md:w-40">
+                  <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Gender</label>
+                  <select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-teal outline-none"
+                  >
+                    <option value="">Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Dance Type (Classical Dance) */}
+              {danceEvents.includes(event) && (
+                <div className="w-full md:w-48">
+                  <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Dance Form</label>
+                  <select
+                    value={danceType}
+                    onChange={(e) => setDanceType(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-teal outline-none"
+                  >
+                    <option value="">Select Form</option>
+                    <option value="Bharathanatyam">Bharathanatyam</option>
+                    <option value="Mohiniyattam">Mohiniyattam</option>
+                    <option value="Kuchipudi">Kuchipudi</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Instrument Type (Instruments) */}
+              {instrumentEvents.includes(event) && (
+                <div className="w-full md:w-48">
+                  <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Instrument</label>
+                  <select
+                    value={instrumentType}
+                    onChange={(e) => setInstrumentType(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-teal outline-none"
+                  >
+                    <option value="">Select Type</option>
+                    <option value="Wind">Wind</option>
+                    <option value="Percussion">Percussion</option>
+                    <option value="String">String</option>
+                    <option value="Keyboard">Keyboard</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Open Mic Input */}
+              {event === "Open Mic" && (
                 <div className="w-full md:w-48">
                   <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Performance</label>
                   <input
@@ -286,12 +365,11 @@ const CreateRegistration = () => {
                     placeholder="e.g. Standup"
                     value={performanceType}
                     onChange={(e) => setPerformanceType(e.target.value)}
-                    className="w-full p-2.5 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-teal outline-none"
+                    className="w-full p-2.5 bg-white border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-teal outline-none"
                   />
                 </div>
               )}
 
-              {/* Add Button */}
               <button
                 onClick={handleAddParticipants}
                 className="w-full md:w-auto px-6 py-2.5 bg-desi-teal text-white font-medium rounded-lg shadow-md hover:bg-teal-800 active:scale-95 transition-all"
@@ -302,28 +380,26 @@ const CreateRegistration = () => {
           </div>
         )}
 
-        {/* 3. Team Preview List */}
+        {/* 3. Team Preview */}
         {participants.length > 0 && (
           <div className="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
-            <h4 className="text-sm font-bold text-stone-400 uppercase mb-4">
-              Current Selection ({participants.length})
-            </h4>
-            
+            <h4 className="text-sm font-bold text-stone-400 uppercase mb-4">Current Team ({participants.length})</h4>
             <div className="flex flex-wrap gap-3">
               {participants.map((p) => (
-                <div key={p.uid} className="flex items-center gap-3 bg-stone-50 border border-stone-200 px-4 py-2 rounded-full group hover:border-red-200 transition-colors">
+                <div key={p.uid} className="flex items-center gap-3 bg-stone-50 border border-stone-200 px-4 py-2 rounded-full shadow-sm">
                   <div className="flex flex-col leading-tight">
                     <span className="font-bold text-stone-800 text-sm">{p.fullName}</span>
                     <span className="text-[10px] text-stone-500 font-mono">
-                      {p.uid} 
-                      {p.language && <span className="text-orange-600 font-bold ml-1">• {p.language}</span>}
-                      {p.performanceType && <span className="text-purple-600 font-bold ml-1">• {p.performanceType}</span>}
+                      {p.uid}
+                      {/* Show Tags */}
+                      {p.language && <span className="ml-1 text-orange-600 font-bold">• {p.language}</span>}
+                      {p.gender && <span className="ml-1 text-blue-600 font-bold">• {p.gender}</span>}
+                      {p.danceType && <span className="ml-1 text-purple-600 font-bold">• {p.danceType}</span>}
+                      {p.instrumentType && <span className="ml-1 text-teal-600 font-bold">• {p.instrumentType}</span>}
+                      {p.performanceType && <span className="ml-1 text-pink-600 font-bold">• {p.performanceType}</span>}
                     </span>
                   </div>
-                  <button 
-                    onClick={() => handleDeleteParticipants(p.uid)}
-                    className="text-stone-400 hover:text-red-600 transition-colors"
-                  >
+                  <button onClick={() => handleDeleteParticipants(p.uid)} className="text-stone-400 hover:text-red-600 transition-colors">
                     <MdDelete />
                   </button>
                 </div>
@@ -332,20 +408,13 @@ const CreateRegistration = () => {
           </div>
         )}
 
-        {/* 4. Footer Actions */}
+        {/* 4. Footer */}
         <div className="flex justify-end gap-4 pt-6">
-          <button
-            onClick={() => navigate("/admin")}
-            className="flex items-center gap-2 px-6 py-3 text-stone-500 font-medium hover:bg-stone-100 rounded-lg transition-colors"
-          >
+          <button onClick={() => navigate("/admin")} className="flex items-center gap-2 px-6 py-3 text-stone-500 font-medium hover:bg-stone-100 rounded-lg transition-colors">
             <MdArrowBack /> Cancel
           </button>
-          <button
-            onClick={handleSaveRegistration}
-            disabled={participants.length === 0}
-            className="flex items-center gap-2 px-8 py-3 bg-desi-saffron text-white font-bold rounded-lg shadow-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
-          >
-            <MdSave /> Confirm Registration
+          <button onClick={handleSaveRegistration} disabled={participants.length === 0} className="flex items-center gap-2 px-8 py-3 bg-desi-saffron text-white font-bold rounded-lg shadow-lg hover:bg-amber-700 disabled:opacity-50 active:scale-95 transition-all">
+            <MdSave /> Confirm
           </button>
         </div>
 

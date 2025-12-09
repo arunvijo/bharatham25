@@ -51,7 +51,7 @@ export default function About() {
         {/* RIGHT — TEXT */}
         <div className="flex flex-col">
         <h2
-        className="font-mont text-5xl md:text-6xl font-bold text-black mb-8 text-left 
+        className="font-qawatone text-5xl md:text-6xl font-bold text-black mb-8 text-left 
                     [text-shadow:_4px_4px_0_#F4F437]"
         >
         ABOUT<br/>BHARATHAM

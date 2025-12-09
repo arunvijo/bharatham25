@@ -1,17 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AiOutlineEdit } from "react-icons/ai";
 import { 
   MdOutlineAdd, 
   MdOutlineDelete, 
   MdOutlineInfo, 
-  MdSearch 
+  MdSearch,
+  MdChevronLeft,
+  MdChevronRight,
+  MdFirstPage,
+  MdLastPage
 } from "react-icons/md";
 import { ExportToExcel } from "../../../ExportToExcel";
 
 const ParticipantTable = ({ participants, admin = false }) => {
   const [filter, setFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
 
+  // 1. Filter Data
   const filteredParticipants = participants.filter(
     (participant) =>
       participant.fullName.toLowerCase().includes(filter.toLowerCase()) ||
@@ -20,6 +27,16 @@ const ParticipantTable = ({ participants, admin = false }) => {
       participant.house.toLowerCase().includes(filter.toLowerCase()) ||
       participant.uid.toLowerCase().includes(filter.toLowerCase())
   );
+
+  // 2. Pagination Logic
+  const totalPages = Math.ceil(filteredParticipants.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentParticipants = filteredParticipants.slice(startIndex, startIndex + itemsPerPage);
+
+  // Reset to page 1 when search filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, itemsPerPage]);
 
   // Helper to color code houses
   const getHouseBadgeColor = (houseName) => {
@@ -38,12 +55,12 @@ const ParticipantTable = ({ participants, admin = false }) => {
       {/* Header & Search Section */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-5 rounded-xl shadow-sm border-l-4 border-desi-saffron">
         
-        <div className="flex items-center gap-4">
-            <h3 className="text-2xl font-bold text-black font-reality tracking-wide">
-              Participants <span className="text-stone-400 text-base font-sans font-normal">({participants?.length})</span>
+        <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+            <h3 className="text-xl md:text-2xl font-bold text-black font-reality tracking-wide">
+              Participants <span className="text-stone-400 text-base font-sans font-normal">({filteredParticipants.length})</span>
             </h3>
             <div className="opacity-80 hover:opacity-100 transition-opacity">
-                <ExportToExcel apiData={participants} fileName={"participants"} />
+                <ExportToExcel apiData={filteredParticipants} fileName={"participants"} />
             </div>
         </div>
 
@@ -64,7 +81,7 @@ const ParticipantTable = ({ participants, admin = false }) => {
             {/* Floating Add Button */}
             <Link 
                 to="/participant/create" 
-                className="p-2 bg-desi-saffron text-white rounded-full shadow-lg hover:bg-amber-700 hover:scale-105 transition-all"
+                className="p-2 bg-desi-saffron text-white rounded-full shadow-lg hover:bg-amber-700 hover:scale-105 transition-all shrink-0"
                 title="Add New Participant"
             >
               <MdOutlineAdd className="text-2xl" />
@@ -74,13 +91,13 @@ const ParticipantTable = ({ participants, admin = false }) => {
       </div>
 
       {/* Modern Table Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden flex flex-col">
         <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-stone-200">
             <thead className="bg-stone-50">
                 <tr>
                 {['No', 'UID', 'Full Name', 'Branch', 'Sem', 'House', 'Ind', 'Grp', 'Lit'].map((head) => (
-                    <th key={head} className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider">
+                    <th key={head} className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap">
                         {head}
                     </th>
                 ))}
@@ -88,9 +105,11 @@ const ParticipantTable = ({ participants, admin = false }) => {
                 </tr>
             </thead>
             <tbody className="bg-white divide-y divide-stone-200">
-                {filteredParticipants.map((participant, index) => (
+                {currentParticipants.map((participant, index) => (
                 <tr key={participant._id} className="hover:bg-orange-50/30 transition-colors group">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-400">{index + 1}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-400">
+                        {startIndex + index + 1}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-mono font-medium text-desi-teal">{participant.uid}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-stone-800">{participant.fullName}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600">{participant.branch}</td>
@@ -145,6 +164,66 @@ const ParticipantTable = ({ participants, admin = false }) => {
             </tbody>
             </table>
         </div>
+        
+        {/* Pagination Footer */}
+        {filteredParticipants.length > 0 && (
+            <div className="px-6 py-4 bg-stone-50 border-t border-stone-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+                
+                {/* Info Text */}
+                <div className="text-sm text-stone-500">
+                    Showing <span className="font-bold text-stone-800">{startIndex + 1}</span> to <span className="font-bold text-stone-800">{Math.min(startIndex + itemsPerPage, filteredParticipants.length)}</span> of <span className="font-bold text-stone-800">{filteredParticipants.length}</span> students
+                </div>
+
+                {/* Controls */}
+                <div className="flex items-center gap-2">
+                    {/* Rows Per Page Selector */}
+                    <select 
+                        value={itemsPerPage}
+                        onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                        className="bg-white border border-stone-200 text-stone-600 text-xs rounded-lg px-2 py-1 outline-none focus:border-desi-saffron mr-4"
+                    >
+                        <option value={10}>10 per page</option>
+                        <option value={20}>20 per page</option>
+                        <option value={50}>50 per page</option>
+                        <option value={100}>100 per page</option>
+                    </select>
+
+                    <button 
+                        onClick={() => setCurrentPage(1)} 
+                        disabled={currentPage === 1}
+                        className="p-1 rounded-md hover:bg-stone-200 disabled:opacity-30 transition-colors"
+                    >
+                        <MdFirstPage size={20} />
+                    </button>
+                    <button 
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+                        disabled={currentPage === 1}
+                        className="p-1 rounded-md hover:bg-stone-200 disabled:opacity-30 transition-colors"
+                    >
+                        <MdChevronLeft size={20} />
+                    </button>
+                    
+                    <span className="text-sm font-medium text-stone-600 px-2">
+                        Page {currentPage} of {totalPages}
+                    </span>
+
+                    <button 
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+                        disabled={currentPage === totalPages}
+                        className="p-1 rounded-md hover:bg-stone-200 disabled:opacity-30 transition-colors"
+                    >
+                        <MdChevronRight size={20} />
+                    </button>
+                    <button 
+                        onClick={() => setCurrentPage(totalPages)} 
+                        disabled={currentPage === totalPages}
+                        className="p-1 rounded-md hover:bg-stone-200 disabled:opacity-30 transition-colors"
+                    >
+                        <MdLastPage size={20} />
+                    </button>
+                </div>
+            </div>
+        )}
         
         {/* Empty State */}
         {filteredParticipants.length === 0 && (
