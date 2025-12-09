@@ -2,32 +2,45 @@ import { FiChevronDown } from "react-icons/fi";
 
 export default function Hero() {
   return (
-    <section className="relative w-full h-screen bg-primary flex items-center justify-center text-center">
-    <h1 className="
-      absolute inset-0 flex items-center justify-center
-      font-mont text-white z-30
-      text-[9vw]
-      md:text-[11vw]
-      xl:text-[13vw]
-      tracking-tight
-      leading-none
-    ">
-      BHARATHAM26
-    </h1>
+    <section className="relative w-full h-screen bg-black flex items-center justify-center text-center overflow-hidden">
+      
+      {/* 1. HERO TITLE (Centered & Responsive) */}
+      <h1 className="
+        relative z-30
+        font-mont text-white
+        text-[12vw]      /* Mobile size */
+        md:text-[11vw]   /* Tablet size */
+        xl:text-[13vw]   /* Desktop size */
+        font-bold 
+        tracking-tight 
+        leading-none
+        select-none      /* Prevents accidental text selection */
+      ">
+        BHARATHAM26
+      </h1>
 
-
+      {/* 2. BACKGROUND IMAGE (Full Cover) */}
       <img
         src='images/hero.jpg'
         alt="Hero"
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-auto h-auto z-20"
+        className="
+          absolute inset-0 
+          w-full h-full 
+          object-cover   /* Ensures image covers screen without stretching */
+          object-center
+          opacity-70     /* Slight dim to make text pop */
+          z-10
+        "
       />
 
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-cream z-30">
-        <span className="tracking-[0.15em] uppercase font-opensans text-base md:text-lg">
+      {/* 3. SCROLL INDICATOR (Bottom Center) */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-cream z-30">
+        <span className="tracking-[0.15em] uppercase font-opensans text-xs md:text-sm opacity-90">
           Scroll
         </span>
         <FiChevronDown className="text-3xl animate-bounce" />
       </div>
+
     </section>
   );
 }
