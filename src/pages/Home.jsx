@@ -10,13 +10,14 @@ import Footer from "../components/Footer";
 export default function Home() {
   return (
     <div>
-      <Hero />
       <Nav />
+      <Hero />
+      
 
       {/* Hide on mobile, show only on sm and above */}
-      <div className="hidden sm:block">
+      {/* <div className="hidden sm:block">
         <HomeVideo />
-      </div>
+      </div> */}
       <About />
       <Houses />
       <Events />

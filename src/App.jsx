@@ -32,7 +32,6 @@ import DeleteScore from "./pages/Score/DeleteScore.jsx";
 // Captain Routes
 import CaptainDashboard from "./pages/Captain/CaptainDashboard.jsx";
 import EventView from "./pages/Captain/EventView.jsx";
-// 👇 NEW: Import the Captain's Create Page
 import CaptainCreateRegistration from "./pages/Captain/CreateRegistration.jsx"; 
 
 import "./index.css";
@@ -41,58 +40,64 @@ import AdminEventView from "./components/admin/AdminEventView.jsx";
 import Events from "./pages/Events.jsx";
 import EventPage from "./pages/EventPage.jsx";
 
+// 👇 NEW IMPORTS
+import DesiBackground from "./components/DesiBackground";
+import DesiCursor from "./components/DesiCursor";
+
 const App = () => {
   return (
-    // src/App.jsx
     <Auth0Provider
       domain="dev-c7fiqa1rj3dt5eb0.us.auth0.com"
       clientId="i9L3qP0AKqqPEufUmyjUlm8xMLAxaE7r"
       authorizationParams={{
         redirect_uri: window.location.origin,
       }}
-      cacheLocation="localstorage"  // <--- ADD THIS LINE
+      cacheLocation="localstorage"
     >
-      <Routes>
-        {/* Public & Admin Base Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/event/view/:id" element={<AdminEventView />} />
-        <Route path="/scoreboard" element={<Scoreboard />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/event/:id" element={<EventPage />} />
+      {/* 👇 ADD THESE TWO COMPONENTS */}
+      <DesiBackground />
+      <DesiCursor />
 
-        {/* Participant CRUD */}
-        <Route path="/participant/create" element={<CreateParticipant />} />
-        <Route path="/participant/details/:id" element={<ShowParticipant />} />
-        <Route path="/participant/edit/:id" element={<EditParticipant />} />
-        <Route path="/participant/delete/:id" element={<DeleteParticipant />} />
+      <div className="relative z-10"> {/* Ensure content sits above background */}
+        <Routes>
+          {/* Public & Admin Base Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/event/view/:id" element={<AdminEventView />} />
+          <Route path="/scoreboard" element={<Scoreboard />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/event/:id" element={<EventPage />} />
 
-        {/* Event CRUD */}
-        <Route path="/event/create" element={<CreateEvent />} />
-        <Route path="/event/details/:id" element={<ShowEvent />} />
-        <Route path="/event/edit/:id" element={<EditEvent />} />
-        <Route path="/event/delete/:id" element={<DeleteEvent />} />
+          {/* Participant CRUD */}
+          <Route path="/participant/create" element={<CreateParticipant />} />
+          <Route path="/participant/details/:id" element={<ShowParticipant />} />
+          <Route path="/participant/edit/:id" element={<EditParticipant />} />
+          <Route path="/participant/delete/:id" element={<DeleteParticipant />} />
 
-        {/* Admin Registration CRUD */}
-        <Route path="/registration/create" element={<CreateRegistration />} />
-        <Route path="/registration/details/:id" element={<ShowRegistration />} />
-        <Route path="/registration/edit/:id" element={<EditRegistration />} />
-        <Route path="/registration/delete/:id" element={<DeleteRegistration />} />
+          {/* Event CRUD */}
+          <Route path="/event/create" element={<CreateEvent />} />
+          <Route path="/event/details/:id" element={<ShowEvent />} />
+          <Route path="/event/edit/:id" element={<EditEvent />} />
+          <Route path="/event/delete/:id" element={<DeleteEvent />} />
 
-        {/* Score CRUD */}
-        <Route path="/score/create" element={<CreateScore />} />
-        <Route path="/score/details/:id" element={<ShowScore />} />
-        <Route path="/score/edit/:id" element={<EditScore />} />
-        <Route path="/score/delete/:id" element={<DeleteScore />} />
+          {/* Admin Registration CRUD */}
+          <Route path="/registration/create" element={<CreateRegistration />} />
+          <Route path="/registration/details/:id" element={<ShowRegistration />} />
+          <Route path="/registration/edit/:id" element={<EditRegistration />} />
+          <Route path="/registration/delete/:id" element={<DeleteRegistration />} />
 
-        {/* Captain Routes */}
-        <Route path="/captain" element={<CaptainDashboard />} />
-        <Route path="/captain/event/view/:id" element={<EventView />} />
-        
-        {/* 👇 NEW: Route for Captain Registration */}
-        <Route path="/captain/registration/create" element={<CaptainCreateRegistration />} />
-        
-      </Routes>
+          {/* Score CRUD */}
+          <Route path="/score/create" element={<CreateScore />} />
+          <Route path="/score/details/:id" element={<ShowScore />} />
+          <Route path="/score/edit/:id" element={<EditScore />} />
+          <Route path="/score/delete/:id" element={<DeleteScore />} />
+
+          {/* Captain Routes */}
+          <Route path="/captain" element={<CaptainDashboard />} />
+          <Route path="/captain/event/view/:id" element={<EventView />} />
+          <Route path="/captain/registration/create" element={<CaptainCreateRegistration />} />
+        </Routes>
+      </div>
     </Auth0Provider>
   );
 };

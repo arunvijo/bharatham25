@@ -1,51 +1,45 @@
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @font-face {
-  /* font-family: 'Reality Stone';
-  src: url('/fonts/Reality Stone.otf') format('opentype'); */
   font-family: "Mont";
   src: url("/fonts/Mont-Heavy.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Reality Stone";
+  src: url("/fonts/Reality Stone.otf") format("opentype");
   font-weight: normal;
   font-style: normal;
 }
 
-/* Global Readability Fixes */
+/* Global Uniformity */
 body {
-  font-family: 'Inter', sans-serif;
-  color: #0F0F0F; /* Darkest text by default */
-  font-size: 16px; /* Ensure base size is decent */
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  cursor: none;
+  font-family: 'Inter', sans-serif; /* Standard Body Font */
+  background-color: #FDFBF7; /* Desi Cream Background */
+  color: #271811; /* Desi Black Text */
+  overflow-x: hidden;
 }
 
-/* Boost contrast for all inputs and selects */
-input, select, textarea {
-  color: #0F0F0F !important;
-  font-weight: 500 !important; /* Make input text slightly bolder */
-  font-size: 1rem !important;
+/* Apply Brand Font to Headings Globally */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Mont', sans-serif;
+  font-weight: 700;
 }
 
-/* Make placeholders visible but distinct */
-::placeholder {
-  color: #78716C !important; /* Stone-500 */
-  opacity: 1;
+/* Dashboard Specific Overrides to ensure they match */
+input, select, textarea, button {
+  font-family: 'Inter', sans-serif !important;
 }
 
-/* Fix Card Borders to be visible */
-.border-stone-200 {
-  border-color: #D6D3D1 !important; /* Slightly darker border for better separation */
-}
-
-/* The Desi Pattern Background */
-.bg-desi-pattern {
-  background-color: #FDFBF7;
-  background-image: radial-gradient(#D97706 0.5px, transparent 0.5px), radial-gradient(#D97706 0.5px, #FDFBF7 0.5px);
-  background-size: 20px 20px;
-  background-position: 0 0, 10px 10px;
-  background-attachment: fixed;
+@media (min-width: 768px) {
+  body, a, button, input, select {
+    cursor: none; /* Let DesiCursor handle it */
+  }
 }
