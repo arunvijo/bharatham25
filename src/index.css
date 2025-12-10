@@ -5,15 +5,8 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: "Mont";
-  src: url("/fonts/Mont-Heavy.otf") format("opentype");
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Reality Stone";
-  src: url("/fonts/Reality Stone.otf") format("opentype");
+  font-family: "Qawatone";  /* Name it correctly */
+  src: url("/fonts/Qawatone.otf") format("opentype"); /* Fixed extension typo */
   font-weight: normal;
   font-style: normal;
 }
@@ -29,8 +22,8 @@ body {
 
 /* Apply Brand Font to Headings Globally */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Mont', sans-serif;
-  font-weight: 700;
+  font-family: 'Qawatone', sans-serif; /* Use the new name */
+  font-weight: normal; /* Qawatone might be naturally bold, adjust if needed */
 }
 
 /* Dashboard Specific Overrides to ensure they match */

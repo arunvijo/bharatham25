@@ -1,96 +1,136 @@
 import React from 'react';
+import { FaInstagram, FaYoutube, FaMapMarkerAlt, FaEnvelope, FaPhoneAlt } from 'react-icons/fa';
 
 const Footer = () => {
   const quickLinks = [
     { name: 'HOME', path: '/' },
-    { name: 'ABOUT', path: '/about' },
+    { name: 'ABOUT', path: '/#about' },
     { name: 'EVENTS', path: '/events' },
     { name: 'GALLERY', path: '/gallery' },
-    { name: 'HOUSES', path: '/houses' },
+    { name: 'HOUSES', path: '/#houses' },
     { name: 'SCOREBOARD', path: '/scoreboard' },
   ];
 
   return (
-    <footer className="bg-primary text-white relative overflow-hidden pb-0">
-      {/* Top Lotus Image */}
-      <div className="flex justify-center py-8">
-        <img 
-          src={`images/lotus.png`}
-          alt="Lotus"
-          className="h-48 w-auto object-contain"
-          onError={(e) => {
-            e.target.style.display = 'none';
-          }}
-        />
-      </div>
+    <footer className="bg-primary text-white relative overflow-hidden pt-16 pb-0">
 
-      {/* Main Content - Quick Links, Logo, Contact */}
-      <div className="container mx-auto px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
-          {/* Left - Quick Links */}
-          <div className="flex flex-col space-y-3">
-            {quickLinks.map((link, index) => (
-              <a
-                key={index}
-                href={link.path}
-                className="text-white hover:text-yellow transition-colors duration-300 text-lg font-opensans"
-              >
-                {link.name}
+      <div className="container mx-auto px-6 md:px-12 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 items-start">
+          
+          {/* COLUMN 1: IDENTITY (Logos + College Info) */}
+          <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-6">
+            
+            {/* Logo Cluster */}
+            <div className="flex flex-wrap justify-center md:justify-start items-center gap-6">
+                {/* RSET Logo */}
+                <img 
+                  src="/images/rset.png" 
+                  alt="RSET" 
+                  className="h-16 w-auto object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity" 
+                />
+                
+                {/* Main Bharatham Logo */}
+                <img 
+                  src="/images/logoC.png" 
+                  alt="Bharatham" 
+                  className="h-20 w-20 object-contain brightness-0 invert" 
+                />
+
+                {/* Jubilee Logo */}
+                <img 
+                  src="/images/Jubilee.png" 
+                  alt="Silver Jubilee" 
+                  className="h-16 w-auto object-contain brightness-0 invert opacity-90 hover:opacity-100 transition-opacity" 
+                />
+            </div>
+
+            <div>
+              {/* UPDATED FONT to Qawatone */}
+              <h3 className="font-qawatone text-xl font-bold tracking-wide">RAJAGIRI SCHOOL OF</h3>
+              <h3 className="font-qawatone text-lg font-medium tracking-wide">ENGINEERING & TECHNOLOGY</h3>
+              <p className="font-opensans text-sm opacity-80 mt-2">Autonomous</p>
+            </div>
+            
+            <a 
+              href="https://goo.gl/maps/..." 
+              target="_blank" 
+              rel="noreferrer"
+              className="flex items-center gap-2 px-5 py-2 border border-white/30 rounded-full hover:bg-white hover:text-primary transition-all duration-300 group"
+            >
+              <FaMapMarkerAlt className="group-hover:animate-bounce" />
+              <span className="font-opensans text-sm font-semibold">Get Directions</span>
+            </a>
+          </div>
+
+          {/* COLUMN 2: QUICK LINKS */}
+          <div className="flex flex-col items-center md:items-center space-y-4">
+            <h4 className=" text-2xl text-yellow mb-2 tracking-widest">EXPLORE</h4>
+            <div className="flex flex-col space-y-2 text-center">
+              {quickLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.path}
+                  className="font-opensans text-base hover:text-yellow hover:tracking-wider transition-all duration-300"
+                >
+                  {link.name}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* COLUMN 3: CONNECT (Socials + Contact) */}
+          <div className="flex flex-col items-center md:items-end text-center md:text-right space-y-6">
+            <h4 className=" text-2xl text-yellow mb-2 tracking-widest">CONNECT</h4>
+            
+            {/* Social Icons */}
+            <div className="flex gap-4">
+              <a href="#" className="p-3 bg-white/10 rounded-full hover:bg-white hover:text-primary transition-all hover:-translate-y-1">
+                <FaInstagram size={20} />
               </a>
-            ))}
+              <a href="#" className="p-3 bg-white/10 rounded-full hover:bg-white hover:text-primary transition-all hover:-translate-y-1">
+                <FaYoutube size={20} />
+              </a>
+            </div>
+
+            {/* Contact Info */}
+            <div className="space-y-3 font-opensans">
+              <a href="mailto:info@bharatham26.com" className="flex items-center justify-center md:justify-end gap-3 hover:text-yellow transition-colors">
+                <span>info@bharatham26.com</span>
+                <FaEnvelope />
+              </a>
+              <a href="tel:+911234567890" className="flex items-center justify-center md:justify-end gap-3 hover:text-yellow transition-colors">
+                <span>+91 1234 567 890</span>
+                <FaPhoneAlt />
+              </a>
+            </div>
           </div>
 
-          {/* Center - Logo */}
-          <div className="flex justify-center">
-            <img 
-              src={`images/Jubilee.png`}
-              alt="Logo"
-              className="h-32 w-auto object-contain"
-              onError={(e) => {
-                e.target.style.display = 'none';
-              }}
-            />
-          </div>
+        </div>
 
-          {/* Right - Contact Information */}
-          <div className="flex flex-col space-y-3 text-right">
-            <p className="text-lg font-opensans">
-              <span className="block font-semibold">Email</span>
-              info@bharatham26.com
-            </p>
-            <p className="text-lg font-opensans">
-              <span className="block font-semibold">Phone</span>
-              +91 1234567890
-            </p>
-            <p className="text-lg font-opensans">
-              <span className="block font-semibold">Location</span>
-              Kakkanad, Kerala, India
-            </p>
-          </div>
+        {/* COPYRIGHT */}
+        <div className="border-t border-white/10 mt-16 pt-8 text-center">
+          <p className="font-opensans text-xs opacity-60">
+            © 2026 Bharatham. All rights reserved.
+          </p>
         </div>
       </div>
-      
-      {/* Copyright */}
-      <div className="text-center pb-6">
-        <p className="text-sm font-opensans">
-          © 2025 Bharatham26. All rights reserved.
-        </p>
+
+      {/* MASSIVE BOTTOM TEXT */}
+      <div className="w-full overflow-hidden leading-none mt-4 select-none pointer-events-none">
+        {/* UPDATED FONT to Qawatone */}
+        <h1 
+          className="font-qawatone text-yellow font-bold whitespace-nowrap text-center"
+          style={{
+            fontSize: '15vw',
+            lineHeight: '0.75',
+            WebkitTextStroke: '2px rgba(255,255,255,0.1)',
+            marginBottom: '-2vw'
+          }}
+        >
+          BHARATHAM26
+        </h1>
       </div>
 
-      {/* Bottom - BHARATHAM26 Large Text */}
-      <div className="w-full overflow-hidden leading-none">
-        <h2 className="font-mont text-yellow text-left whitespace-nowrap w-full block"
-            style={{
-              fontSize: '13.7vw',
-              lineHeight: '0.8',
-              letterSpacing: '-0.04em',
-              marginBottom: '0',
-              marginLeft: '0',
-              paddingBottom: '0'
-            }}>
-          BHARATHAM26
-        </h2>
-      </div>
     </footer>
   );
 };

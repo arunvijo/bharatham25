@@ -23,6 +23,7 @@ export default {
         'reality': ['"Reality Stone"', 'sans-serif'], 
         'heading': ['"Mont"', 'sans-serif'], // Use for all headings
         'body': ['"Inter"', 'sans-serif'],    // Use for all body text
+        'qawatone': ["Qawatone", "sans-serif"],
         // Keep these for backward compatibility if needed, but prefer 'heading'/'body'
         'mont': ["Mont", "sans-serif"],
         'sans': ['Inter', 'system-ui', 'sans-serif'], 
