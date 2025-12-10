@@ -106,7 +106,7 @@ export default function Houses() {
                         group-hover:to-desi-maroon transition-all duration-500
                         text-[10vw] sm:text-[6rem] md:text-[8rem] lg:text-[10rem]
                         tracking-tight px-4 sm:px-8
-                        opacity-90 font-bold
+                        font-bold
                       "
                       style={{ WebkitTextStroke: "1px #271811" }}
                     >
@@ -117,9 +117,9 @@ export default function Houses() {
                         src="/images/spinner.svg"
                         alt=""
                         className="
-                          h-[6vw] w-[6vw] 
-                          sm:h-[4rem] sm:w-[4rem]
-                          animate-spinSlow opacity-60
+                          h-[10vw] w-[10vw] 
+                          sm:h-[8rem] sm:w-[8rem]
+                          animate-spinSlow
                         "
                       />
                     </div>
