@@ -42,7 +42,9 @@ import EventPage from "./pages/EventPage.jsx";
 
 // 👇 NEW IMPORTS
 import DesiBackground from "./components/DesiBackground";
-import DesiCursor from "./components/DesiCursor";
+// import DesiCursor from "./components/DesiCursor";
+import TextCursor from './components/TextCursor.jsx';
+import BackgroundMusic from "./components/BackgroundMusic";
 
 const App = () => {
   return (
@@ -54,9 +56,11 @@ const App = () => {
       }}
       cacheLocation="localstorage"
     >
+
+      <BackgroundMusic />
       {/* 👇 ADD THESE TWO COMPONENTS */}
       <DesiBackground />
-      <DesiCursor />
+      <TextCursor />
 
       <div className="relative z-10"> {/* Ensure content sits above background */}
         <Routes>

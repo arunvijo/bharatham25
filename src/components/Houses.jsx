@@ -135,7 +135,7 @@ export default function Houses() {
       {/* ================= SECTION 2: HOUSES (Single Screen Fit) ================= */}
       <div 
         id="houses" 
-        className="relative w-full min-h-screen flex flex-col justify-center items-center bg-cream py-10"
+        className="relative w-full min-h-screen flex flex-col justify-center items-center bg-cream py-16 md:py-20"
       >
         {/* Background Pattern (Mandala Texture) */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
@@ -149,66 +149,90 @@ export default function Houses() {
         <img src="/images/spinner.svg" className="absolute top-0 left-0 w-64 h-64 -translate-x-1/2 -translate-y-1/2 opacity-10" alt="" />
         <img src="/images/spinner.svg" className="absolute bottom-0 right-0 w-64 h-64 translate-x-1/2 translate-y-1/2 opacity-10" alt="" />
 
-        <div className="relative z-10 w-full max-w-[1400px] px-4 flex flex-col h-full justify-center">
+        <div className="relative z-10 w-full max-w-[1400px] px-4 sm:px-6 md:px-8 flex flex-col h-full justify-center">
           
           {/* Section Header */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-center mb-6 md:mb-10"
+            className="text-center mb-8 md:mb-12 lg:mb-16"
           >
-            <span className="text-desi-saffron font-bold tracking-[0.3em] text-sm uppercase block mb-2">The Contenders</span>
-            <h2 className="font-qawatone text-5xl md:text-7xl text-stone-900">ROYAL HOUSES</h2>
+            <span className="text-desi-saffron font-bold tracking-[0.3em] text-xs sm:text-sm uppercase block mb-2">The Contenders</span>
+            <h2 className="font-qawatone text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-stone-900">ROYAL HOUSES</h2>
             <div className="w-24 h-1 bg-desi-saffron mx-auto mt-4 rounded-full"></div>
           </motion.div>
 
-          {/* Houses Grid - Fitted to Screen */}
-          <div className="flex flex-wrap justify-center items-end gap-2 md:gap-4 lg:gap-8 w-full">
-            {houses.map((house, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="group relative cursor-pointer flex flex-col items-center"
-                style={{ 
-                  width: '18%', // Fits 5 items in one row nicely
-                  minWidth: '140px' 
-                }}
-              >
-                {/* Image Container - Height reduced to fit screen */}
+          {/* Houses Grid - Fixed Size, Same Level */}
+          <div className="flex flex-wrap justify-center items-end gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 w-full">
+            {houses.map((house, index) => {
+              // Calculate aspect ratios to normalize heights
+              const aspectRatios = {
+                "Aryans": 406 / 430,    // 0.944
+                "Mughals": 386 / 528,   // 0.731
+                "Spartans": 403 / 596,  // 0.676
+                "Vikings": 491 / 538,   // 0.913
+                "Rajputs": 498 / 498    // 1.000
+              };
+              
+              const ratio = aspectRatios[house.name] || 1;
+              
+              return (
                 <motion.div
-                  className="relative w-full flex justify-center items-end transition-all duration-500 ease-out"
-                  whileHover={{ y: -15, scale: 1.05 }}
+                  key={index}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="group relative cursor-pointer flex flex-col items-center"
+                  style={{ 
+                    width: 'clamp(140px, 16%, 220px)',
+                  }}
                 >
-                  {/* Glow Effect */}
-                  <div className="absolute bottom-0 w-2/3 h-1/3 bg-orange-500/0 group-hover:bg-orange-500/20 blur-2xl transition-all duration-500 rounded-full"></div>
-                  
-                  <img
-                    src={house.src}
-                    alt={house.name}
-                    className="
-                      w-full h-auto object-contain 
-                      drop-shadow-lg 
-                      group-hover:drop-shadow-2xl 
-                      transition-all duration-500
-                      /* Critical: Limits height to fit screen */
-                      max-h-[35vh] md:max-h-[45vh] lg:max-h-[50vh]
-                    "
-                  />
-                </motion.div>
+                  {/* Image Container - Normalized by aspect ratio */}
+                  <motion.div
+                    className="relative w-full flex justify-center items-end transition-all duration-500 ease-out"
+                    whileHover={{ y: -15, scale: 1.05 }}
+                  >
+                    {/* Glow Effect */}
+                    <div className="absolute bottom-0 w-2/3 h-1/3 bg-orange-500/0 group-hover:bg-orange-500/20 blur-2xl transition-all duration-500 rounded-full"></div>
+                    
+                    {/* Fixed height container - all images fill the same height */}
+                    <div 
+                      className="flex items-end justify-center"
+                      style={{
+                        height: '280px', // Base height for all
+                        width: '100%'
+                      }}
+                    >
+                      <img
+                        src={house.src}
+                        alt={house.name}
+                        className="
+                          drop-shadow-lg 
+                          group-hover:drop-shadow-2xl 
+                          transition-all duration-500
+                        "
+                        style={{
+                          height: '280px', // All images same height
+                          width: 'auto',
+                          objectFit: 'contain',
+                          objectPosition: 'bottom'
+                        }}
+                      />
+                    </div>
+                  </motion.div>
 
-                {/* House Name */}
-                <div className="mt-4 text-center relative">
-                  <h3 className="font-qawatone text-2xl md:text-3xl text-stone-400 group-hover:text-stone-900 transition-colors duration-300">
-                    {house.name.toUpperCase()}
-                  </h3>
-                  <div className="h-[2px] bg-desi-saffron w-0 group-hover:w-full transition-all duration-300 mx-auto mt-1"></div>
-                </div>
-              </motion.div>
-            ))}
+                  {/* House Name */}
+                  <div className="mt-3 sm:mt-4 text-center relative">
+                    <h3 className="font-qawatone text-xl sm:text-2xl md:text-3xl text-stone-400 group-hover:text-stone-900 transition-colors duration-300">
+                      {house.name.toUpperCase()}
+                    </h3>
+                    <div className="h-[2px] bg-desi-saffron w-0 group-hover:w-full transition-all duration-300 mx-auto mt-1"></div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
 
         </div>

@@ -6,23 +6,19 @@ import Houses from "../components/Houses";
 import Events from "../components/Events";
 import Gallery from "../components/Gallery";
 import Footer from "../components/Footer";
+import ComingSoon from "../components/ComingSoon";
 
 export default function Home() {
   return (
     <div>
-      <Nav />
+      {/* <Nav />
       <Hero />
-      
-
-      {/* Hide on mobile, show only on sm and above */}
-      {/* <div className="hidden sm:block">
-        <HomeVideo />
-      </div> */}
       <About />
       <Houses />
       <Events />
       <Gallery />
-      <Footer />
+      <Footer /> */}
+      <ComingSoon />
     </div>
   );
 }

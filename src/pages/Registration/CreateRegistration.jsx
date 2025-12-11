@@ -36,12 +36,15 @@ const CreateRegistration = () => {
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
 
   // --- RULE CONFIGURATION ---
-  // Events that require specific dropdowns
-  const languageEvents = ["Essay Writing", "Short Story", "Poetry", "Recitation", "Extempore"];
-  const diversityRuleEvents = ["Essay Writing", "Short Story", "Poetry"]; // Only these need 2+ languages per house
+  const literaryEventsForLanguage = ["Recitation", "Extempore"];
+  const diversityRuleEvents = ["Essay Writing", "Short Story", "Poetry"]; 
   const musicEvents = ["Light Music", "Western Vocal", "Classical Music"];
-  const danceEvents = ["Classical Dance"];
+  const danceEvents = ["Classical Dance forms"]; 
   const instrumentEvents = ["Instruments"];
+  const openMicEvent = "Open Mic";
+
+  // Consolidate all events needing a language field
+  const languageEvents = [...new Set([...literaryEventsForLanguage, ...diversityRuleEvents])]; 
 
   // --- DATA FETCHING ---
   useEffect(() => {
@@ -83,6 +86,7 @@ const CreateRegistration = () => {
       if (!event) { enqueueSnackbar("Select an event first", { variant: "error" }); return; }
 
       const selectedEvent = events.find((e) => e.name === event);
+      if (!selectedEvent) return;
       
       // 1. Check Limits
       const maxLimit = selectedEvent.maxTeamSize || selectedEvent.maxIndividualLimit || 1;
@@ -96,7 +100,7 @@ const CreateRegistration = () => {
         enqueueSnackbar("Please select a language", { variant: "warning" });
         return;
       }
-      if (event === "Open Mic" && !performanceType) {
+      if (event === openMicEvent && !performanceType) {
         enqueueSnackbar("Please enter the act type", { variant: "warning" });
         return;
       }
@@ -138,6 +142,8 @@ const CreateRegistration = () => {
         setGender("");
         setDanceType("");
         setInstrumentType("");
+      } else {
+        enqueueSnackbar("Participant not found in list.", { variant: "error" });
       }
     }
   };
@@ -153,27 +159,28 @@ const CreateRegistration = () => {
     }
 
     const selectedEvent = events.find((e) => e.name === event);
+    if (!selectedEvent) { enqueueSnackbar("Invalid event selected", { variant: "error" }); return; }
     
-    // Rule: Min Participants
+    // Rule: Min Participants (Frontend Check)
     const minLimit = selectedEvent.minTeamSize || selectedEvent.minIndividualLimit || 1;
     if (participants.length < minLimit) {
       enqueueSnackbar(`Minimum ${minLimit} participants required`, { variant: "error" });
       return;
     }
 
-    // Rule: House Limit
+    // Rule: House Limit (Frontend Check - backend also validates)
     const houseLimit = selectedEvent.maxRegistrations || selectedEvent.teamLimit || 1;
     const currentRegs = registrations.filter(r => r.event === event && r.house === house);
     if (currentRegs.length >= houseLimit) {
-      enqueueSnackbar(`House limit (${houseLimit}) reached for this event`, { variant: "error" });
+      enqueueSnackbar(`House limit (${houseLimit}) reached for this event. Try again after admin sync.`, { variant: "error" });
       return;
     }
 
-    // Rule: Language Diversity (Specific Pre-Events only)
+    // Rule: Language Diversity (Specific Pre-Events only) - Frontend Check
     if (diversityRuleEvents.includes(event)) {
-      const langs = new Set(participants.map(p => p.language));
+      const langs = new Set(participants.map(p => p.language).filter(Boolean));
       if (langs.size < 2) {
-        enqueueSnackbar("Must include participants from at least 2 different languages", { variant: "error" });
+        enqueueSnackbar("Must include participants from at least 2 different languages (English/Malayalam/Hindi).", { variant: "error" });
         return;
       }
     }
@@ -195,6 +202,12 @@ const CreateRegistration = () => {
 
   // Helper Variables
   const currentEventObj = events.find(e => e.name === event);
+  const isLiterary = languageEvents.includes(event);
+  const isOpenMic = event === openMicEvent;
+  const isMusic = musicEvents.includes(event);
+  const isDance = danceEvents.includes(event);
+  const isInstrument = instrumentEvents.includes(event);
+
 
   if (loading) return <div className="h-screen flex items-center justify-center bg-desi-cream"><Spinner /></div>;
 
@@ -256,9 +269,10 @@ const CreateRegistration = () => {
           </div>
 
           {currentEventObj && (
-            <div className="mt-4 p-3 bg-stone-50 rounded border border-stone-100 text-xs font-medium text-stone-500 uppercase tracking-wider flex gap-4">
-              <span>Min: {currentEventObj.minTeamSize || 1}</span>
-              <span>Max: {currentEventObj.maxTeamSize || 1}</span>
+            <div className="mt-4 p-3 bg-stone-50 rounded border border-stone-100 text-xs font-medium text-stone-500 uppercase tracking-wider flex gap-4 flex-wrap">
+              <span>Min Team: {currentEventObj.minTeamSize || 1}</span>
+              <span>Max Team: {currentEventObj.maxTeamSize || 1}</span>
+              <span>Max Regs: {currentEventObj.maxRegistrations || 1}</span>
               {diversityRuleEvents.includes(event) && <span className="text-orange-600 font-bold">Requires 2+ Languages</span>}
             </div>
           )}
@@ -288,7 +302,7 @@ const CreateRegistration = () => {
               {/* === CONDITIONAL INPUTS BASED ON EVENT TYPE === */}
 
               {/* Language (Literary / Recitation / Extempore) */}
-              {languageEvents.includes(event) && (
+              {isLiterary && (
                 <div className="w-full md:w-40">
                   <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Language</label>
                   <select
@@ -305,7 +319,7 @@ const CreateRegistration = () => {
               )}
 
               {/* Gender (Music Events) */}
-              {musicEvents.includes(event) && (
+              {isMusic && (
                 <div className="w-full md:w-40">
                   <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Gender</label>
                   <select
@@ -321,7 +335,7 @@ const CreateRegistration = () => {
               )}
 
               {/* Dance Type (Classical Dance) */}
-              {danceEvents.includes(event) && (
+              {isDance && (
                 <div className="w-full md:w-48">
                   <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Dance Form</label>
                   <select
@@ -339,7 +353,7 @@ const CreateRegistration = () => {
               )}
 
               {/* Instrument Type (Instruments) */}
-              {instrumentEvents.includes(event) && (
+              {isInstrument && (
                 <div className="w-full md:w-48">
                   <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Instrument</label>
                   <select
@@ -357,7 +371,7 @@ const CreateRegistration = () => {
               )}
 
               {/* Open Mic Input */}
-              {event === "Open Mic" && (
+              {isOpenMic && (
                 <div className="w-full md:w-48">
                   <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Performance</label>
                   <input
