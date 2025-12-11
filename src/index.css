@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -10,6 +11,23 @@
   font-weight: normal;
   font-style: normal;
 }
+
+.font-alfa-slab {
+  font-family: "Alfa Slab One", cursive;
+}
+
+.text-event-shadow {
+  color: #CB1760;
+  text-shadow: 0 1px 0 #28325B;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 
 /* Global Uniformity */
 body {
