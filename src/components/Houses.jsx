@@ -11,11 +11,11 @@ export default function Houses() {
   const marqueeItems = ["MUSIC", "DANCE", "THEATRE", "CULTURE"];
 
   const houses = [
-    { name: "Mughals", src: "/images/houses/mughals.svg", color: "#10b981" },
-    { name: "Rajputs", src: "/images/houses/rajputs.svg", color: "#f59e0b" },
-    { name: "Spartans", src: "/images/houses/spartans.svg", color: "#ef4444" },
-    { name: "Vikings", src: "/images/houses/vikings.svg", color: "#3b82f6" },
-    { name: "Aryans", src: "/images/houses/aryans.svg", color: "#8b5cf6" },
+    { name: "Mughals", src: "/images/houses/mughals.png", color: "#10b981" },
+    { name: "Rajputs", src: "/images/houses/rajputs.png", color: "#f59e0b" },
+    { name: "Spartans", src: "/images/houses/spartans.png", color: "#ef4444" },
+    { name: "Vikings", src: "/images/houses/vikings.png", color: "#3b82f6" },
+    { name: "Aryans", src: "/images/houses/aryans.png", color: "#8b5cf6" },
   ];
 
   // Marquee Logic

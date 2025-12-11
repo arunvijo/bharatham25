@@ -44,6 +44,7 @@ import EventPage from "./pages/EventPage.jsx";
 import DesiBackground from "./components/DesiBackground";
 // import DesiCursor from "./components/DesiCursor";
 import TextCursor from './components/TextCursor.jsx';
+import BackgroundMusic from "./components/BackgroundMusic";
 
 const App = () => {
   return (
@@ -55,6 +56,8 @@ const App = () => {
       }}
       cacheLocation="localstorage"
     >
+
+      <BackgroundMusic />
       {/* 👇 ADD THESE TWO COMPONENTS */}
       <DesiBackground />
       <TextCursor />
