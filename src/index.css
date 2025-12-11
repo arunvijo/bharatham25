@@ -29,6 +29,12 @@
 }
 
 
+@font-face {
+  font-family: "Mont";  /* Name it correctly */
+  src: url("/fonts/Mont-Heavy.otf") format("opentype"); /* Fixed extension typo */
+  font-weight: normal;
+  font-style: normal;
+}
 /* Global Uniformity */
 body {
   cursor: none;

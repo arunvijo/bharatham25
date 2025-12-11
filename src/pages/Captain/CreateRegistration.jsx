@@ -33,11 +33,15 @@ const CreateRegistration = () => {
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
 
   // Rules
-  const languageEvents = ["Essay Writing", "Short Story", "Poetry", "Recitation", "Extempore"];
+  const literaryEventsForLanguage = ["Recitation", "Extempore"];
   const diversityRuleEvents = ["Essay Writing", "Short Story", "Poetry"];
   const musicEvents = ["Light Music", "Western Vocal", "Classical Music"];
-  const danceEvents = ["Classical Dance"];
+  const danceEvents = ["Classical Dance forms"]; 
   const instrumentEvents = ["Instruments"];
+  const openMicEvent = "Open Mic";
+  
+  // Consolidate all events needing a language field
+  const languageEvents = [...new Set([...literaryEventsForLanguage, ...diversityRuleEvents])]; 
 
   useEffect(() => {
     if (!isAuthenticated && !isLoading) { navigate("/"); return; }
@@ -83,6 +87,8 @@ const CreateRegistration = () => {
       if (!event) { enqueueSnackbar("Select event first", { variant: "error" }); return; }
 
       const selectedEvent = events.find((e) => e.name === event);
+      if (!selectedEvent) return;
+      
       if (!selectedEvent?.registrationEnabled) {
         enqueueSnackbar("Registration Closed", { variant: "error" });
         return;
@@ -91,7 +97,7 @@ const CreateRegistration = () => {
       // Limits
       const maxLimit = selectedEvent.maxTeamSize || selectedEvent.maxIndividualLimit || 1;
       if (participants.length >= maxLimit) {
-        enqueueSnackbar(`Limit of ${maxLimit} reached`, { variant: "error" });
+        enqueueSnackbar(`Maximum limit of ${maxLimit} reached`, { variant: "error" });
         return;
       }
 
@@ -99,7 +105,7 @@ const CreateRegistration = () => {
       if (languageEvents.includes(event) && !selectedLanguage) {
         enqueueSnackbar("Select a language", { variant: "warning" }); return;
       }
-      if (event === "Open Mic" && !performanceType) {
+      if (event === openMicEvent && !performanceType) {
         enqueueSnackbar("Enter act type", { variant: "warning" }); return;
       }
       if (musicEvents.includes(event) && !gender) {
@@ -133,6 +139,8 @@ const CreateRegistration = () => {
         setGender("");
         setDanceType("");
         setInstrumentType("");
+      } else {
+        enqueueSnackbar("Participant not found in list.", { variant: "error" });
       }
     }
   };
@@ -145,6 +153,8 @@ const CreateRegistration = () => {
     if (participants.length === 0) { enqueueSnackbar("No participants", { variant: "error" }); return; }
 
     const selectedEvent = events.find((e) => e.name === event);
+    if (!selectedEvent) { enqueueSnackbar("Invalid event selected", { variant: "error" }); return; }
+
     const minLimit = selectedEvent.minTeamSize || selectedEvent.minIndividualLimit || 1;
     
     if (participants.length < minLimit) {
@@ -159,9 +169,9 @@ const CreateRegistration = () => {
     }
 
     if (diversityRuleEvents.includes(event)) {
-      const langs = new Set(participants.map(p => p.language));
+      const langs = new Set(participants.map(p => p.language).filter(Boolean));
       if (langs.size < 2) {
-        enqueueSnackbar("Must have 2+ languages", { variant: "error" }); return;
+        enqueueSnackbar("Must have 2+ languages (English/Malayalam/Hindi).", { variant: "error" }); return;
       }
     }
 
@@ -177,6 +187,13 @@ const CreateRegistration = () => {
       })
       .finally(() => setLoading(false));
   };
+
+  const currentEventObj = events.find(e => e.name === event);
+  const isLiterary = languageEvents.includes(event);
+  const isOpenMic = event === openMicEvent;
+  const isMusic = musicEvents.includes(event);
+  const isDance = danceEvents.includes(event);
+  const isInstrument = instrumentEvents.includes(event);
 
   if (loading) return <div className="h-screen flex items-center justify-center bg-desi-cream"><Spinner /></div>;
 
@@ -199,7 +216,7 @@ const CreateRegistration = () => {
             className="w-full p-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-saffron outline-none"
           >
             <option value="">-- Choose Event --</option>
-            {events.map((e) => (
+            {events.filter(e => e.registrationEnabled).map((e) => (
               <option key={e._id} value={e.name}>{e.name}</option>
             ))}
           </select>
@@ -224,7 +241,7 @@ const CreateRegistration = () => {
               </div>
 
               {/* Conditional Inputs */}
-              {languageEvents.includes(event) && (
+              {isLiterary && (
                 <div className="w-full md:w-40">
                   <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Language</label>
                   <select value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)} className="w-full p-2.5 bg-white border border-stone-200 rounded-lg outline-none">
@@ -236,7 +253,7 @@ const CreateRegistration = () => {
                 </div>
               )}
 
-              {musicEvents.includes(event) && (
+              {isMusic && (
                 <div className="w-full md:w-40">
                   <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Gender</label>
                   <select value={gender} onChange={(e) => setGender(e.target.value)} className="w-full p-2.5 bg-white border border-stone-200 rounded-lg outline-none">
@@ -247,7 +264,7 @@ const CreateRegistration = () => {
                 </div>
               )}
 
-              {danceEvents.includes(event) && (
+              {isDance && (
                 <div className="w-full md:w-48">
                   <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Dance Form</label>
                   <select value={danceType} onChange={(e) => setDanceType(e.target.value)} className="w-full p-2.5 bg-white border border-stone-200 rounded-lg outline-none">
@@ -260,7 +277,7 @@ const CreateRegistration = () => {
                 </div>
               )}
 
-              {instrumentEvents.includes(event) && (
+              {isInstrument && (
                 <div className="w-full md:w-48">
                   <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Instrument</label>
                   <select value={instrumentType} onChange={(e) => setInstrumentType(e.target.value)} className="w-full p-2.5 bg-white border border-stone-200 rounded-lg outline-none">
@@ -273,10 +290,10 @@ const CreateRegistration = () => {
                 </div>
               )}
 
-              {event === "Open Mic" && (
+              {isOpenMic && (
                 <div className="w-full md:w-48">
                   <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Act Type</label>
-                  <input type="text" value={performanceType} onChange={(e) => setPerformanceType(e.target.value)} className="w-full p-2.5 bg-white border border-stone-200 rounded-lg outline-none" />
+                  <input type="text" placeholder="e.g. Standup" value={performanceType} onChange={(e) => setPerformanceType(e.target.value)} className="w-full p-2.5 bg-white border border-stone-200 rounded-lg outline-none" />
                 </div>
               )}
 
