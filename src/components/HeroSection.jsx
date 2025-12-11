@@ -20,10 +20,10 @@ export default function Hero() {
       {/* 2. HERO TITLE (Middle Layer - Below Character) */}
       <h1 className="
         relative z-20
-        font-mont text-white
-        text-[12vw]
-        md:text-[11vw]
-        xl:text-[13vw]
+        font-qawatone text-white
+        text-[13vw]
+        md:text-[12vw]
+        xl:text-[14vw]
         font-bold 
         tracking-tight 
         leading-none
