@@ -2,311 +2,311 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
-import { MdSearch, MdArrowBack, MdHome } from "react-icons/md";
+import { MdSearch } from "react-icons/md";
 import { motion } from "framer-motion";
 
 // Components
 import Spinner from "../components/Spinner";
 
+/**
+ * FilterSection Component - Compact, Desi Styled, and no SVG background.
+ */
 function FilterSection({ filters, filter, setFilter }) {
-  const pillsWrapRef = useRef(null);
-  const [svgHeight, setSvgHeight] = useState(70);
+  const pillsWrapRef = useRef(null);
 
-  useEffect(() => {
-    const compute = () => {
-      if (!pillsWrapRef.current) return;
-
-      const pillsHeight = pillsWrapRef.current.offsetHeight;
-
-      // add padding so pills sit nicely inside SVG curve
-      const padding = 30;
-
-      setSvgHeight(pillsHeight + padding);
-    };
-
-    compute();
-
-    const ro = new ResizeObserver(compute);
-    ro.observe(pillsWrapRef.current);
-
-    return () => ro.disconnect();
-  }, []);
-
-  return (
-    <div className="relative w-full flex justify-center mb-12 sm:mb-14 md:mb-16">
-      <div className="relative w-full max-w-3xl px-4">
-        
-        {/* INLINE SVG THAT AUTO-STRETCHES */}
-        <svg
-          width="100%"
-          height={svgHeight}
-          viewBox="0 0 910 62"
-          preserveAspectRatio="none"
-          className="absolute top-0 left-0 w-full pointer-events-none"
-        >
-         <g filter="url(#filter0_d_418_145)">
-<path d="M56.6666 43.2213C20.7282 43.2213 57.5065 32.4011 2.19689 28.7286C-0.0111644 28.5825 -0.119535 28.4365 2.19689 28.2889C58.2245 24.7479 20.7011 13.7787 56.6666 13.7787C56.6666 6.44548 108.942 0.5 173.422 0.5L722.943 0.5C787.423 0.5 839.698 6.44548 839.698 13.7787C885.512 13.7787 872.616 22.3055 908.961 28.324C909.706 28.4481 909.652 28.5708 908.961 28.695C874.431 34.8436 885.472 43.2213 839.698 43.2213C839.698 50.5545 787.423 56.5 722.943 56.5L173.422 56.5C108.942 56.5 56.6666 50.5545 56.6666 43.2213Z" fill="#F4E5D4" stroke="#271811" strokeMiterlimit="10"/>
-</g>
-<defs>
-<filter id="filter0_d_418_145" x="0" y="0" width="910" height="62" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
-<feFlood floodOpacity="0" result="BackgroundImageFix"/>
-<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-<feOffset dy="5"/>
-<feComposite in2="hardAlpha" operator="out"/>
-<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"/>
-<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_418_145"/>
-<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_418_145" result="shape"/>
-</filter>
-</defs>
-</svg>
-
-
-        {/* PILLS - Constrained width to stay inside SVG */}
-        <div
-          ref={pillsWrapRef}
-          className="relative z-10 flex flex-wrap justify-center gap-2 sm:gap-3 py-4 px-8 sm:px-12 md:px-16 lg:px-20"
-        >
-          {filters.map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f === "All" ? "" : f)}
-              className={`px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all border ${
-                (filter === f || (f === "All" && filter === ""))
-                  ? "bg-desi-saffron text-white border-desi-saffron shadow-lg"
-                  : "bg-stone-100 text-stone-600 border-stone-300 hover:border-desi-saffron hover:text-desi-saffron"
-              }`}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  return (
+    // REDUCED: Changed mb-4 sm:mb-6 md:mb-8 to a smaller mb-2 for compactness
+    <div className="relative w-full flex justify-center mb-2 mt-2">
+      <div className="relative w-full max-w-3xl px-4">
+        
+        {/* PILLS - Reduced gaps and padding for compactness (2 lines on wider screens) */}
+        <div
+          ref={pillsWrapRef}
+          className="relative z-10 flex flex-wrap justify-center gap-1.5 sm:gap-2 px-4 py-1"
+        >
+          {filters.map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f === "All" ? "" : f)}
+              className={`
+                px-3 sm:px-4 py-1 text-xs sm:text-sm font-bold transition-all 
+                rounded-full shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] cursor-pointer
+                ${
+                  (filter.toLowerCase() === f.toLowerCase() || (f === "All" && filter === ""))
+                    ? "bg-[#CB1760] text-white border-4 border-[#271811] shadow-xl" // Active: Deep Red, Dark Border
+                    : "bg-[#FDFBF7] text-[#D97706] border-2 border-[#D97706] hover:bg-[#D97706] hover:text-white" // Inactive: Cream, Orange Border/Text
+                }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 
 const Events = () => {
-  const { user, isAuthenticated } = useAuth0();
-  const [events, setEvents] = useState([]);
-  const [filter, setFilter] = useState("");
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { user, isAuthenticated } = useAuth0();
+  const [events, setEvents] = useState([]);
+  const [filter, setFilter] = useState("");
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const [categoryTitle, setCategoryTitle] = useState(
-    location.state?.category || "ALL EVENTS"
-  );
+  const [categoryTitle, setCategoryTitle] = useState(
+    location.state?.category || "ALL EVENTS"
+  );
 
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const eventResponse = await axios.get(`${apiUrl}/event/`);
-        setEvents(eventResponse.data.data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [apiUrl]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const eventResponse = await axios.get(`${apiUrl}/event`);
+        setEvents(eventResponse.data.data);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [apiUrl]);
 
-  useEffect(() => {
-    if (location.state?.category) {
-      setCategoryTitle(location.state.category);
-    }
-  }, [location.state]);
+  useEffect(() => {
+    if (location.state?.category) {
+      setCategoryTitle(location.state.category);
+    }
+  }, [location.state]);
 
-  const filteredEvents = events.filter(
-    (event) =>
-      event.name.toLowerCase().includes(filter.toLowerCase()) ||
-      event.venue.toLowerCase().includes(filter.toLowerCase()) ||
-      event.type.toLowerCase().includes(filter.toLowerCase()) ||
-      event.participation.toLowerCase().includes(filter.toLowerCase()) ||
-      event.category.toLowerCase().includes(filter.toLowerCase())
-  );
+  const filteredEvents = events.filter((event) => {
+    if (filter === "") {
+      return true; // Show all events when filter is "All" or empty
+    }
 
-  const filters = [
-    "All",
-    "Onstage",
-    "Offstage",
-    "Pre Event",
-    "Individual",
-    "Group",
-    "Literary",
-    "Music",
-    "Dance",
-    "Theatre",
-    "Media",
-  ];
+    const lowerCaseFilter = filter.toLowerCase();
 
-  if (loading)
-    return (
-      <div className="h-screen flex items-center justify-center bg-white">
-        <Spinner />
-      </div>
-    );
+    // Check against specific fields that correspond to the filter pills (category, type, participation)
+    if (
+      event.category.toLowerCase().includes(lowerCaseFilter) ||
+      event.type.toLowerCase().includes(lowerCaseFilter) ||
+      event.participation.toLowerCase().includes(lowerCaseFilter)
+    ) {
+      return true;
+    }
 
-  return (
-    <div className="min-h-screen bg-white text-stone-900 font-sans relative overflow-x-hidden">
-      {/* Fixed SVG Borders */}
-{/* FIXED SVG BORDERS — DESKTOP VERSION */}
-<div className="fixed top-0 left-0 w-full z-50 pointer-events-none hidden md:block">
-  <img src="/images/top.svg" alt="" className="w-full h-auto" />
+    // Fallback: If filter doesn't match category/type/participation, check name/venue (generic search)
+    if (
+        event.name.toLowerCase().includes(lowerCaseFilter) ||
+        event.venue.toLowerCase().includes(lowerCaseFilter)
+    ) {
+        return true;
+    }
+
+    return false;
+  });
+
+  const filters = [
+    "All",
+    "Onstage",
+    "Offstage",
+    "Pre Event",
+    "Individual",
+    "Group",
+    "Literary",
+    "Music",
+    "Dance",
+    "Theatre",
+    "Media",
+  ];
+
+  if (loading)
+    return (
+      <div className="h-screen flex items-center justify-center bg-white">
+        <Spinner />
+      </div>
+    );
+
+  return (
+    <div className="min-h-screen bg-white text-stone-900 font-sans relative overflow-x-hidden">
+      
+      {/* --- TOP-RIGHT SVG BUTTON NAVIGATION (FIXED POSITION) --- */}
+      {/* Changed absolute to fixed and moved outside of motion.main */}
+      <div className="fixed top-4 right-0 z-[60] px-6 sm:px-10 md:px-12">
+          <button
+              onClick={() => navigate(-1)}
+              className="group relative cursor-pointer select-none"
+              title="Go Back"
+          >
+              {/* SVG Button Container */}
+              <div className="relative w-[120px] md:w-[140px] aspect-[169/58]">
+                  
+                  {/* Shadow/Base Image */}
+                  <img 
+                      src="/images/loginbtn.svg" 
+                      alt="" 
+                      className="absolute inset-0 w-full h-full translate-x-[4px] translate-y-[3px] pointer-events-none brightness-0 saturate-[1000%] transition-transform duration-200" 
+                  />
+                  
+                  {/* Main SVG Shape */}
+                  <svg 
+                      className="absolute inset-0 w-full h-full transition-transform duration-200 group-hover:translate-x-[4px] group-hover:translate-y-[3px]" 
+                      viewBox="0 0 169 45"
+                  >
+                      {/* Path: Fill with white, hover fill with yellow */}
+                      <path 
+                          className="transition-colors duration-200 fill-[#FDFBF7] group-hover:fill-[#D97706]" 
+                          d="M11.3188 33.8038C4.7163 33.8038 11.4732 25.4955 1.31175 22.6755C0.906093 22.5634 0.886183 22.4512 1.31175 22.3379C11.6051 19.6189 4.71132 11.1962 11.3188 11.1962C11.3188 5.56528 20.9228 1 32.769 1L133.726 1C145.572 1 155.176 5.56528 155.176 11.1962C163.593 11.1962 161.224 17.7435 167.901 22.3648C168.038 22.4602 168.028 22.5544 167.901 22.6497C161.557 27.3709 163.586 33.8038 155.176 33.8038C155.176 39.4347 145.572 44 133.726 44L32.769 44C20.9228 44 11.3188 39.4347 11.3188 33.8038Z" 
+                          stroke="#271811" 
+                          strokeWidth="2" 
+                      />
+                  </svg>
+                  
+                  {/* Text Label */}
+                  <div className="absolute inset-0 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-[4px] group-hover:translate-y-[3px]">
+                      <span className="font-mont text-xs sm:text-sm md:text-lg font-bold tracking-wide text-black group-hover:text-black pointer-events-none">
+                          GO BACK
+                      </span>
+                  </div>
+              </div>
+          </button>
+      </div>
+      {/* --- END TOP-RIGHT SVG BUTTON NAVIGATION --- */}
+      
+      {/* Fixed SVG Borders (Need a lower z-index than the fixed button) */}
+      <div className="fixed top-0 left-0 w-full z-50 pointer-events-none hidden md:block">
+        <img src="/images/top.svg" alt="Border Top" className="w-full h-auto" />
+      </div>
+      {/* ... other border SVGs remain the same ... */}
+      <div className="fixed bottom-0 left-0 w-full z-50 pointer-events-none hidden md:block">
+        <img src="/images/bottom.svg" alt="Border Bottom" className="w-full h-auto" />
+      </div>
+
+      <div className="fixed left-0 top-0 h-full z-50 pointer-events-none hidden md:block">
+        <img src="/images/left.svg" alt="Border Left" className="w-auto h-full" />
+      </div>
+
+      <div className="fixed right-0 top-0 h-full z-50 pointer-events-none hidden md:block">
+        <img src="/images/right.svg" alt="Border Right" className="w-auto h-full" />
+      </div>
+
+
+      {/* FIXED SVG BORDERS — MOBILE VERSION */}
+      <div className="fixed top-0 left-0 w-full z-50 pointer-events-none md:hidden">
+        <img src="/images/topmob.svg" alt="Mobile Border Top" className="w-full h-auto" />
+      </div>
+
+      <div className="fixed bottom-0 left-0 w-full z-50 pointer-events-none md:hidden">
+        <img src="/images/bottommob.svg" alt="Mobile Border Bottom" className="w-full h-auto" />
+      </div>
+
+      <div className="fixed left-0 top-0 h-full z-50 pointer-events-none md:hidden">
+        <img src="/images/leftmob.svg" alt="Mobile Border Left" className="w-auto h-full" />
+      </div>
+
+      <div className="fixed right-0 top-0 h-full z-50 pointer-events-none md:hidden">
+        <img src="/images/rightmob.svg" alt="Mobile Border Right" className="w-auto h-full" />
+      </div>
+      {/* End Fixed SVG Borders */}
+
+
+      <motion.main
+        className="max-w-7xl mx-auto px-6 
+            pt-16 
+            sm:pt-20 
+            md:pt-24 
+            pb-10
+            "
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        
+        {/* Event Header SVG with Dynamic Category Text - REDUCED MARGIN */}
+        <div className="flex justify-center mb-4 relative">
+  {/* REDUCED MAX-WIDTH to make the header image and container smaller */}
+  <div className="relative w-full 
+    max-w-[180px] 
+    sm:max-w-[250px] 
+    md:max-w-[300px] 
+    lg:max-w-[340px] 
+    mx-auto">
+    
+    <img
+      src="/images/event-header.svg"
+      alt="Events Header Background"
+      className="w-full h-auto block"
+    />
+
+    <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6">
+      <h1
+        className="text-center leading-tight w-full"
+        style={{
+          color: "#CB1760",
+          fontFamily: "'Alfa Slab One', cursive",
+          // Enhanced Desi shadow for depth
+          textShadow: "0 2px 0 #271811, 0 4px 0 #271811", 
+          // Slightly reduced the font size clamp range for the smaller container
+          fontSize: "clamp(0.8rem, 3.5vw + 0.4rem, 1.8rem)", 
+          lineHeight: 1.1,
+          letterSpacing: "0.02em",
+        }}
+      >
+        {categoryTitle}
+      </h1>
+    </div>
+  </div>
 </div>
 
-<div className="fixed bottom-0 left-0 w-full z-50 pointer-events-none hidden md:block">
-  <img src="/images/bottom.svg" alt="" className="w-full h-auto" />
-</div>
+        {/* Filter Section (Using the condensed component - margin reduced internally) */}
+        <FilterSection filters={filters} filter={filter} setFilter={setFilter} />
 
-<div className="fixed left-0 top-0 h-full z-50 pointer-events-none hidden md:block">
-  <img src="/images/left.svg" alt="" className="w-auto h-full" />
-</div>
+        {/* Events Grid */}
+        {filteredEvents.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-20 pb-20">
+            {filteredEvents.map((e) => (
+              <div
+                key={e._id}
+                className="group relative flex items-center justify-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl cursor-default"
+              >
+                <div className="relative w-full">
+                  <img
+                    src="/images/event-stamp.svg"
+                    alt="Event Card Background"
+                    className="w-full h-auto group-hover:opacity-80 transition-opacity"
+                  />
 
-<div className="fixed right-0 top-0 h-full z-50 pointer-events-none hidden md:block">
-  <img src="/images/right.svg" alt="" className="w-auto h-full" />
-</div>
+                  {/* EVENT NAME (Stays Visible) */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <h3 
+                      className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-stone-900 font-reality tracking-wide group-hover:text-[#D97706] transition-colors break-words text-center px-6 sm:px-8 md:px-10 max-w-full leading-tight"
+                      style={{textShadow: "0 1px 0 #D97706"}} // Desi Touch: Subtle shadow on card text
+                    >
+                      {e.name}
+                    </h3>
+                  </div>
 
-
-{/* FIXED SVG BORDERS — MOBILE VERSION */}
-<div className="fixed top-0 left-0 w-full z-50 pointer-events-none md:hidden">
-  <img src="/images/topmob.svg" alt="" className="w-full h-auto" />
-</div>
-
-<div className="fixed bottom-0 left-0 w-full z-50 pointer-events-none md:hidden">
-  <img src="/images/bottommob.svg" alt="" className="w-full h-auto" />
-</div>
-
-<div className="fixed left-0 top-0 h-full z-50 pointer-events-none md:hidden">
-  <img src="/images/leftmob.svg" alt="" className="w-auto h-full" />
-</div>
-
-<div className="fixed right-0 top-0 h-full z-50 pointer-events-none md:hidden">
-  <img src="/images/rightmob.svg" alt="" className="w-auto h-full" />
-</div>
-
-
-      <motion.main
-        className="max-w-7xl mx-auto px-6 
-            pt-20              /* mobile smaller padding */
-            sm:pt-28           /* tablet */
-            md:pt-32           /* desktop original */
-            pb-10
-            "
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        {/* --- ADDED BACK/HOME NAVIGATION --- */}
-        <div className="absolute top-8 left-0 z-50 px-6 sm:px-10 md:px-12 flex items-center gap-4">
-            <button
-                onClick={() => navigate(-1)}
-                className="p-3 bg-white border-2 border-stone-300 text-stone-600 hover:text-desi-saffron hover:border-desi-saffron transition-colors rounded-xl shadow-md hover:shadow-lg"
-                title="Go Back"
-            >
-                <MdArrowBack size={24} />
+                  
+                 
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 sm:py-16 md:py-20 text-stone-500 mb-20 pb-20">
+            <MdSearch className="text-4xl sm:text-5xl md:text-6xl mx-auto mb-3 sm:mb-4 opacity-20" />
+            <p className="text-base sm:text-lg md:text-xl">No events found matching "{filter}"</p>
+            <button onClick={() => setFilter("")} className="mt-3 sm:mt-4 text-sm sm:text-base text-[#D97706] hover:underline font-medium">
+              Clear Filters
             </button>
-            <Link 
-                to="/" 
-                className="p-3 bg-white border-2 border-stone-300 text-stone-600 hover:text-desi-saffron hover:border-desi-saffron transition-colors rounded-xl shadow-md hover:shadow-lg"
-                title="Home"
-            >
-                <MdHome size={24} />
-            </Link>
-        </div>
-        {/* --- END ADDED NAVIGATION --- */}
-
-
-        {/* Event Header SVG with Dynamic Category Text */}
-        <div className="flex justify-center mb-8 sm:mb-10 md:mb-12 relative">
-          <div className="relative w-full max-w-[280px] sm:max-w-[360px] md:max-w-[420px] lg:max-w-md mx-auto">
-            <img
-              src="/images/event-header.svg"
-              alt=""
-              className="w-full h-auto block"
-            />
-
-            <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6">
-              <h1
-                className="text-center leading-tight w-full"
-                style={{
-                  color: "#CB1760",
-                  fontFamily: "'Alfa Slab One', cursive",
-                  textShadow: "0 2px 0 #28325B, 0 3px 0 #28325B",
-                  fontSize: "clamp(0.9rem, 4vw + 0.5rem, 2.2rem)",
-                  lineHeight: 1.1,
-                  letterSpacing: "0.02em",
-                }}
-              >
-                {categoryTitle}
-              </h1>
-            </div>
-          </div>
-        </div>
-
-        {/* Filter Section */}
-        <FilterSection filters={filters} filter={filter} setFilter={setFilter} />
-
-        {/* Events Grid */}
-        {filteredEvents.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-20 pb-20">
-            {filteredEvents.map((e) => (
-              <Link
-                key={e._id}
-                to={`/event/${e._id}`}
-                className="group relative flex items-center justify-center"
-              >
-                <div className="relative w-full">
-                  <img
-                    src="/images/event-stamp.svg"
-                    alt=""
-                    className="w-full h-auto group-hover:opacity-80 transition-opacity"
-                  />
-
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <h3 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-stone-900 font-reality tracking-wide group-hover:text-desi-saffron transition-colors break-words text-center px-6 sm:px-8 md:px-10 max-w-full leading-tight">
-                      {e.name}
-                    </h3>
-                  </div>
-
-                  <div className="absolute inset-0 bg-white/95 opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-center p-4 sm:p-5 md:p-6 text-center rounded-xl">
-                    <div className="space-y-1.5 sm:space-y-2">
-                      <p className="text-[10px] sm:text-xs md:text-sm text-stone-500 font-medium uppercase tracking-wider">
-                        {e.category} • {e.participation}
-                      </p>
-                      <p className="text-xs sm:text-sm md:text-base text-stone-700">{e.venue || "TBD"}</p>
-                      <div className="mt-2 sm:mt-3">
-                        <span
-                          className={`px-2.5 sm:px-3 py-1 text-[10px] sm:text-xs font-bold uppercase rounded ${
-                            e.registrationEnabled ? "bg-green-500 text-white" : "bg-red-500 text-white"
-                          }`}
-                        >
-                          {e.registrationEnabled ? "Open" : "Closed"}
-                        </span>
-                      </div>
-                      <p className="text-desi-saffron font-bold mt-3 sm:mt-4 text-xs sm:text-sm md:text-base">View Details →</p>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 sm:py-16 md:py-20 text-stone-500 mb-20 pb-20">
-            <MdSearch className="text-4xl sm:text-5xl md:text-6xl mx-auto mb-3 sm:mb-4 opacity-20" />
-            <p className="text-base sm:text-lg md:text-xl">No events found matching "{filter}"</p>
-            <button onClick={() => setFilter("")} className="mt-3 sm:mt-4 text-sm sm:text-base text-desi-saffron hover:underline font-medium">
-              Clear Filters
-            </button>
-          </div>
-        )}
-      </motion.main>
-    </div>
-  );
+          </div>
+        )}
+      </motion.main>
+    </div>
+  );
 };
 
 export default Events;

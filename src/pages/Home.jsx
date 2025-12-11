@@ -11,14 +11,14 @@ import ComingSoon from "../components/ComingSoon";
 export default function Home() {
   return (
     <div>
-      {/* <Nav />
+      <Nav />
       <Hero />
       <About />
       <Houses />
       <Events />
       <Gallery />
-      <Footer /> */}
-      <ComingSoon />
+      <Footer />
+      {/* <ComingSoon /> */}
     </div>
   );
 }
