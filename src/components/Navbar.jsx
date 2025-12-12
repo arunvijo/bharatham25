@@ -168,8 +168,18 @@ export default function Navbar() {
                 <span className="mt-2 h-1 sm:h-2 w-full bg-yellow scale-x-0 origin-center transition-transform duration-300 group-hover:scale-x-100" />
               </span>
               {index < navItems.length - 1 && (
-                <img src="/images/spinner.svg" alt="Spinner" className="inline-block h-[0.6em] w-[0.6em] animate-spinSlow translate-y-[2px]" />
-              )}
+              <img 
+                src="/images/spinner.svg" 
+                alt="Spinner" 
+                className="
+                  hidden 
+                  sm:inline-block 
+                  h-[0.8em] w-[0.8em] 
+                  animate-spinSlow 
+                  translate-y-[2px]
+                "
+              />
+            )}
             </Link>
           ))}
         </div>
