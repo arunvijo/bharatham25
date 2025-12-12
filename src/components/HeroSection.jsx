@@ -1,4 +1,57 @@
+import { useState, useEffect, useRef } from "react";
 import { FiChevronDown } from "react-icons/fi";
+
+const MorphingText = ({ texts }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    let timeout;
+    const morphText = async () => {
+      setIsAnimating(true);
+      const fromText = texts[currentIndex];
+      const toText = texts[(currentIndex + 1) % texts.length];
+      
+      const maxLength = Math.max(fromText.length, toText.length);
+      const steps = 20;
+      
+      for (let step = 0; step <= steps; step++) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        let newText = "";
+        for (let i = 0; i < maxLength; i++) {
+          const fromChar = fromText[i] || "";
+          const toChar = toText[i] || "";
+          
+          if (step === steps) {
+            newText += toChar;
+          } else if (fromChar === toChar) {
+            newText += fromChar;
+          } else if (step / steps > i / maxLength) {
+            newText += toChar;
+          } else {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ആഇഈഉഊഋഎഏഐഒഓഔകഖഗഘങചഛജഝഞടഠഡഢണതഥദധനപഫബഭമയരലവശഷസഹളഴറ";
+            newText += chars[Math.floor(Math.random() * chars.length)];
+          }
+        }
+        setDisplayedText(newText);
+      }
+      
+      setIsAnimating(false);
+      setCurrentIndex((currentIndex + 1) % texts.length);
+    };
+
+    timeout = setTimeout(morphText, 3000);
+    return () => clearTimeout(timeout);
+  }, [currentIndex, texts]);
+
+  useEffect(() => {
+    setDisplayedText(texts[0]);
+  }, []);
+
+  return <span>{displayedText}</span>;
+};
 
 export default function Hero() {
   return (
@@ -29,7 +82,7 @@ export default function Hero() {
         leading-none
         select-none
       ">
-        BHARATHAM26
+        <MorphingText texts={["BHARATHAM26", "ഭരതം26"]} />
       </h1>
 
       {/* 3. CHARACTER SVG (Top Layer - Centered Bottom) */}
