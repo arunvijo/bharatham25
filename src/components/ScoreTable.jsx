@@ -1,22 +1,18 @@
 import React, { useState } from "react";
-// Removed unused admin-specific icons/imports
+import { Link } from "react-router-dom";
+import { AiOutlineEdit } from "react-icons/ai";
 import { 
-    // MdOutlineAdd, 
-    // MdOutlineDelete, 
-    // MdOutlineInfo, 
+    MdOutlineAdd, 
+    MdOutlineDelete, 
+    MdOutlineInfo, 
     MdSearch,
     MdScore 
 } from "react-icons/md";
-// Removed unused admin tool
-// import { ExportToExcel } from "../../ExportToExcel"; 
-// Removed AiOutlineEdit
+import { ExportToExcel } from "../../ExportToExcel";
 
-// Renamed props for clarity, removing isAdminMode since this is viewer-only
-const ScoreTable = ({ scores: inputScores }) => {
-    // Variable Renaming: filter -> searchInput
+const ScoreTable = ({ scores: inputScores, admin: isAdminMode = false }) => {
     const [searchInput, setSearchInput] = useState("");
 
-    // Variable Renaming: filteredScores -> displayedScores
     // Logic remains unchanged: filtering based on searchInput and excluding "Negative" position
     const displayedScores = inputScores.filter(
         (scoreItem) =>
@@ -28,7 +24,6 @@ const ScoreTable = ({ scores: inputScores }) => {
             )
     );
 
-    // Variable Renaming: pos -> positionString
     // Helper for Position Badges - Logic remains unchanged
     const getPositionStyle = (positionString) => {
         const p = positionString.toLowerCase();
@@ -38,32 +33,50 @@ const ScoreTable = ({ scores: inputScores }) => {
         return "bg-stone-100 text-stone-600 border-stone-200";
     };
     
-    // --- Custom Styles based on Figma Table Layout (Class names remain unchanged) ---
-    // Note: The structure relies on min-width/width classes that were set based on the ADMIN table (including the action column).
-    // For a viewer-only table, the widths should be recalculated to use the full 1241px space. 
-    // However, since the request states *no structure change*, I will maintain the current column widths, which will result in some empty space where the action column *would* be.
     const tableCellClass = "px-6 py-4 border-r-[3px] border-stone-300 flex items-center justify-center text-center";
-    
+
     return (
-        // Wrapper for the entire component section (Structure remains unchanged)
         <div className="space-y-6 font-['Montserrat'] w-full">
             
-            {/* Header Section (Controls) - Reduced to Viewer Search only */}
-            <div className="flex flex-col md:flex-row justify-end items-center gap-4 bg-transparent p-5">
+            {/* Header Section (Controls) */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-transparent p-5">
                 
-                {/* Search Bar (Kept visible for viewer filtering) */}
-                <div className="flex items-center gap-3 w-full md:w-auto">
-                    <div className="relative flex-1 md:w-72 border-[3px] border-black bg-white">
-                        <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-900 text-xl" />
-                        <input
-                            type="text"
-                            placeholder="Search records..."
-                            value={searchInput}
-                            onChange={(e) => setSearchInput(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-white text-black focus:outline-none transition-all text-sm font-['Montserrat']"
-                        />
-                    </div>
+                {/* Left side: Title and Export */}
+                <div className="flex items-center gap-4">
+                    <h3 className="text-2xl font-bold text-black tracking-wide flex items-center gap-2">
+                        <MdScore className="text-desi-saffron" /> 
+                        Records <span className="text-stone-400 text-base font-normal">({displayedScores?.length})</span>
+                    </h3>
+                    {isAdminMode && (
+                        <div className="opacity-80 hover:opacity-100 transition-opacity border-2 border-black p-1 bg-white">
+                            <ExportToExcel apiData={inputScores} fileName={"scores"} />
+                        </div>
+                    )}
                 </div>
+
+                {/* Right side: Search and Add Button */}
+                {isAdminMode && (
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+                        <div className="relative flex-1 md:w-72 border-[3px] border-black bg-white">
+                            <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-900 text-xl" />
+                            <input
+                                type="text"
+                                placeholder="Search records..."
+                                value={searchInput}
+                                onChange={(e) => setSearchInput(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 bg-white text-black focus:outline-none transition-all text-sm font-['Montserrat']"
+                            />
+                        </div>
+                        
+                        <Link 
+                            to="/score/create" 
+                            className="p-3 bg-desi-saffron text-white border-[3px] border-black rounded-sm shadow-md hover:bg-amber-700 hover:scale-105 transition-all"
+                            title="Add Score"
+                        >
+                            <MdOutlineAdd className="text-2xl" />
+                        </Link>
+                    </div>
+                )}
             </div>
 
             {/* Table Card */}
@@ -78,8 +91,7 @@ const ScoreTable = ({ scores: inputScores }) => {
                         <div className="w-[288px] min-w-[288px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">PARTICIPANTS</div>
                         <div className="w-[176px] min-w-[176px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">POSITION</div>
                         <div className="w-[160px] min-w-[160px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">POINTS</div>
-                        {/* Removed Action Column Header: Width 57px is now implicitly empty space */}
-                        <div className="w-[57px] min-w-[57px] h-[60px] flex items-center justify-center text-3xl font-bold font-['Montserrat']"></div>
+                        {isAdminMode && <div className="w-[57px] min-w-[57px] h-[60px] flex items-center justify-center text-3xl font-bold font-['Montserrat']">...</div>}
                     </div>
 
                     {/* Table Body */}
@@ -104,8 +116,12 @@ const ScoreTable = ({ scores: inputScores }) => {
                                     <div className={`w-[288px] min-w-[288px] ${tableCellClass} justify-start`}>
                                         <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
                                             {scoreItem.registration?.participants?.map((participant) => (
-                                                <span key={participant._id} className="text-xs font-medium text-stone-600 bg-stone-100 px-2 py-1 rounded border border-stone-200">
-                                                    {participant.fullName.split(' ')[0]} 
+                                                <span 
+                                                    key={participant._id} 
+                                                    className="text-xs font-medium text-stone-600 bg-stone-100 px-2 py-1 rounded border border-stone-200"
+                                                >
+                                                    {/* FIX: Safely access fullName and provide a fallback */}
+                                                    {participant.fullName?.split(' ')[0] || 'Unknown'}
                                                 </span>
                                             ))}
                                         </div>
@@ -121,10 +137,16 @@ const ScoreTable = ({ scores: inputScores }) => {
                                     {/* Points */}
                                     <div className={`w-[160px] min-w-[160px] text-2xl font-extrabold text-desi-saffron ${tableCellClass}`}>{scoreItem.points}</div>
 
-                                    {/* Actions (This cell remains, but is empty/unused) */}
-                                    <div className={`w-[57px] min-w-[57px] ${tableCellClass}`}>
-                                        {/* Content removed for viewer mode */}
-                                    </div>
+                                    {/* Actions */}
+                                    {isAdminMode && (
+                                        <div className={`w-[57px] min-w-[57px] ${tableCellClass}`}>
+                                            <div className="flex flex-col gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                <Link to={`/score/details/${scoreItem._id}`} className="text-stone-700 hover:text-blue-600 p-1"><MdOutlineInfo size={16} /></Link>
+                                                <Link to={`/score/edit/${scoreItem._id}`} className="text-stone-700 hover:text-desi-saffron p-1"><AiOutlineEdit size={16} /></Link>
+                                                <Link to={`/score/delete/${scoreItem._id}`} className="text-stone-700 hover:text-red-600 p-1"><MdOutlineDelete size={16} /></Link>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                     </div>
