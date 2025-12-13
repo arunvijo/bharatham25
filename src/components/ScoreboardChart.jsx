@@ -1,196 +1,191 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
 // Register ChartJS components
 ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend
 );
 
-// Default scores to an empty array to prevent crashes
+// --- IMAGE MAPPING ---
+// NOTE: Replace these placeholder paths with the actual paths to your 5 SVG images.
+const HOUSE_IMAGE_PATHS = {
+    Mughals: "/images/house_textures/mughals_texture.svg",
+    Aryans: "/images/house_textures/aryans_texture.svg",
+    Vikings: "/images/house_textures/vikings_texture.svg",
+    Spartans: "/images/house_textures/spartans_texture.svg",
+    Rajputs: "/images/house_textures/rajputs_texture.svg",
+};
+
+// --- DEMO DATA ---
+const DEMO_SCORES = [
+    { name: "Spartans", points: 3950 },
+    { name: "Mughals", points: 3000 },
+    { name: "Vikings", points: 4200 },
+    { name: "Rajputs", points: 2800 },
+    { name: "Aryans", points: 3600 },
+];
+
+// Stores the loaded texture patterns
+let housePatterns = {}; 
+
+/**
+ * Custom Chart.js Plugin to create Image Patterns for bars.
+ * This function loads the images and generates a pattern object compatible with Chart.js.
+ */
+const patternPlugin = {
+    id: 'housePatternPlugin',
+    beforeDatasetDraw: (chart, args, options) => {
+        const { ctx, chartArea, data } = chart;
+        const dataset = data.datasets[0];
+        
+        // Ensure patterns are ready
+        if (Object.keys(housePatterns).length === 0 || !dataset.barBackgrounds) {
+            return;
+        }
+
+        // Apply the generated patterns to the background colors
+        dataset.backgroundColor = dataset.barBackgrounds.map(houseName => housePatterns[houseName] || 'gray');
+    },
+};
+
 const ScoreboardChart = ({ scores = [] }) => {
-  // Safety check: If scores is still null/undefined or not an array, show a fallback
-  if (!scores || !Array.isArray(scores)) {
+    const [imagesLoaded, setImagesLoaded] = useState(false);
+    const chartRef = useRef(null);
+
+    // --- Image Loading and Pattern Generation ---
+    useEffect(() => {
+        // Function to load images and create patterns
+        const loadImages = async () => {
+             // Check if chart context is available
+            if (!chartRef.current || !chartRef.current.ctx) {
+                // If context is not ready, exit and wait for next render cycle
+                return; 
+            }
+
+            const patternPromises = Object.keys(HOUSE_IMAGE_PATHS).map(houseName => {
+                return new Promise(resolve => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Create a pattern using the image
+                        const pattern = chartRef.current.ctx.createPattern(img, 'repeat');
+                        housePatterns[houseName] = pattern;
+                        resolve(true);
+                    };
+                    img.onerror = () => {
+                        // Use a fallback color if the image fails to load
+                        housePatterns[houseName] = 'rgba(128, 128, 128, 0.9)'; 
+                        resolve(false);
+                    };
+                    img.src = HOUSE_IMAGE_PATHS[houseName];
+                });
+            });
+
+            await Promise.all(patternPromises);
+            setImagesLoaded(true);
+            
+            // Force chart update after patterns are loaded
+            if (chartRef.current) {
+                chartRef.current.update();
+            }
+        };
+
+        // Trigger loading only once after the component mounts and chartRef is set
+        if (chartRef.current && !imagesLoaded) {
+            loadImages();
+        }
+    }, [imagesLoaded]); 
+
+
+    // Determine the source of scores: Use live data if available, otherwise use demo data.
+    const chartScores = (scores && Array.isArray(scores) && scores.length > 0) ? scores : DEMO_SCORES;
+    
+    // Sort scores to show leader first
+    const sortedScores = [...chartScores].sort((a, b) => b.points - a.points);
+    
+    const labels = sortedScores.map((house) => house.name);
+    const dataPoints = sortedScores.map((house) => house.points);
+    // Create a list of house names for the plugin to reference
+    const barBackgrounds = sortedScores.map(house => house.name); 
+
+    const data = {
+        labels: labels,
+        datasets: [
+            {
+                label: "House Points",
+                data: dataPoints,
+                // barBackgrounds is a custom property for our plugin to use
+                barBackgrounds: barBackgrounds, 
+                // Initial backgroundColor is a neutral fallback until images load
+                backgroundColor: 'rgba(128, 128, 128, 0.9)', 
+                borderColor: 'rgb(0, 0, 0)', 
+                borderWidth: 3, 
+                borderRadius: 0, 
+            },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false, 
+        plugins: {
+            legend: { display: false },
+            title: { display: false },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)', 
+                titleColor: 'white',
+                bodyColor: 'white',
+                padding: 10,
+            },
+            // The custom plugin is referenced here
+            housePatternPlugin: {}, 
+        },
+        layout: {
+            padding: { top: 20, bottom: 20, left: 10, right: 10 }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 4500,
+                border: { color: 'black', width: 3 },
+                ticks: { stepSize: 500, color: 'black', font: { family: 'Montserrat', size: 14, weight: 'normal' }, padding: 10 },
+                grid: { color: 'rgba(0, 0, 0, 0.1)' }
+            },
+            x: {
+                border: { color: 'black', width: 3 },
+                ticks: { color: 'black', font: { family: 'Montserrat', size: 14, weight: 'normal' }, padding: 10 },
+                grid: { display: false },
+            },
+        },
+    };
+
+    // ALWAYS RENDER: The component renders immediately with fallback color (grey) 
+    // and updates once the SVGs load and the plugin applies the patterns.
+
     return (
-      <div className="text-center p-4 text-gray-500">
-        Loading Scoreboard...
-      </div>
+        <div className="w-full h-full font-['Montserrat'] min-h-[400px]"> 
+            <Bar 
+                ref={chartRef} 
+                options={options} 
+                data={data} 
+                // Pass the custom plugin to the Bar component
+                plugins={[patternPlugin]} 
+            />
+        </div>
     );
-  }
-
-  // Sort scores to show leader first
-  const sortedScores = [...scores].sort((a, b) => b.points - a.points);
-
-  const data = {
-    labels: sortedScores.map((house) => house.name),
-    datasets: [
-      {
-        label: "House Points",
-        data: sortedScores.map((house) => house.points),
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.7)", // Red
-          "rgba(54, 162, 235, 0.7)", // Blue
-          "rgba(255, 206, 86, 0.7)", // Yellow
-          "rgba(75, 192, 192, 0.7)", // Green
-          "rgba(153, 102, 255, 0.7)", // Purple
-        ],
-        borderColor: [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
-          "rgba(153, 102, 255, 1)",
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      title: {
-        display: true,
-        text: "House Leaderboard",
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          stepSize: 10,
-        },
-      },
-      x: {
-        grid: {
-          display: false,
-        },
-      },
-    },
-  };
-
-  return <Bar options={options} data={data} />;
 };
 
 export default ScoreboardChart;
-
-// import React, { useEffect, useState } from 'react';
-// import Chart from 'chart.js/auto';
-// import ChartDataLabels from 'chartjs-plugin-datalabels';
-// import axios from 'axios';
-
-// const ScoreboardChart = () => {
-//   const [ranking, setRanking] = useState({
-//     labels: ["Spartans", "Mughals", "Vikings", "Rajputs", "Aryans"],
-//     datasets: [
-//       {
-//         label: "Scoreboard",
-//         data: [0, 0, 0, 0, 0],
-//         backgroundColor: [
-//           "rgba(236,129,121,0.8)",
-//           "rgba(252,155,9,0.8)",
-//           "rgba(95,213,170,0.8)",
-//           "rgba(83,199,223,0.8)",
-//           "rgba(255,216,76,0.8)",
-//         ],
-//         borderColor: [
-//           "rgba(236,129,121,1)",
-//           "rgba(252,155,9,1)",
-//           "rgba(95,213,170,1)",
-//           "rgba(83,199,223,1)",
-//           "rgba(255,216,76,1)",
-//         ],
-//         borderWidth: 1,
-//       },
-//     ],
-//   });
-
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const scoreResponse = await axios.get(
-//           `https://bharatham-backend-j9s1.onrender.com/score/`
-//         );
-//         const scores = scoreResponse.data.data;
-
-//         const newRanking = { ...ranking };
-//         scores.forEach((score) => {
-//           if (score.house === "Mughals")
-//             newRanking.datasets[0].data[1] += score.points;
-//           else if (score.house === "Spartans")
-//             newRanking.datasets[0].data[0] += score.points;
-//           else if (score.house === "Vikings")
-//             newRanking.datasets[0].data[2] += score.points;
-//           else if (score.house === "Rajputs")
-//             newRanking.datasets[0].data[3] += score.points;
-//           else if (score.house === "Aryans")
-//             newRanking.datasets[0].data[4] += score.points;
-//         });
-
-//         setRanking(newRanking);
-
-//         const ctx = document
-//           .getElementById("scoreboard-chart")
-//           .getContext("2d");
-
-//         Chart.defaults.color = "#FFF";
-//         Chart.register(ChartDataLabels);
-//         new Chart(ctx, {
-//           type: "bar",
-//           data: newRanking,
-//           options: {
-//             scales: {
-//               yAxes: [
-//                 {
-//                   ticks: {
-//                     beginAtZero: true,
-//                   },
-//                 },
-//               ],
-//             },
-//             plugins: {
-//               legend: {
-//                 display: false,
-//               },
-//               datalabels: {
-//                 anchor: "center",
-//                 align: "end",
-//                 color: "white",
-//                 font: {
-//                   weight: "bold",
-//                 },
-//                 formatter: function (value) {
-//                   return value;
-//                 },
-//               },
-//             },
-//           },
-//         });
-//       } catch (error) {
-//         console.error(error);
-//       }
-//     };
-
-//     fetchData();
-//   }, []);
-
-//   return <canvas id="scoreboard-chart" />;
-// };
-
-// export default ScoreboardChart; 
