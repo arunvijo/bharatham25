@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 // Components
 import Spinner from "../components/Spinner";
 
+
 /**
  * FilterSection Component - Compact, Desi Styled, and no SVG background.
  */
@@ -60,20 +61,22 @@ const Events = () => {
 
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const eventResponse = await axios.get(`${apiUrl}/event`);
-        setEvents(eventResponse.data.data);
-      } catch (error) {
-        console.error("Error fetching events:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [apiUrl]);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const eventResponse = await axios.get(`${apiUrl}/event`);
+      setEvents(eventResponse.data.data);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchData();
+}, [apiUrl]);
+
+
 
   useEffect(() => {
     if (location.state?.category) {
@@ -227,7 +230,7 @@ const Events = () => {
         {/* Event Header SVG with Dynamic Category Text */}
         <div className="flex justify-center mb-4 relative">
           <div className="relative w-full 
-            max-w-[180px] 
+            max-w-[250px] 
             sm:max-w-[250px] 
             md:max-w-[300px] 
             lg:max-w-[340px] 
@@ -262,25 +265,34 @@ const Events = () => {
 
         {/* Events Grid */}
         {filteredEvents.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-20 pb-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-20 pb-20 mt-10">
             {filteredEvents.map((e) => (
               <div
                 key={e._id}
-                className="group relative flex items-center justify-center transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl cursor-default"
+                className="group relative flex items-center justify-center transition-transform duration-300 hover:-translate-y-2  cursor-default"
               >
-                <div className="relative w-full">
+                <div className="relative w-full max-w-[260px] sm:max-w-[280px] md:max-w-[300px] mx-auto">
                   <img
-                    src="/images/event-card.svg"
+                    src="/images/events-card.svg"
                     alt="Event Card Background"
-                    className="w-full h-auto group-hover:opacity-80 transition-opacity"
+                    className="w-full h-auto"
                   />
 
                   {/* EVENT NAME */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <h3 
-                      className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-stone-900 font-reality tracking-wide group-hover:text-[#D97706] transition-colors break-words text-center px-6 sm:px-8 md:px-10 max-w-full leading-tight"
-                      style={{textShadow: "0 1px 0 #D97706"}}
-                    >
+                  <h3
+                    className="
+                      text-sm text-white sm:text-base md:text-lg lg:text-xl 
+                      font-bold font-reality tracking-wide 
+                      break-words text-center 
+                      px-6 sm:px-8 md:px-10 
+                      max-w-full leading-tight
+                      transition-all
+                      drop-shadow-[0_1px_0_yellow]
+                      group-hover:text-[#FBAE0C]
+                      group-hover:drop-shadow-[0_1px_0_black]
+                    "
+                  >
                       {e.name}
                     </h3>
                   </div>

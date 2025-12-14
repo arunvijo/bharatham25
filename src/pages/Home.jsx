@@ -6,6 +6,7 @@ import Houses from "../components/Houses";
 import Events from "../components/Events";
 import Gallery from "../components/Gallery";
 import Footer from "../components/Footer";
+import Scoreboard from "./Scoreboard";
 import ComingSoon from "../components/ComingSoon";
 
 export default function Home() {
