@@ -39,6 +39,7 @@ import Scoreboard from "./pages/Scoreboard.jsx";
 import AdminEventView from "./components/admin/AdminEventView.jsx";
 import Events from "./pages/Events.jsx";
 import EventPage from "./pages/EventPage.jsx";
+import Credits from "./pages/Credits.jsx";
 
 // 👇 NEW IMPORTS
 import DesiBackground from "./components/DesiBackground";
@@ -72,6 +73,7 @@ const App = () => {
           <Route path="/scoreboard" element={<Scoreboard />} />
           <Route path="/events" element={<Events />} />
           <Route path="/event/:id" element={<EventPage />} />
+          <Route path="/credits" element={<Credits />} />
 
           {/* Participant CRUD */}
           <Route path="/participant/create" element={<CreateParticipant />} />

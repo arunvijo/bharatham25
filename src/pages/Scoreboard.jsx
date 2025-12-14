@@ -10,6 +10,7 @@ import ScoreboardChart from "../components/ScoreboardChart";
 import ScoreTable from "../components/ScoreTable";
 import NegativeScoreTable from "../components/NegativeScoreTable";
 import Nav from "../components/Navbar";
+import Footer from "../components/Footer";
 
 // Decorative Image Component
 const DecorativeImage = ({ src, className, alt = "Decorative pattern" }) => (
@@ -224,29 +225,9 @@ const Scoreboard = () => {
                     </section>
 
                 </main>
-
-                {/* --- Footer (Using 'footer.png' placeholder for the scrollwork) --- */}
-                <footer className="py-8 text-center text-stone-600 text-sm mt-12">
-    <div className="w-full max-w-4xl mx-auto flex justify-center items-center">
-        {/* Horizontal line (Left) */}
-        {/* <div className="flex-grow border-t-2 border-stone-400 mx-4"></div> */}
-        
-        {/* Decorative Footer Scrollwork (5th PNG image) */}
-        <DecorativeImage 
-            src="/images/footer.png" 
-            // Increased size to w-48 (as done previously)
-            // Added transform class to move it slightly above the horizontal line
-            className="w-48 h-50 transform -translate-y-16 relative z-10"
-            alt="Decorative Footer Scrollwork"
-        />
-
-        {/* Horizontal line (Right) */}
-        {/* <div className="flex-grow border-t-2 border-stone-400 mx-4"></div> */}
-    </div>
-    <p className="mt-4">© 2026 Bharatham • RSET</p>
-</footer>
                 
             </div>
+             <Footer />
         </VerticalPatternBackground>
     );
 };
