@@ -1,16 +1,17 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-
+import { Pointer } from "./Pointer.jsx";
+import HoverText from "./HoverText.jsx";
 export default function Events() {
   const navigate = useNavigate();
 
-  const events = [
-    { title: "Pre Events", img: "/images/events/pre-events.svg", category: "PRE EVENTS" },
-    { title: "Group Events", img: "/images/events/group.svg", category: "GROUP EVENTS" },
-    { title: "Combined Events", img: "/images/events/combined.svg", category: "COMBINED EVENTS" },
-    { title: "Individual Events", img: "/images/events/individual.svg", category: "INDIVIDUAL EVENTS" },
-  ];
+const events = [
+  { title: "Pre Events", img: "/images/events/pre-events.svg", category: "PRE EVENTS", artist: "Aryasree Nambiar" },
+  { title: "Group Events", img: "/images/events/group.svg", category: "GROUP EVENTS", artist: "Angel Rodrigues" },
+  { title: "Combined Events", img: "/images/events/combined.svg", category: "COMBINED EVENTS", artist: "Neha Benny" },
+  { title: "Individual Events", img: "/images/events/individual.svg", category: "INDIVIDUAL EVENTS", artist: "Alna Jaison" },
+];
 
   const handleExplore = (category) => {
     navigate('/events', { state: { category } });
@@ -93,6 +94,9 @@ export default function Events() {
               className="flex flex-col items-center text-center group"
             >
               {/* IMAGE CONTAINER */}
+               <HoverText 
+                  text={`Art - ${event.artist}`}
+                >
               <div
                 className="relative w-full overflow-visible
                           max-h-[360px] sm:max-h-[420px] md:max-h-[520px]
@@ -104,7 +108,9 @@ export default function Events() {
                   className="w-full h-full object-contain"
                   style={{ display: "block" }}
                 />
+                
               </div>
+              </HoverText>
 
 
               {/* TITLE */}
@@ -134,6 +140,9 @@ export default function Events() {
       pointer-events-none
     "
   />
+    <Pointer>
+                    <div className="text-2xl">👆</div>
+                  </Pointer>
 
   {/* MAIN BUTTON — moves slightly (covers shadow!) */}
   <svg
@@ -168,9 +177,6 @@ export default function Events() {
     </span>
   </div>
 </button>
-
-
-
             </motion.div>
           ))}
         </motion.div>

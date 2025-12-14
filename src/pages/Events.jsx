@@ -15,7 +15,6 @@ function FilterSection({ filters, filter, setFilter }) {
   const pillsWrapRef = useRef(null);
 
   return (
-    // REDUCED: Changed mb-4 sm:mb-6 md:mb-8 to a smaller mb-2 for compactness
     <div className="relative w-full flex justify-center mb-2 mt-2">
       <div className="relative w-full max-w-3xl px-4">
         
@@ -79,8 +78,21 @@ const Events = () => {
   useEffect(() => {
     if (location.state?.category) {
       setCategoryTitle(location.state.category);
+      setFilter(""); // Reset filter when coming from another page
     }
   }, [location.state]);
+
+  // Update header text based on filter
+  useEffect(() => {
+    if (filter === "") {
+      // If no filter or "All" is selected, show the original category or "ALL EVENTS"
+      setCategoryTitle(location.state?.category || "ALL EVENTS");
+    } else {
+      // Convert filter to uppercase with proper formatting
+      const formattedFilter = filter.toUpperCase() + " EVENTS";
+      setCategoryTitle(formattedFilter);
+    }
+  }, [filter, location.state]);
 
   const filteredEvents = events.filter((event) => {
     if (filter === "") {
@@ -134,8 +146,7 @@ const Events = () => {
     <div className="min-h-screen bg-white text-stone-900 font-sans relative overflow-x-hidden">
       
       {/* --- TOP-RIGHT SVG BUTTON NAVIGATION (FIXED POSITION) --- */}
-      {/* Changed absolute to fixed and moved outside of motion.main */}
-      <div className="fixed top-4 right-0 z-[60] px-6 sm:px-10 md:px-12">
+      <div className="fixed top-2 right-0 z-[60] px-6 sm:px-10 md:px-12">
           <button
               onClick={() => navigate(-1)}
               className="group relative cursor-pointer select-none"
@@ -156,9 +167,8 @@ const Events = () => {
                       className="absolute inset-0 w-full h-full transition-transform duration-200 group-hover:translate-x-[4px] group-hover:translate-y-[3px]" 
                       viewBox="0 0 169 45"
                   >
-                      {/* Path: Fill with white, hover fill with yellow */}
                       <path 
-                          className="transition-colors duration-200 fill-[#FDFBF7] group-hover:fill-[#D97706]" 
+                          className="transition-colors duration-200 fill-[#FDFBF7] group-hover:fill-yellow" 
                           d="M11.3188 33.8038C4.7163 33.8038 11.4732 25.4955 1.31175 22.6755C0.906093 22.5634 0.886183 22.4512 1.31175 22.3379C11.6051 19.6189 4.71132 11.1962 11.3188 11.1962C11.3188 5.56528 20.9228 1 32.769 1L133.726 1C145.572 1 155.176 5.56528 155.176 11.1962C163.593 11.1962 161.224 17.7435 167.901 22.3648C168.038 22.4602 168.028 22.5544 167.901 22.6497C161.557 27.3709 163.586 33.8038 155.176 33.8038C155.176 39.4347 145.572 44 133.726 44L32.769 44C20.9228 44 11.3188 39.4347 11.3188 33.8038Z" 
                           stroke="#271811" 
                           strokeWidth="2" 
@@ -174,94 +184,80 @@ const Events = () => {
               </div>
           </button>
       </div>
-      {/* --- END TOP-RIGHT SVG BUTTON NAVIGATION --- */}
       
-      {/* Fixed SVG Borders (Need a lower z-index than the fixed button) */}
+      {/* Fixed SVG Borders */}
       <div className="fixed top-0 left-0 w-full z-50 pointer-events-none hidden md:block">
         <img src="/images/top.svg" alt="Border Top" className="w-full h-auto" />
       </div>
-      {/* ... other border SVGs remain the same ... */}
       <div className="fixed bottom-0 left-0 w-full z-50 pointer-events-none hidden md:block">
         <img src="/images/bottom.svg" alt="Border Bottom" className="w-full h-auto" />
       </div>
-
       <div className="fixed left-0 top-0 h-full z-50 pointer-events-none hidden md:block">
         <img src="/images/left.svg" alt="Border Left" className="w-auto h-full" />
       </div>
-
       <div className="fixed right-0 top-0 h-full z-50 pointer-events-none hidden md:block">
         <img src="/images/right.svg" alt="Border Right" className="w-auto h-full" />
       </div>
-
 
       {/* FIXED SVG BORDERS — MOBILE VERSION */}
       <div className="fixed top-0 left-0 w-full z-50 pointer-events-none md:hidden">
         <img src="/images/topmob.svg" alt="Mobile Border Top" className="w-full h-auto" />
       </div>
-
       <div className="fixed bottom-0 left-0 w-full z-50 pointer-events-none md:hidden">
         <img src="/images/bottommob.svg" alt="Mobile Border Bottom" className="w-full h-auto" />
       </div>
-
       <div className="fixed left-0 top-0 h-full z-50 pointer-events-none md:hidden">
         <img src="/images/leftmob.svg" alt="Mobile Border Left" className="w-auto h-full" />
       </div>
-
       <div className="fixed right-0 top-0 h-full z-50 pointer-events-none md:hidden">
         <img src="/images/rightmob.svg" alt="Mobile Border Right" className="w-auto h-full" />
       </div>
-      {/* End Fixed SVG Borders */}
-
 
       <motion.main
         className="max-w-7xl mx-auto px-6 
             pt-16 
             sm:pt-20 
             md:pt-24 
-            pb-10
-            "
+            pb-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         
-        {/* Event Header SVG with Dynamic Category Text - REDUCED MARGIN */}
+        {/* Event Header SVG with Dynamic Category Text */}
         <div className="flex justify-center mb-4 relative">
-  {/* REDUCED MAX-WIDTH to make the header image and container smaller */}
-  <div className="relative w-full 
-    max-w-[180px] 
-    sm:max-w-[250px] 
-    md:max-w-[300px] 
-    lg:max-w-[340px] 
-    mx-auto">
-    
-    <img
-      src="/images/event-header.svg"
-      alt="Events Header Background"
-      className="w-full h-auto block"
-    />
+          <div className="relative w-full 
+            max-w-[180px] 
+            sm:max-w-[250px] 
+            md:max-w-[300px] 
+            lg:max-w-[340px] 
+            mx-auto">
+            
+            <img
+              src="/images/event-header.svg"
+              alt="Events Header Background"
+              className="w-full h-auto block"
+            />
 
-    <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6">
-      <h1
-        className="text-center leading-tight w-full"
-        style={{
-          color: "#CB1760",
-          fontFamily: "'Alfa Slab One', cursive",
-          // Enhanced Desi shadow for depth
-          textShadow: "0 2px 0 #271811, 0 4px 0 #271811", 
-          // Slightly reduced the font size clamp range for the smaller container
-          fontSize: "clamp(0.8rem, 3.5vw + 0.4rem, 1.8rem)", 
-          lineHeight: 1.1,
-          letterSpacing: "0.02em",
-        }}
-      >
-        {categoryTitle}
-      </h1>
-    </div>
-  </div>
-</div>
+            <div className="absolute inset-0 flex items-center justify-center px-4 sm:px-6">
+              <h1
+                className="text-center leading-tight w-full transition-all duration-300"
+                style={{
+                  color: "#CB1760",
+                  fontFamily: "'Alfa Slab One', cursive",
+                  textShadow: "0 2px 0 #271811, 0 4px 0 #271811", 
+                  fontSize: "clamp(0.8rem, 3.5vw + 0.4rem, 1.8rem)", 
+                  lineHeight: 1.1,
+                  letterSpacing: "0.02em",
+                }}
+              >
+                {categoryTitle}
+              </h1>
+            </div>
+          </div>
+        </div>
 
-        {/* Filter Section (Using the condensed component - margin reduced internally) */}
+        {/* Filter Section */}
         <FilterSection filters={filters} filter={filter} setFilter={setFilter} />
 
         {/* Events Grid */}
@@ -274,23 +270,20 @@ const Events = () => {
               >
                 <div className="relative w-full">
                   <img
-                    src="/images/event-stamp.svg"
+                    src="/images/event-card.svg"
                     alt="Event Card Background"
                     className="w-full h-auto group-hover:opacity-80 transition-opacity"
                   />
 
-                  {/* EVENT NAME (Stays Visible) */}
+                  {/* EVENT NAME */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <h3 
                       className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-stone-900 font-reality tracking-wide group-hover:text-[#D97706] transition-colors break-words text-center px-6 sm:px-8 md:px-10 max-w-full leading-tight"
-                      style={{textShadow: "0 1px 0 #D97706"}} // Desi Touch: Subtle shadow on card text
+                      style={{textShadow: "0 1px 0 #D97706"}}
                     >
                       {e.name}
                     </h3>
                   </div>
-
-                  
-                 
                 </div>
               </div>
             ))}

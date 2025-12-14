@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { Pointer } from "./Pointer.jsx";
+import HoverText from "./HoverText.jsx";
 
 export default function Houses() {
   const marqueeRef = useRef(null);
@@ -184,16 +186,21 @@ export default function Houses() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="group relative cursor-pointer flex flex-col items-center"
+                  className="group relative flex flex-col items-center"
                   style={{ 
                     width: 'clamp(140px, 16%, 220px)',
                   }}
                 >
+                {/* <Pointer>
+                  <div className="text-2xl">👆</div>
+                </Pointer> */}
                   {/* Image Container - Normalized by aspect ratio */}
+                  <HoverText text="Art - Sutheerth A">
                   <motion.div
                     className="relative w-full flex justify-center items-end transition-all duration-500 ease-out"
                     whileHover={{ y: -15, scale: 1.05 }}
                   >
+                    
                     {/* Glow Effect */}
                     <div className="absolute bottom-0 w-2/3 h-1/3 bg-orange-500/0 group-hover:bg-orange-500/20 blur-2xl transition-all duration-500 rounded-full"></div>
                     
@@ -205,23 +212,35 @@ export default function Houses() {
                         width: '100%'
                       }}
                     >
-                      <img
-                        src={house.src}
-                        alt={house.name}
-                        className="
-                          drop-shadow-lg 
-                          group-hover:drop-shadow-2xl 
-                          transition-all duration-500
-                        "
-                        style={{
-                          height: '280px', // All images same height
-                          width: 'auto',
-                          objectFit: 'contain',
-                          objectPosition: 'bottom'
-                        }}
-                      />
+                      {/* Fixed height container - all images fill the same height */}
+
+  <div 
+    className="flex items-end justify-center"
+    style={{
+      height: '280px', // Base height for all
+      width: '100%'
+    }}
+  >
+    <img
+      src={house.src}
+      alt={house.name}
+      className="
+        drop-shadow-lg 
+        group-hover:drop-shadow-2xl 
+        transition-all duration-500
+      "
+      style={{
+        height: '280px', // All images same height
+        width: 'auto',
+        objectFit: 'contain',
+        objectPosition: 'bottom'
+      }}
+    />
+  </div>
+
                     </div>
                   </motion.div>
+                  </HoverText>
 
                   {/* House Name */}
                   <div className="mt-3 sm:mt-4 text-center relative">

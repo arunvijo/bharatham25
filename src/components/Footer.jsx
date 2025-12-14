@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaInstagram, FaYoutube, FaMapMarkerAlt, FaEnvelope, FaPhoneAlt } from 'react-icons/fa';
-
+import { Pointer } from './Pointer.jsx';
 const Footer = () => {
   const quickLinks = [
     { name: 'HOME', path: '/' },
@@ -59,6 +59,9 @@ const Footer = () => {
             >
               <FaMapMarkerAlt className="group-hover:animate-bounce" />
               <span className="font-opensans text-sm font-semibold">Get Directions</span>
+              <Pointer>
+                                  <div className="text-2xl">👆</div>
+                                </Pointer>
             </a>
           </div>
 
@@ -75,6 +78,9 @@ const Footer = () => {
                   {link.name}
                 </a>
               ))}
+              <Pointer>
+                                  <div className="text-2xl">👆</div>
+                                </Pointer>
             </div>
           </div>
 
@@ -84,8 +90,12 @@ const Footer = () => {
             
             {/* Social Icons */}
             <div className="flex gap-4">
+              <Pointer>
+                                  <div className="text-2xl">👆</div>
+                                </Pointer>
               <a href="#" className="p-3 bg-white/10 rounded-full hover:bg-white hover:text-primary transition-all hover:-translate-y-1">
                 <FaInstagram size={20} />
+                
               </a>
               <a href="#" className="p-3 bg-white/10 rounded-full hover:bg-white hover:text-primary transition-all hover:-translate-y-1">
                 <FaYoutube size={20} />
@@ -95,10 +105,16 @@ const Footer = () => {
             {/* Contact Info */}
             <div className="space-y-3 font-opensans">
               <a href="mailto:info@bharatham26.com" className="flex items-center justify-center md:justify-end gap-3 hover:text-yellow transition-colors">
+                <Pointer>
+                                  <div className="text-2xl">👆</div>
+                                </Pointer>
                 <span>info@bharatham26.com</span>
                 <FaEnvelope />
               </a>
               <a href="tel:+911234567890" className="flex items-center justify-center md:justify-end gap-3 hover:text-yellow transition-colors">
+                <Pointer>
+                                  <div className="text-2xl">👆</div>
+                                </Pointer>
                 <span>+91 1234 567 890</span>
                 <FaPhoneAlt />
               </a>
