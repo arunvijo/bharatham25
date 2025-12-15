@@ -1,5 +1,7 @@
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { Pointer } from "./Pointer.jsx";
+import HoverText from "./HoverText.jsx";
 
 export default function Houses() {
   const marqueeRef = useRef(null);
@@ -79,7 +81,7 @@ export default function Houses() {
           </div>
         </div>
 
-        {/* 2. LEGACY VIDEO (Restored Original Layout & Styling) */}
+        {/* 2. LEGACY VIDEO */}
         <div className="max-w-7xl mx-auto px-6 py-10 md:py-20">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24 items-center">
             
@@ -132,12 +134,12 @@ export default function Houses() {
         </div>
       </div>
 
-      {/* ================= SECTION 2: HOUSES (Single Screen Fit) ================= */}
+      {/* ================= SECTION 2: HOUSES ================= */}
       <div 
         id="houses" 
         className="relative w-full min-h-screen flex flex-col justify-center items-center bg-cream py-16 md:py-20"
       >
-        {/* Background Pattern (Mandala Texture) */}
+        {/* Background Pattern */}
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
              style={{ 
                backgroundImage: `radial-gradient(circle, #D97706 1px, transparent 1px)`, 
@@ -163,20 +165,9 @@ export default function Houses() {
             <div className="w-24 h-1 bg-desi-saffron mx-auto mt-4 rounded-full"></div>
           </motion.div>
 
-          {/* Houses Grid - Fixed Size, Same Level */}
-          <div className="flex flex-wrap justify-center items-end gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 w-full">
+          {/* Houses Grid - 1 column on mobile, multiple on larger screens */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8 md:gap-10 lg:gap-12 w-full place-items-center">
             {houses.map((house, index) => {
-              // Calculate aspect ratios to normalize heights
-              const aspectRatios = {
-                "Aryans": 406 / 430,    // 0.944
-                "Mughals": 386 / 528,   // 0.731
-                "Spartans": 403 / 596,  // 0.676
-                "Vikings": 491 / 538,   // 0.913
-                "Rajputs": 498 / 498    // 1.000
-              };
-              
-              const ratio = aspectRatios[house.name] || 1;
-              
               return (
                 <motion.div
                   key={index}
@@ -184,48 +175,39 @@ export default function Houses() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="group relative cursor-pointer flex flex-col items-center"
-                  style={{ 
-                    width: 'clamp(140px, 16%, 220px)',
-                  }}
+                  className="group relative flex flex-col items-center w-full max-w-[280px]"
                 >
-                  {/* Image Container - Normalized by aspect ratio */}
-                  <motion.div
-                    className="relative w-full flex justify-center items-end transition-all duration-500 ease-out"
-                    whileHover={{ y: -15, scale: 1.05 }}
-                  >
-                    {/* Glow Effect */}
-                    <div className="absolute bottom-0 w-2/3 h-1/3 bg-orange-500/0 group-hover:bg-orange-500/20 blur-2xl transition-all duration-500 rounded-full"></div>
-                    
-                    {/* Fixed height container - all images fill the same height */}
-                    <div 
-                      className="flex items-end justify-center"
-                      style={{
-                        height: '280px', // Base height for all
-                        width: '100%'
-                      }}
+                  {/* Image Container */}
+                  <HoverText text="Art - Sutheerth A">
+                    <motion.div
+                      className="relative w-full flex justify-center items-center transition-all duration-500 ease-out"
+                      whileHover={{ y: -15, scale: 1.05 }}
                     >
-                      <img
-                        src={house.src}
-                        alt={house.name}
-                        className="
-                          drop-shadow-lg 
-                          group-hover:drop-shadow-2xl 
-                          transition-all duration-500
-                        "
-                        style={{
-                          height: '280px', // All images same height
-                          width: 'auto',
-                          objectFit: 'contain',
-                          objectPosition: 'bottom'
-                        }}
-                      />
-                    </div>
-                  </motion.div>
+                      
+                      {/* Glow Effect */}
+                      <div className="absolute bottom-0 w-2/3 h-1/3 bg-orange-500/0 group-hover:bg-orange-500/20 blur-2xl transition-all duration-500 rounded-full"></div>
+                      
+                      {/* Image - Full display without cropping */}
+                      <div className="w-full flex items-center justify-center">
+                        <img
+                          src={house.src}
+                          alt={house.name}
+                          className="
+                            h-[300px]
+                            w-auto
+                            object-contain
+                            drop-shadow-lg 
+                            group-hover:drop-shadow-2xl 
+                            transition-all duration-500
+                          "
+                        />
+                      </div>
+                    </motion.div>
+                  </HoverText>
 
                   {/* House Name */}
-                  <div className="mt-3 sm:mt-4 text-center relative">
-                    <h3 className="font-qawatone text-xl sm:text-2xl md:text-3xl text-stone-400 group-hover:text-stone-900 transition-colors duration-300">
+                  <div className="mt-4 text-center relative">
+                    <h3 className="font-qawatone text-2xl md:text-3xl text-stone-400 group-hover:text-stone-900 transition-colors duration-300">
                       {house.name.toUpperCase()}
                     </h3>
                     <div className="h-[2px] bg-desi-saffron w-0 group-hover:w-full transition-all duration-300 mx-auto mt-1"></div>

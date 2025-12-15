@@ -1,16 +1,17 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-
+import { Pointer } from "./Pointer.jsx";
+import HoverText from "./HoverText.jsx";
 export default function Events() {
   const navigate = useNavigate();
 
-  const events = [
-    { title: "Pre Events", img: "/images/events/pre-events.svg", category: "PRE EVENTS" },
-    { title: "Group Events", img: "/images/events/group.svg", category: "GROUP EVENTS" },
-    { title: "Combined Events", img: "/images/events/combined.svg", category: "COMBINED EVENTS" },
-    { title: "Individual Events", img: "/images/events/individual.svg", category: "INDIVIDUAL EVENTS" },
-  ];
+const events = [
+  { title: "Pre Events", img: "/images/events/pre-events.svg", category: "PRE EVENTS", artist: "Aryasree Nambiar" },
+  { title: "Group Events", img: "/images/events/group.svg", category: "GROUP EVENTS", artist: "Angel Rodrigues" },
+  { title: "Combined Events", img: "/images/events/combined.svg", category: "COMBINED EVENTS", artist: "Neha Benny" },
+  { title: "Individual Events", img: "/images/events/individual.svg", category: "INDIVIDUAL EVENTS", artist: "Alna Jaison" },
+];
 
   const handleExplore = (category) => {
     navigate('/events', { state: { category } });
@@ -93,6 +94,9 @@ export default function Events() {
               className="flex flex-col items-center text-center group"
             >
               {/* IMAGE CONTAINER */}
+               <HoverText 
+                  text={`Art - ${event.artist}`}
+                >
               <div
                 className="relative w-full overflow-visible
                           max-h-[360px] sm:max-h-[420px] md:max-h-[520px]
@@ -104,7 +108,9 @@ export default function Events() {
                   className="w-full h-full object-contain"
                   style={{ display: "block" }}
                 />
+                
               </div>
+              </HoverText>
 
 
               {/* TITLE */}
@@ -113,61 +119,64 @@ export default function Events() {
               </h3>
 
               {/* EXPLORE BUTTON */}
-              <button
-                onClick={() => handleExplore(event.category)}
-                className="
-                  relative mt-4
-                  w-[140px]
-                  aspect-[169/45]
-                  group/btn cursor-pointer select-none
-                "
-              >
-                {/* SHADOW */}
-                <img
-                  src="/images/loginbtn.svg"
-                  alt=""
-                  className="
-                    absolute inset-0 w-full h-full
-                    translate-x-[4px] translate-y-[4px]
-                    brightness-0 opacity-20
-                    pointer-events-none
-                    transition-transform duration-200
-                    group-hover/btn:translate-x-[6px] group-hover/btn:translate-y-[6px]
-                  "
-                />
+<button
+  onClick={() => handleExplore(event.category)}
+  className="
+    relative mt-4 
+    w-[140px] md:w-[160px] 
+    aspect-[169/58] 
+    group/explore 
+    cursor-pointer select-none
+  "
+>
+  {/* SHADOW — must move FARTHER (same as login button) */}
+  <img
+    src="/images/loginbtn.svg"
+    alt=""
+    className="
+      absolute inset-0 w-full h-full
+      translate-x-[4px] translate-y-[3px]
+      brightness-0 saturate-[1000%]
+      pointer-events-none
+    "
+  />
+    <Pointer>
+                    <div className="text-2xl">👆</div>
+                  </Pointer>
 
-                {/* BUTTON SVG */}
-                <svg
-                  className="
-                    absolute inset-0 w-full h-full
-                    transition-transform duration-200
-                    group-hover/btn:translate-x-[2px]
-                    group-hover/btn:translate-y-[2px]
-                  "
-                  viewBox="0 0 169 45"
-                >
-                  <path
-                    className="transition-colors duration-300 fill-black group-hover/btn:fill-desi-saffron"
-                    d="M11.3188 33.8038C4.7163 33.8038 11.4732 25.4955 1.31175 22.6755C0.906093 22.5634 0.886183 22.4512 1.31175 22.3379C11.6051 19.6189 4.71132 11.1962 11.3188 11.1962C11.3188 5.56528 20.9228 1 32.769 1L133.726 1C145.572 1 155.176 5.56528 155.176 11.1962C163.593 11.1962 161.224 17.7435 167.901 22.3648C168.038 22.4602 168.028 22.5544 167.901 22.6497C161.557 27.3709 163.586 33.8038 155.176 33.8038C155.176 39.4347 145.572 44 133.726 44L32.769 44C20.9228 44 11.3188 39.4347 11.3188 33.8038Z"
-                    stroke="none"
-                  />
-                </svg>
+  {/* MAIN BUTTON — moves slightly (covers shadow!) */}
+  <svg
+    className="
+      absolute inset-0 w-full h-full
+      transition-transform duration-200 ease-out
+      group-hover/explore:translate-x-[4px]
+      group-hover/explore:translate-y-[3px]
+    "
+    viewBox="0 0 169 45"
+  >
+    <path
+      className="transition-colors duration-200 fill-yellow group-hover/explore:fill-desi-saffron"
+      d="M11.3188 33.8038C4.7163 33.8038 11.4732 25.4955 1.31175 22.6755C0.906093 22.5634 0.886183 22.4512 1.31175 22.3379C11.6051 19.6189 4.71132 11.1962 11.3188 11.1962C11.3188 5.56528 20.9228 1 32.769 1L133.726 1C145.572 1 155.176 5.56528 155.176 11.1962C163.593 11.1962 161.224 17.7435 167.901 22.3648C168.038 22.4602 168.028 22.5544 167.901 22.6497C161.557 27.3709 163.586 33.8038 155.176 33.8038C155.176 39.4347 145.572 44 133.726 44L32.769 44C20.9228 44 11.3188 39.4347 11.3188 33.8038Z"
+      stroke="#271811"
+      strokeWidth="2"
+    />
+  </svg>
 
-                {/* TEXT */}
-                <span
-                  className="
-                    absolute inset-0 flex items-center justify-center
-                    transition-transform duration-200
-                    group-hover/btn:translate-x-[2px]
-                    group-hover/btn:translate-y-[2px]
-                    font-mont text-sm font-bold
-                    tracking-widest text-white
-                    pointer-events-none
-                  "
-                >
-                  EXPLORE
-                </span>
-              </button>
+  {/* TEXT — must follow the main button */}
+  <div
+    className="
+      absolute inset-0 flex items-center justify-center
+      transition-transform duration-200 ease-out
+      group-hover/explore:translate-x-[4px]
+      group-hover/explore:translate-y-[3px]
+      pointer-events-none
+    "
+  >
+    <span className="font-mont text-m font-bold tracking-widest text-black">
+      EXPLORE
+    </span>
+  </div>
+</button>
             </motion.div>
           ))}
         </motion.div>

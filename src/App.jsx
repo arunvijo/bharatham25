@@ -39,11 +39,13 @@ import Scoreboard from "./pages/Scoreboard.jsx";
 import AdminEventView from "./components/admin/AdminEventView.jsx";
 import Events from "./pages/Events.jsx";
 import EventPage from "./pages/EventPage.jsx";
+import Credits from "./pages/Credits.jsx";
 
 // 👇 NEW IMPORTS
 import DesiBackground from "./components/DesiBackground";
 // import DesiCursor from "./components/DesiCursor";
-import TextCursor from './components/TextCursor.jsx';
+// import TextCursor from './components/TextCursor.jsx';
+import { SmoothCursor } from "./components/TextCursor.jsx";
 import BackgroundMusic from "./components/BackgroundMusic";
 
 const App = () => {
@@ -57,10 +59,12 @@ const App = () => {
       cacheLocation="localstorage"
     >
 
-      <BackgroundMusic />
-      {/* 👇 ADD THESE TWO COMPONENTS */}
+      <SmoothCursor />
       <DesiBackground />
-      <TextCursor />
+      <BackgroundMusic />
+      
+      {/* <TextCursor /> */}
+      
 
       <div className="relative z-10"> {/* Ensure content sits above background */}
         <Routes>
@@ -71,6 +75,7 @@ const App = () => {
           <Route path="/scoreboard" element={<Scoreboard />} />
           <Route path="/events" element={<Events />} />
           <Route path="/event/:id" element={<EventPage />} />
+          <Route path="/credits" element={<Credits />} />
 
           {/* Participant CRUD */}
           <Route path="/participant/create" element={<CreateParticipant />} />
