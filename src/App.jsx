@@ -59,10 +59,12 @@ const App = () => {
       cacheLocation="localstorage"
     >
 
-      <BackgroundMusic />
-      <DesiBackground />
-      {/* <TextCursor /> */}
       <SmoothCursor />
+      <DesiBackground />
+      <BackgroundMusic />
+      
+      {/* <TextCursor /> */}
+      
 
       <div className="relative z-10"> {/* Ensure content sits above background */}
         <Routes>
