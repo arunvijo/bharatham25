@@ -8,32 +8,24 @@ const Gallery = () => {
   };
   
   const row1Images = [
-    getImagePath('1.jpg'),
-    getImagePath('2.jpg'),
-    getImagePath('3.JPG'),
-    getImagePath('4.JPG'),
-    getImagePath('5.JPG'),
+    getImagePath('1.webp'),
+    getImagePath('2.webp'),
+    getImagePath('3.webp'),
+    getImagePath('4.webp'),
+    getImagePath('5.webp'),
   ];
 
   const row2Images = [
-    getImagePath('6.JPG'),
-    getImagePath('7.JPG'),
-    getImagePath('8.JPG'),
-    getImagePath('9.jpg'),
-    getImagePath('10.JPG'),
-  ];
-
-  const row3Images = [
-    getImagePath('11.JPG'),
-    getImagePath('12.JPG'),
-    getImagePath('13.JPG'),
-    getImagePath('14.JPG'),
-    getImagePath('15.JPG'),
+    getImagePath('6.webp'),
+    getImagePath('7.webp'),
+    getImagePath('8.webp'),
+    getImagePath('9.webp'),
+    getImagePath('10.webp'),
   ];
 
   const MarqueeRow = ({ images, direction = 'right' }) => {
-    // Duplicate images for seamless loop
-    const duplicatedImages = [...images, ...images];
+    // Duplicate images multiple times for truly seamless loop
+    const duplicatedImages = [...images, ...images, ...images];
     
     return (
       <div className="overflow-hidden py-2">
@@ -43,6 +35,7 @@ const Gallery = () => {
           }`}
           style={{
             width: 'max-content',
+            willChange: 'transform',
           }}
         >
           {duplicatedImages.map((img, index) => (
@@ -58,7 +51,6 @@ const Gallery = () => {
                 border-[2px] 
                 border-yellow
               "
-
               loading="lazy"
               onLoad={(e) => {
                 console.log(`✓ Loaded: ${img}`);
@@ -75,8 +67,7 @@ const Gallery = () => {
   };
 
   return (
-   <section className="relative bg-primary py-20 overflow-hidden">
-
+    <section className="relative bg-primary py-20 overflow-hidden">
       {/* Marquee Rows */}
       <div className="space-y-4">
         {/* Row 1 - Moving Right */}
@@ -84,9 +75,6 @@ const Gallery = () => {
         
         {/* Row 2 - Moving Left */}
         <MarqueeRow images={row2Images} direction="left" />
-        
-        {/* Row 3 - Moving Right */}
-        <MarqueeRow images={row3Images} direction="right" />
       </div>
 
       <style jsx>{`
@@ -95,13 +83,13 @@ const Gallery = () => {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-50%);
+            transform: translateX(calc(-100% / 3));
           }
         }
 
         @keyframes marquee-left {
           0% {
-            transform: translateX(-50%);
+            transform: translateX(calc(-100% / 3));
           }
           100% {
             transform: translateX(0);
@@ -109,11 +97,18 @@ const Gallery = () => {
         }
 
         .animate-marquee-right {
-          animation: marquee-right 30s linear infinite;
+          animation: marquee-right 40s linear infinite;
         }
 
         .animate-marquee-left {
-          animation: marquee-left 30s linear infinite;
+          animation: marquee-left 40s linear infinite;
+        }
+
+        /* Prevent animation glitches */
+        .animate-marquee-right,
+        .animate-marquee-left {
+          backface-visibility: hidden;
+          perspective: 1000px;
         }
       `}</style>
     </section>
