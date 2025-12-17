@@ -1,52 +1,51 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Auth0Provider } from "@auth0/auth0-react";
 
-import Home from "./pages/Home.jsx";
-import AdminDashboard from "./pages/AdminDashboard.jsx";
+// Critical UI components are kept as static imports for immediate visibility
+import { SmoothCursor } from "./components/TextCursor.jsx";
+import DesiBackground from "./components/DesiBackground";
+import BackgroundMusic from "./components/BackgroundMusic";
+import "./index.css";
+
+// --- LAZY LOADED ROUTES ---
+// Core Pages
+const Home = lazy(() => import("./pages/Home.jsx"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard.jsx"));
+const Scoreboard = lazy(() => import("./pages/Scoreboard.jsx"));
+const Events = lazy(() => import("./pages/Events.jsx"));
+const EventPage = lazy(() => import("./pages/EventPage.jsx"));
+const Credits = lazy(() => import("./pages/Credits.jsx"));
+const AdminEventView = lazy(() => import("./components/admin/AdminEventView.jsx"));
 
 // Participant Routes
-import CreateParticipant from "./pages/Participant/CreateParticipant.jsx";
-import EditParticipant from "./pages/Participant/EditParticipant.jsx";
-import ShowParticipant from "./pages/Participant/ShowParticipant.jsx";
-import DeleteParticipant from "./pages/Participant/DeleteParticipant.jsx";
+const CreateParticipant = lazy(() => import("./pages/Participant/CreateParticipant.jsx"));
+const EditParticipant = lazy(() => import("./pages/Participant/EditParticipant.jsx"));
+const ShowParticipant = lazy(() => import("./pages/Participant/ShowParticipant.jsx"));
+const DeleteParticipant = lazy(() => import("./pages/Participant/DeleteParticipant.jsx"));
 
 // Event Routes
-import CreateEvent from "./pages/Event/CreateEvent.jsx";
-import EditEvent from "./pages/Event/EditEvent.jsx";
-import ShowEvent from "./pages/Event/ShowEvent.jsx";
-import DeleteEvent from "./pages/Event/DeleteEvent.jsx";
+const CreateEvent = lazy(() => import("./pages/Event/CreateEvent.jsx"));
+const EditEvent = lazy(() => import("./pages/Event/EditEvent.jsx"));
+const ShowEvent = lazy(() => import("./pages/Event/ShowEvent.jsx"));
+const DeleteEvent = lazy(() => import("./pages/Event/DeleteEvent.jsx"));
 
 // Admin Registration Routes
-import CreateRegistration from "./pages/Registration/CreateRegistration.jsx";
-import EditRegistration from "./pages/Registration/EditRegistration.jsx";
-import ShowRegistration from "./pages/Registration/ShowRegistration.jsx";
-import DeleteRegistration from "./pages/Registration/DeleteRegistration.jsx";
+const CreateRegistration = lazy(() => import("./pages/Registration/CreateRegistration.jsx"));
+const EditRegistration = lazy(() => import("./pages/Registration/EditRegistration.jsx"));
+const ShowRegistration = lazy(() => import("./pages/Registration/ShowRegistration.jsx"));
+const DeleteRegistration = lazy(() => import("./pages/Registration/DeleteRegistration.jsx"));
 
 // Score Routes
-import CreateScore from "./pages/Score/CreateScore.jsx";
-import EditScore from "./pages/Score/EditScore.jsx";
-import ShowScore from "./pages/Score/ShowScore.jsx";
-import DeleteScore from "./pages/Score/DeleteScore.jsx";
+const CreateScore = lazy(() => import("./pages/Score/CreateScore.jsx"));
+const EditScore = lazy(() => import("./pages/Score/EditScore.jsx"));
+const ShowScore = lazy(() => import("./pages/Score/ShowScore.jsx"));
+const DeleteScore = lazy(() => import("./pages/Score/DeleteScore.jsx"));
 
 // Captain Routes
-import CaptainDashboard from "./pages/Captain/CaptainDashboard.jsx";
-import EventView from "./pages/Captain/EventView.jsx";
-import CaptainCreateRegistration from "./pages/Captain/CreateRegistration.jsx"; 
-
-import "./index.css";
-import Scoreboard from "./pages/Scoreboard.jsx";
-import AdminEventView from "./components/admin/AdminEventView.jsx";
-import Events from "./pages/Events.jsx";
-import EventPage from "./pages/EventPage.jsx";
-import Credits from "./pages/Credits.jsx";
-
-// 👇 NEW IMPORTS
-import DesiBackground from "./components/DesiBackground";
-// import DesiCursor from "./components/DesiCursor";
-// import TextCursor from './components/TextCursor.jsx';
-import { SmoothCursor } from "./components/TextCursor.jsx";
-import BackgroundMusic from "./components/BackgroundMusic";
+const CaptainDashboard = lazy(() => import("./pages/Captain/CaptainDashboard.jsx"));
+const EventView = lazy(() => import("./pages/Captain/EventView.jsx"));
+const CaptainCreateRegistration = lazy(() => import("./pages/Captain/CreateRegistration.jsx"));
 
 const App = () => {
   return (
@@ -58,140 +57,62 @@ const App = () => {
       }}
       cacheLocation="localstorage"
     >
-
       <SmoothCursor />
       <DesiBackground />
       <BackgroundMusic />
-      
-      {/* <TextCursor /> */}
-      
 
-      <div className="relative z-10"> {/* Ensure content sits above background */}
-        <Routes>
-          {/* Public & Admin Base Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/event/view/:id" element={<AdminEventView />} />
-          <Route path="/scoreboard" element={<Scoreboard />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/event/:id" element={<EventPage />} />
-          <Route path="/credits" element={<Credits />} />
+      <div className="relative z-10">
+        {/* Suspense provides a loading state while the browser fetches the page chunk */}
+        <Suspense 
+          fallback={
+            <div className="flex h-screen w-full items-center justify-center bg-black text-white">
+              <div className="text-xl animate-pulse">Loading Bharatham 2025...</div>
+            </div>
+          }
+        >
+          <Routes>
+            {/* Public & Admin Base Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/event/view/:id" element={<AdminEventView />} />
+            <Route path="/scoreboard" element={<Scoreboard />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/event/:id" element={<EventPage />} />
+            <Route path="/credits" element={<Credits />} />
 
-          {/* Participant CRUD */}
-          <Route path="/participant/create" element={<CreateParticipant />} />
-          <Route path="/participant/details/:id" element={<ShowParticipant />} />
-          <Route path="/participant/edit/:id" element={<EditParticipant />} />
-          <Route path="/participant/delete/:id" element={<DeleteParticipant />} />
+            {/* Participant CRUD */}
+            <Route path="/participant/create" element={<CreateParticipant />} />
+            <Route path="/participant/details/:id" element={<ShowParticipant />} />
+            <Route path="/participant/edit/:id" element={<EditParticipant />} />
+            <Route path="/participant/delete/:id" element={<DeleteParticipant />} />
 
-          {/* Event CRUD */}
-          <Route path="/event/create" element={<CreateEvent />} />
-          <Route path="/event/details/:id" element={<ShowEvent />} />
-          <Route path="/event/edit/:id" element={<EditEvent />} />
-          <Route path="/event/delete/:id" element={<DeleteEvent />} />
+            {/* Event CRUD */}
+            <Route path="/event/create" element={<CreateEvent />} />
+            <Route path="/event/details/:id" element={<ShowEvent />} />
+            <Route path="/event/edit/:id" element={<EditEvent />} />
+            <Route path="/event/delete/:id" element={<DeleteEvent />} />
 
-          {/* Admin Registration CRUD */}
-          <Route path="/registration/create" element={<CreateRegistration />} />
-          <Route path="/registration/details/:id" element={<ShowRegistration />} />
-          <Route path="/registration/edit/:id" element={<EditRegistration />} />
-          <Route path="/registration/delete/:id" element={<DeleteRegistration />} />
+            {/* Admin Registration CRUD */}
+            <Route path="/registration/create" element={<CreateRegistration />} />
+            <Route path="/registration/details/:id" element={<ShowRegistration />} />
+            <Route path="/registration/edit/:id" element={<EditRegistration />} />
+            <Route path="/registration/delete/:id" element={<DeleteRegistration />} />
 
-          {/* Score CRUD */}
-          <Route path="/score/create" element={<CreateScore />} />
-          <Route path="/score/details/:id" element={<ShowScore />} />
-          <Route path="/score/edit/:id" element={<EditScore />} />
-          <Route path="/score/delete/:id" element={<DeleteScore />} />
+            {/* Score CRUD */}
+            <Route path="/score/create" element={<CreateScore />} />
+            <Route path="/score/details/:id" element={<ShowScore />} />
+            <Route path="/score/edit/:id" element={<EditScore />} />
+            <Route path="/score/delete/:id" element={<DeleteScore />} />
 
-          {/* Captain Routes */}
-          <Route path="/captain" element={<CaptainDashboard />} />
-          <Route path="/captain/event/view/:id" element={<EventView />} />
-          <Route path="/captain/registration/create" element={<CaptainCreateRegistration />} />
-        </Routes>
+            {/* Captain Routes */}
+            <Route path="/captain" element={<CaptainDashboard />} />
+            <Route path="/captain/event/view/:id" element={<EventView />} />
+            <Route path="/captain/registration/create" element={<CaptainCreateRegistration />} />
+          </Routes>
+        </Suspense>
       </div>
     </Auth0Provider>
   );
 };
 
 export default App;
-
-// import React from "react";
-// import { Routes, Route } from "react-router-dom";
-// import { Auth0Provider } from "@auth0/auth0-react";
-
-// import Home from "./pages/Home.jsx";
-// import AdminDashboard from "./pages/AdminDashboard.jsx";
-
-// import CreateParticipant from "./pages/Participant/CreateParticipant.jsx";
-// import EditParticipant from "./pages/Participant/EditParticipant.jsx";
-// import ShowParticipant from "./pages/Participant/ShowParticipant.jsx";
-// import DeleteParticipant from "./pages/Participant/DeleteParticipant.jsx";
-
-// import CreateEvent from "./pages/Event/CreateEvent.jsx";
-// import EditEvent from "./pages/Event/EditEvent.jsx";
-// import ShowEvent from "./pages/Event/ShowEvent.jsx";
-// import DeleteEvent from "./pages/Event/DeleteEvent.jsx";
-
-// import CreateRegistration from "./pages/Registration/CreateRegistration.jsx";
-// import EditRegistration from "./pages/Registration/EditRegistration.jsx";
-// import ShowRegistration from "./pages/Registration/ShowRegistration.jsx";
-// import DeleteRegistration from "./pages/Registration/DeleteRegistration.jsx";
-
-// import CreateScore from "./pages/Score/CreateScore.jsx";
-// import EditScore from "./pages/Score/EditScore.jsx";
-// import ShowScore from "./pages/Score/ShowScore.jsx";
-// import DeleteScore from "./pages/Score/DeleteScore.jsx";
-
-// import CaptainDashboard from "./pages/Captain/CaptainDashboard.jsx";
-// import EventView from "./pages/Captain/EventView.jsx";
-
-// import "./index.css";
-// import Scoreboard from "./pages/Scoreboard.jsx";
-// import AdminEventView from "./components/admin/AdminEventView.jsx";
-// import Events from "./pages/Events.jsx";
-// import EventPage from "./pages/EventPage.jsx";
-
-// const App = () => { // Changed component name from Participant to App
-//   return (
-//     <Auth0Provider
-//       domain="dev-c7fiqa1rj3dt5eb0.us.auth0.com" // <-- PASTE YOUR NEW DOMAIN
-//       clientId="i9L3qP0AKqqPEufUmyjUlm8xMLAxaE7r" // <-- PASTE YOUR NEW CLIENT ID
-//       authorizationParams={{
-//         redirect_uri: window.location.origin,
-//       }}
-//     >
-//       <Routes>
-//         <Route path="/" element={<Home />} />
-//         <Route path="/admin" element={<AdminDashboard />} />
-//         <Route path="/admin/event/view/:id" element={<AdminEventView />} />
-//         <Route path="/scoreboard" element={<Scoreboard />} />
-//         <Route path="/events" element={<Events />} />
-//         <Route path="/event/:id" element={<EventPage />} />
-
-//         <Route path="/participant/create" element={<CreateParticipant />} />
-//         <Route path="/participant/details/:id" element={<ShowParticipant />} />
-//         <Route path="/participant/edit/:id" element={<EditParticipant />} />
-//         <Route path="/participant/delete/:id" element={<DeleteParticipant />} />
-
-//         <Route path="/event/create" element={<CreateEvent />} />
-//         <Route path="/event/details/:id" element={<ShowEvent />} />
-//         <Route path="/event/edit/:id" element={<EditEvent />} />
-//         <Route path="/event/delete/:id" element={<DeleteEvent />} />
-
-//         <Route path="/registration/create" element={<CreateRegistration />} />
-//         <Route path="/registration/details/:id" element={<ShowRegistration />} />
-//         <Route path="/registration/edit/:id" element={<EditRegistration />} />
-//         <Route path="/registration/delete/:id" element={<DeleteRegistration />} />
-
-//         <Route path="/score/create" element={<CreateScore />} />
-//         <Route path="/score/details/:id" element={<ShowScore />} />
-//         <Route path="/score/edit/:id" element={<EditScore />} />
-//         <Route path="/score/delete/:id" element={<DeleteScore />} />
-
-//         <Route path="/captain" element={<CaptainDashboard />} />
-//         <Route path="/captain/event/view/:id" element={<EventView />} />
-//       </Routes>
-//     </Auth0Provider>
-//   );
-// };
-
-// export default App; // Changed default export
-
