@@ -92,19 +92,27 @@ const Footer = () => {
             {/* Social Icons */}
             <div className="flex gap-4">
               <Pointer>
-                                  <div className="text-2xl">👆</div>
-                                </Pointer>
-              <a href="#" className="p-3 bg-white/10 rounded-full hover:bg-white hover:text-primary transition-all hover:-translate-y-1">
+                <div className="text-2xl">👆</div>
+              </Pointer>
+              <a 
+                href="https://www.instagram.com/bharatham25/" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 bg-white/10 rounded-full hover:bg-white hover:text-primary transition-all hover:-translate-y-1"
+              >
                 <FaInstagram size={20} />
-                
               </a>
-              <a href="#" className="p-3 bg-white/10 rounded-full hover:bg-white hover:text-primary transition-all hover:-translate-y-1">
+              <a 
+                href="https://www.youtube.com/watch?v=4a8XPCbIKbs&list=PLTVpMGKyjEGyzEyVbRlqe4sWZxHGQ945e&index=19" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 bg-white/10 rounded-full hover:bg-white hover:text-primary transition-all hover:-translate-y-1"
+              >
                 <FaYoutube size={20} />
               </a>
             </div>
-
             {/* Contact Info */}
-            <div className="space-y-3 font-opensans">
+            {/* <div className="space-y-3 font-opensans">
               <a href="mailto:info@bharatham26.com" className="flex items-center justify-center md:justify-end gap-3 hover:text-yellow transition-colors">
                 <Pointer>
                                   <div className="text-2xl">👆</div>
@@ -119,7 +127,7 @@ const Footer = () => {
                 <span>+91 1234 567 890</span>
                 <FaPhoneAlt />
               </a>
-            </div>
+            </div> */}
           </div>
 
         </div>
