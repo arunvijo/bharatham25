@@ -1,26 +1,37 @@
+import { useEffect, useRef, useState } from "react";
 import HoverText from "./HoverText";
 
 export default function About() {
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => {
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <section className="w-full px-6 py-16 md:py-24">
+    <section ref={sectionRef} className="w-full px-6 py-16 md:py-24">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
         <div className="relative w-[70%] mx-auto">
-          {/* FLORAL – stuck to left side of main image */}
-          
-            <img
-              src="/images/floral.png"
-              alt=""
-              className="
-                absolute 
-                top-1/2 -translate-y-1/2 
-                left-0 -translate-x-full
-                w-[80px] sm:w-[140px] lg:w-[150px]
-                z-[20]
-              "
-            />
-
-          {/* SHADOW (responsive diagonal offset) */}
+          {/* SHADOW (responsive diagonal offset) - stays static */}
           <img
             src="/images/about.png"
             alt=""
@@ -37,17 +48,39 @@ export default function About() {
             "
           />
 
-          {/* REAL IMAGE with border */}
-          <HoverText text="Art - Abhinav S">
-          <img
-            src="/images/about.png"
-            alt="About Bharatham"
-            className="
-              relative w-full h-auto object-cover
-              border-[6px] border-black
-            "
-          />
-          </HoverText>
+          {/* Container for both images that animates together */}
+          <div
+            className={`
+              relative
+              transition-all duration-700 ease-out
+              ${isVisible ? 'translate-x-0 translate-y-0' : 'translate-x-5 translate-y-5'}
+            `}
+          >
+            {/* FLORAL – stuck to left side of main image */}
+            <img
+              src="/images/floral.png"
+              alt=""
+              className="
+                absolute 
+                top-1/2 -translate-y-1/2 
+                left-0 -translate-x-full
+                w-[80px] sm:w-[140px] lg:w-[150px]
+                z-[20]
+              "
+            />
+
+            {/* REAL IMAGE with border */}
+            <HoverText text="Art - Abhinav S">
+              <img
+                src="/images/about.png"
+                alt="About Bharatham"
+                className="
+                  relative w-full h-auto object-cover
+                  border-[6px] border-black
+                "
+              />
+            </HoverText>
+          </div>
         </div>
 
         {/* RIGHT — TEXT */}
