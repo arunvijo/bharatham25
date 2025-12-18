@@ -9,7 +9,8 @@ export default function About() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setIsVisible(true);
+          // Small delay to ensure initial state is rendered
+          setTimeout(() => setIsVisible(true), 50);
         }
       },
       { threshold: 0.2 }
@@ -48,37 +49,45 @@ export default function About() {
             "
           />
 
-          {/* Container for both images that animates together */}
-          <div
-            className={`
-              relative
-              transition-all duration-700 ease-out
-              ${isVisible ? 'translate-x-0 translate-y-0' : 'translate-x-5 translate-y-5'}
-            `}
-          >
+          {/* Wrapper for animation coordination */}
+          <div className="relative">
             {/* FLORAL – stuck to left side of main image */}
             <img
               src="/images/floral.png"
               alt=""
-              className="
+              className={`
                 absolute 
-                top-1/2 -translate-y-1/2 
+                top-1/2 
                 left-0 -translate-x-full
                 w-[80px] sm:w-[140px] lg:w-[150px]
                 z-[20]
-              "
+                transition-transform duration-700 ease-out
+                ${isVisible ? '-translate-y-1/2' : 'translate-y-[calc(-50%+5px)]'}
+              `}
+              style={{
+                transform: isVisible 
+                  ? 'translateX(-100%) translateY(-50%)' 
+                  : 'translateX(calc(-100% + 20px)) translateY(calc(-50% + 18px))'
+              }}
             />
 
             {/* REAL IMAGE with border */}
             <HoverText text="Art - Abhinav S">
-              <img
-                src="/images/about.png"
-                alt="About Bharatham"
-                className="
-                  relative w-full h-auto object-cover
-                  border-[6px] border-black
-                "
-              />
+              <div
+                style={{
+                  transform: isVisible ? 'translate(0px, 0px)' : 'translate(20px, 18px)',
+                  transition: 'transform 700ms ease-out'
+                }}
+              >
+                <img
+                  src="/images/about.png"
+                  alt="About Bharatham"
+                  className="
+                    relative w-full h-auto object-cover
+                    border-[6px] border-black
+                  "
+                />
+              </div>
             </HoverText>
           </div>
         </div>
