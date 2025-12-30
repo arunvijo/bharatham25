@@ -115,7 +115,7 @@ const CaptainDashboard = () => {
     <DashboardLayout 
       role="Captain" 
       title={`${house} House`} 
-      subtitle="Captain's Control Center"
+      subtitle="Registration closes Jan 4, 2026"
     >
       {/* 1. Stats Grid (Always Visible) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
