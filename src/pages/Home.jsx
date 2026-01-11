@@ -6,6 +6,7 @@ import Houses from "../components/Houses";
 import Events from "../components/Events";
 import Gallery from "../components/Gallery";
 import Footer from "../components/Footer";
+import Popup from "../components/Popup";
 import Scoreboard from "./Scoreboard";
 import ComingSoon from "../components/ComingSoon";
 
@@ -19,6 +20,7 @@ export default function Home() {
       <Events />
       <Gallery />
       <Footer />
+      <Popup />
       {/* <ComingSoon /> */}
     </div>
   );
