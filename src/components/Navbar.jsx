@@ -74,28 +74,41 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 left-0 w-full z-[3000]">
       
-      {/* MAIN NAVBAR CONTENT */}
+      {/* 1. THE LOGO - Increased Size & Moved Higher */}
+      <div 
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-full flex justify-center pointer-events-none z-[5000]"
+      >
+        <img 
+  src="/images/logonew.png" 
+  alt="BHARATHAM26" 
+  className={`
+    transition-all duration-500 ease-in-out
+    w-auto object-contain
+    
+    /* PROPORTIONAL SIZE: Growing steadily from mobile to ultra-wide */
+    h-[110px] sm:h-[140px] md:h-[180px] lg:h-[210px] xl:h-[240px]
+    
+    /* PROPORTIONAL POSITIONING: Anchored to your -10px and -20px values */
+    ${isNavOpen 
+      ? 'translate-y-[-15px] sm:translate-y-[-25px] md:translate-y-[-35px] lg:translate-y-[-45px]' 
+      : 'translate-y-[-10px] sm:translate-y-[-15px] md:translate-y-[-20px] lg:translate-y-[-25px] xl:translate-y-[-30px]'}
+      
+    filter drop-shadow-2xl
+  `}
+/>
+      </div>
+
+      {/* 2. MAIN NAVBAR BAR */}
       <nav
-        className={`relative z-30 w-full px-3 sm:px-6 py-2 sm:py-4 flex items-center justify-between transition-colors duration-300 ${
+        className={`relative z-[3010] w-full px-3 sm:px-6 py-2 sm:py-4 flex items-center justify-between transition-colors duration-300 ${
           isNavOpen ? 'bg-primary' : 'bg-cream shadow-md'
         }`}
       >
-        {/* BHARATHAM26 TEXT - Centered */}
-        <div 
-          className="absolute top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none z-10"
-        >
-          <h1 className={`font-mont font-semibold text-center leading-none transition-colors duration-300 text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl ${
-            isNavOpen ? 'text-yellow' : 'text-black'
-          }`}>
-            BHARATHAM26
-          </h1>
-        </div>
-
         {/* LEFT: HAMBURGER BUTTON */}
         <button
           onClick={toggleNav}
           aria-label="Toggle menu"
-          className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 cursor-pointer relative z-50 group"
+          className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 cursor-pointer relative z-[3100] group"
         >
           <Pointer>
             <div className="text-xl sm:text-2xl">👆</div>
@@ -106,56 +119,44 @@ export default function Navbar() {
         </button>
 
         {/* RIGHT: ACTIONS (Dashboard + Login) */}
-        <div className="flex items-center gap-2 sm:gap-4 z-50">
-          
+        <div className="flex items-center gap-2 sm:gap-4 z-[3100]">
           {userRole && (
             <Link
               to={userRole === 'Admin' ? '/admin' : '/captain'}
               className="relative group flex items-center justify-center px-3 py-1.5 sm:px-5 sm:py-2 bg-desi-saffron text-white font-mont font-bold tracking-wider text-[10px] sm:text-sm md:text-base rounded-full border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-              title={`${userRole} Dashboard`}
             >
               <span className="hidden sm:inline">{userRole === 'Admin' ? 'ADMIN' : 'CAPTAIN'}</span>
               <span className="sm:hidden"><MdDashboard size={16} /></span>
-              
-              {/* ADDED POINTER HERE for the hover effect */}
-              <Pointer>
-                <div className="text-lg sm:text-2xl">👆</div>
-              </Pointer>
+              <Pointer><div className="text-lg sm:text-2xl">👆</div></Pointer>
             </Link>
           )}
 
-          {/* AUTH BUTTON */}
           <button
             onClick={() => isAuthenticated ? logout({ logoutParams: { returnTo: window.location.origin } }) : loginWithRedirect()}
             className="group relative cursor-pointer select-none"
           >
-            {/* MOBILE VIEW: Icon Only */}
-            <div className="sm:hidden flex items-center justify-center w-8 h-8 rounded-full bg-black text-white hover:bg-desi-saffron transition-colors border border-black">
+            <div className="sm:hidden flex items-center justify-center w-8 h-8 rounded-full bg-black text-white border border-black">
                {isAuthenticated ? <MdLogout size={14} /> : <MdLogin size={14} />}
             </div>
-
-            {/* DESKTOP VIEW: Full SVG Button */}
             <div className="hidden sm:block relative w-[120px] md:w-[160px] aspect-[169/58]">
                 <img src="/images/loginbtn.svg" alt="" className="absolute inset-0 w-full h-full translate-x-[4px] translate-y-[3px] pointer-events-none brightness-0 saturate-[1000%]" />
                 <svg className="absolute inset-0 w-full h-full transition-transform duration-200 group-hover:translate-x-[4px] group-hover:translate-y-[3px]" viewBox="0 0 169 45">
-                <path className="transition-colors duration-200 fill-[#FFFFFF] group-hover:fill-yellow" d="M11.3188 33.8038C4.7163 33.8038 11.4732 25.4955 1.31175 22.6755C0.906093 22.5634 0.886183 22.4512 1.31175 22.3379C11.6051 19.6189 4.71132 11.1962 11.3188 11.1962C11.3188 5.56528 20.9228 1 32.769 1L133.726 1C145.572 1 155.176 5.56528 155.176 11.1962C163.593 11.1962 161.224 17.7435 167.901 22.3648C168.038 22.4602 168.028 22.5544 167.901 22.6497C161.557 27.3709 163.586 33.8038 155.176 33.8038C155.176 39.4347 145.572 44 133.726 44L32.769 44C20.9228 44 11.3188 39.4347 11.3188 33.8038Z" stroke="#271811" strokeWidth="2" />
+                  <path className="transition-colors duration-200 fill-[#FFFFFF] group-hover:fill-yellow" d="M11.3188 33.8038C4.7163 33.8038 11.4732 25.4955 1.31175 22.6755C0.906093 22.5634 0.886183 22.4512 1.31175 22.3379C11.6051 19.6189 4.71132 11.1962 11.3188 11.1962C11.3188 5.56528 20.9228 1 32.769 1L133.726 1C145.572 1 155.176 5.56528 155.176 11.1962C163.593 11.1962 161.224 17.7435 167.901 22.3648C168.038 22.4602 168.028 22.5544 167.901 22.6497C161.557 27.3709 163.586 33.8038 155.176 33.8038C155.176 39.4347 145.572 44 133.726 44L32.769 44C20.9228 44 11.3188 39.4347 11.3188 33.8038Z" stroke="#271811" strokeWidth="2" />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-[4px] group-hover:translate-y-[3px]">
-                <span className="font-mont text-xs sm:text-sm md:text-xl font-bold tracking-wide text-black pointer-events-none">
-                    {isAuthenticated ? "LOGOUT" : "LOGIN"}
-                </span>
+                  <span className="font-mont text-xs sm:text-sm md:text-xl font-bold tracking-wide text-black">
+                      {isAuthenticated ? "LOGOUT" : "LOGIN"}
+                  </span>
                 </div>
             </div>
-            <Pointer>
-              <div className="text-xl sm:text-2xl">👆</div>
-            </Pointer>
+            <Pointer><div className="text-xl sm:text-2xl">👆</div></Pointer>
           </button>
         </div>
       </nav>
 
-      {/* NAV.SVG LOGO CONTAINER */}
+      {/* 3. NAV.SVG LOGO BACKGROUND (BANNER) */}
       <div 
-        className={`w-full relative z-40 pointer-events-none transition-opacity duration-300 ${
+        className={`w-full relative z-[3020] pointer-events-none transition-opacity duration-300 ${
           isNavOpen ? 'opacity-0' : 'opacity-100'
         }`}
       >
@@ -168,8 +169,8 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* FULL-PAGE OVERLAY MENU */}
-      <div className={`fixed inset-0 bg-primary flex items-center justify-center ${isClosing ? "opacity-0 transition-opacity duration-1000" : isNavOpen ? "opacity-100 transition-opacity duration-300" : "opacity-0"} ${isNavOpen || isClosing ? "pointer-events-auto" : "pointer-events-none"}`}>
+      {/* 4. FULL-PAGE OVERLAY MENU */}
+      <div className={`fixed inset-0 bg-primary flex items-center justify-center z-[4000] ${isClosing ? "opacity-0 transition-opacity duration-1000" : isNavOpen ? "opacity-100 transition-opacity duration-300" : "opacity-0"} ${isNavOpen || isClosing ? "pointer-events-auto" : "pointer-events-none"}`}>
         <div className="w-11/12 max-w-[1800px] flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 sm:gap-10 font-mont text-primary-text text-center">
           {navItems.map((label, index) => (
             <Link
@@ -184,24 +185,11 @@ export default function Navbar() {
                 <span className="mt-1 sm:mt-2 h-1 sm:h-2 w-full bg-yellow scale-x-0 origin-center transition-transform duration-300 group-hover:scale-x-100" />
               </span>
               {index < navItems.length - 1 && (
-              <img 
-                src="/images/spinner.svg" 
-                alt="Spinner" 
-                className="
-                  hidden 
-                  sm:inline-block 
-                  h-[0.5em] w-[0.5em] 
-                  sm:h-[0.8em] sm:w-[0.8em] 
-                  animate-spinSlow 
-                  translate-y-[2px]
-                "
-              />
+              <img src="/images/spinner.svg" alt="Spinner" className="hidden sm:inline-block h-[0.5em] w-[0.5em] sm:h-[0.8em] sm:w-[0.8em] animate-spinSlow translate-y-[2px]" />
             )}
             </Link>
           ))}
-          <Pointer>
-            <div className="text-2xl sm:text-3xl">👆</div>
-          </Pointer>
+          <Pointer><div className="text-2xl sm:text-3xl">👆</div></Pointer>
         </div>
       </div>
     </header>

@@ -47,6 +47,7 @@ const DeleteScore = lazy(() => import("./pages/Score/DeleteScore.jsx"));
 const CaptainDashboard = lazy(() => import("./pages/Captain/CaptainDashboard.jsx"));
 const EventView = lazy(() => import("./pages/Captain/EventView.jsx"));
 const CaptainCreateRegistration = lazy(() => import("./pages/Captain/CreateRegistration.jsx"));
+const CaptainEditRegistration = lazy(() => import("./pages/Captain/EditRegistration.jsx"));
 
 const App = () => {
   return (
@@ -110,6 +111,7 @@ const App = () => {
             <Route path="/captain" element={<CaptainDashboard />} />
             <Route path="/captain/event/view/:id" element={<EventView />} />
             <Route path="/captain/registration/create" element={<CaptainCreateRegistration />} />
+            <Route path="/captain/registration/edit/:id" element={<CaptainEditRegistration />} />
           </Routes>
         </Suspense>
       </div>

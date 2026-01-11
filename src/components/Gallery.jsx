@@ -77,7 +77,7 @@ const Gallery = () => {
         <MarqueeRow images={row2Images} direction="left" />
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes marquee-right {
           0% {
             transform: translateX(0);

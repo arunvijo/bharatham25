@@ -13,14 +13,22 @@ import { ExportToExcel } from "../../../ExportToExcel";
 const EventTable = ({ events, admin = false }) => {
   const [filter, setFilter] = useState("");
 
-  const filteredEvents = events.filter(
-    (event) =>
-      event.name?.toLowerCase().includes(filter.toLowerCase()) ||
-      event.venue?.toLowerCase().includes(filter.toLowerCase()) ||
-      event.type?.toLowerCase().includes(filter.toLowerCase()) ||
-      event.participation?.toLowerCase().includes(filter.toLowerCase()) ||
-      event.category?.toLowerCase().includes(filter.toLowerCase())
-  );
+  // Filter events based on search input and SORT Pre-Events to the top
+  const filteredEvents = events
+    .filter(
+      (event) =>
+        event.name?.toLowerCase().includes(filter.toLowerCase()) ||
+        event.venue?.toLowerCase().includes(filter.toLowerCase()) ||
+        event.type?.toLowerCase().includes(filter.toLowerCase()) ||
+        event.participation?.toLowerCase().includes(filter.toLowerCase()) ||
+        event.category?.toLowerCase().includes(filter.toLowerCase())
+    )
+    .sort((a, b) => {
+      // Logic: If 'a' is a Pre-Event and 'b' is not, move 'a' up (return -1)
+      if (a.category === "Pre-Event" && b.category !== "Pre-Event") return -1;
+      if (a.category !== "Pre-Event" && b.category === "Pre-Event") return 1;
+      return 0; // Maintain original order for same categories
+    });
 
   return (
     <div className="space-y-6 font-sans">
@@ -71,14 +79,12 @@ const EventTable = ({ events, admin = false }) => {
                 <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap">No</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap sticky left-0 z-10 bg-stone-50 shadow-sm md:shadow-none">Name</th>
                 
-                {/* Hide detailed info on mobile, show on desktop */}
                 <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap hidden md:table-cell">Participation</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap hidden lg:table-cell">Type</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap hidden lg:table-cell">Category</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap hidden xl:table-cell">Date</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap hidden xl:table-cell">Venue</th>
                 
-                {/* Numeric limits often important */}
                 <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap" title="Minimum Team Size">Min Size</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap" title="Maximum Team Size">Max Size</th>
                 <th className="px-6 py-4 text-left text-xs font-bold text-stone-500 uppercase tracking-wider whitespace-nowrap" title="Max Registrations per House">Limit</th>
@@ -93,14 +99,12 @@ const EventTable = ({ events, admin = false }) => {
                 <tr key={event._id} className="hover:bg-orange-50/30 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-400">{index + 1}</td>
                     
-                    {/* Event Name Link - Sticky on Mobile */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-stone-800 sticky left-0 z-10 bg-white group-hover:bg-orange-50/30 shadow-sm md:shadow-none">
                         {admin ? (
                             <Link to={`/admin/event/view/${event._id}`} className="hover:text-desi-saffron transition-colors">
                                 {event.name}
                             </Link>
                         ) : event.name}
-                        {/* Mobile-only sub-details */}
                         <div className="md:hidden text-[10px] font-normal text-stone-500 mt-1">
                             {event.category} • {event.participation}
                         </div>
@@ -110,13 +114,15 @@ const EventTable = ({ events, admin = false }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600 hidden lg:table-cell">{event.type}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600 hidden lg:table-cell">{event.category}</td>
                     
+                    {/* Fixed Date Logic to handle "TBD" */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-stone-500 hidden xl:table-cell">
-                        {event?.date ? new Date(event.date).toLocaleDateString() : 'TBD'}
+                        {event.date === "TBD" || !event.date 
+                          ? 'TBD' 
+                          : new Date(event.date).toLocaleDateString()}
                     </td>
                     
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-600 hidden xl:table-cell">{event.venue}</td>
                     
-                    {/* Corrected Field Mappings */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-500 font-medium">
                         {event.minTeamSize ?? event.minIndividualLimit ?? '-'}
                     </td>
@@ -127,7 +133,6 @@ const EventTable = ({ events, admin = false }) => {
                         {event.maxRegistrations ?? event.teamLimit ?? '-'}
                     </td>
 
-                    {/* Status Badge */}
                     <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border
                             ${event.registrationEnabled 
@@ -138,7 +143,6 @@ const EventTable = ({ events, admin = false }) => {
                         </span>
                     </td>
 
-                    {/* Actions */}
                     {admin && (
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end gap-2">
@@ -185,132 +189,3 @@ const EventTable = ({ events, admin = false }) => {
 };
 
 export default EventTable;
-
-// import React, { useState } from "react";
-// import { Link } from "react-router-dom";
-// import { AiOutlineEdit } from "react-icons/ai";
-// import { BsInfoCircle } from "react-icons/bs";
-// import {
-//   MdOutlineAdd,
-//   MdOutlineAddBox,
-//   MdOutlineDelete,
-//   MdOutlineInfo,
-// } from "react-icons/md";
-// import { ExportToExcel } from "../../../ExportToExcel";
-
-// const EventTable = ({ events, admin = false }) => {
-//   const [filter, setFilter] = useState("");
-
-//   const filteredEvents = events.filter(
-//     (event) =>
-//       event.name.toLowerCase().includes(filter.toLowerCase()) ||
-//       event.venue.toLowerCase().includes(filter.toLowerCase()) ||
-//       event.type.toLowerCase().includes(filter.toLowerCase()) ||
-//       event.participation.toLowerCase().includes(filter.toLowerCase()) ||
-//       event.category.toLowerCase().includes(filter.toLowerCase())
-//   );
-
-//   return (
-//     <>
-//       <div className="row">
-//         <h3>Events ({events?.length})</h3>
-//         <ExportToExcel apiData={events} fileName={"events"} />
-//         {admin && (
-//           <>
-//             {" "}
-//             <Link to="/event/create" className="btn-icon">
-//               <MdOutlineAdd />
-//             </Link>
-//             <input
-//               type="text"
-//               placeholder="Filter by name, venue, type, participation, category"
-//               value={filter}
-//               onChange={(e) => setFilter(e.target.value)}
-//               style={{
-//                 marginBottom: 20,
-//                 borderRadius: 30,
-//                 width: "70%",
-//                 border: "none",
-//                 paddingBlock: 10,
-//                 paddingInline: 20,
-//                 fontFamily: "DM Sans",
-//               }}
-//             />
-//           </>
-//         )}
-//       </div>
-//       <table>
-//         <thead>
-//           <tr>
-//             <th>No</th>
-//             <th>Name</th>
-//             <th>Participation</th>
-//             <th>Type</th>
-//             <th>Category</th>
-//             <th>Date</th>
-//             <th>Venue</th>
-//             <th>Min Limit</th>
-//             <th>Max Limit</th>
-//             <th>Team Limit</th>
-//             <th>Registration Status</th>
-//             {admin && <th>Operations</th>}
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {filteredEvents?.map((event, index) => (
-//             <tr key={event._id} className="h-8">
-//               <td>{index + 1}</td>
-//               <td>
-//                 {admin ? (
-//                   <Link to={`/admin/event/view/${event._id}`}>
-//                     {event.name}
-//                   </Link>
-//                 ) : (
-//                   event.name
-//                 )}
-//               </td>
-//               <td>{event.participation}</td>
-//               <td>{event.type}</td>
-//               <td>{event.category}</td>
-//               <td>{event?.date?.substring(0, 10)}</td>
-//               <td>{event.venue}</td>
-//               <td>{event.minIndividualLimit}</td>
-//               <td>{event.maxIndividualLimit}</td>
-//               <td>{event.teamLimit}</td>
-//               <td
-//                 className={`badge ${
-//                   event.registrationEnabled ? "enabled" : "disabled"
-//                 }` } style={{fontWeight: "bold", fontSize: "1.2rem"}}
-//               >
-//                 {event.registrationEnabled ? "Open" : "Closed"}
-//               </td>
-//               {admin && (
-//                 <td>
-//                   <div>
-//                     <Link
-//                       to={`/event/details/${event._id}`}
-//                       className="btn-icon"
-//                     >
-//                       <MdOutlineInfo />
-//                     </Link>
-//                     <Link to={`/event/edit/${event._id}`} className="btn-icon">
-//                       <AiOutlineEdit />
-//                     </Link>
-//                     <Link
-//                       to={`/event/delete/${event._id}`}
-//                       className="btn-icon"
-//                     >
-//                       <MdOutlineDelete />
-//                     </Link>
-//                   </div>
-//                 </td>
-//               )}
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//     </>
-//   );
-// };
-
-// export default EventTable;

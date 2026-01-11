@@ -9,11 +9,11 @@ const Sidebar = ({ role = "Captain", isOpen, setIsOpen }) => {
 
   // Navigation Links Configuration
   const links = role === "Admin" ? [
-    { name: 'Dashboard', path: 'https://bharatham25.vercel.app/', icon: <MdDashboard /> },
+    { name: 'Dashboard', path: 'https://bharatham26.live/', icon: <MdDashboard /> },
     { name: 'Events', path: '/events', icon: <MdEvent /> },
     { name: 'Scoreboard', path: '/scoreboard', icon: <MdLeaderboard /> },
   ] : [
-    { name: 'Dashboard', path: 'https://bharatham25.vercel.app/', icon: <MdDashboard /> },
+    { name: 'Dashboard', path: 'https://bharatham26.live/', icon: <MdDashboard /> },
     { name: 'Events', path: '/events', icon: <MdEvent /> },
   ];
 
