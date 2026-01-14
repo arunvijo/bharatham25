@@ -38,29 +38,26 @@ const Popup = () => {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center"
             onClick={handleClose}
           >
-            {/* Popup Modal - Centered using flexbox parent */}
+            {/* Popup Modal */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8, y: 50 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.8, y: 50 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               className="w-[90%] max-w-[500px] m-4"
-              onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+              onClick={(e) => e.stopPropagation()} 
             >
               {/* Main Card */}
               <div className="relative bg-[#FDFBF7] border-[6px] border-[#271811] rounded-lg shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
                 
-                {/* Close Button */}
-                <div className="relative">
-                <Pointer>
-                        <div className="text-2xl">👆</div>
-                      </Pointer>
-                <button
-                  onClick={handleClose}
-                  className="absolute top-3 right-3 z-10 bg-[#CB1760] text-white p-2 rounded-full border-2 border-[#271811] hover:bg-[#A01450] transition-all hover:scale-110 active:scale-95"
-                >
-                  <MdClose size={20} />
-                </button>
+                {/* Close Button Container */}
+                <div className="absolute top-3 right-3 z-20">
+                  <button
+                    onClick={handleClose}
+                    className="bg-[#CB1760] text-white p-2 rounded-full border-2 border-[#271811] hover:bg-[#A01450] transition-all hover:scale-110 active:scale-95"
+                  >
+                    <MdClose size={20} />
+                  </button>
                 </div>
 
                 {/* Decorative Top Border */}
@@ -81,7 +78,7 @@ const Popup = () => {
                       letterSpacing: "0.02em"
                     }}
                   >
-                    NRITYA UTSAV
+                    RAJAGIRI RHYTHMIX
                   </motion.h2>
 
                   {/* Subtitle */}
@@ -92,15 +89,20 @@ const Popup = () => {
                     className="text-lg sm:text-xl font-bold text-[#271811]"
                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
-                    Inter-College Group Dance Competition
+                    Inter-College Dance Competition
                   </motion.p>
 
-                  {/* Decorative Line */}
-                  <div className="flex items-center justify-center gap-2 py-2">
-                    <div className="h-1 w-12 bg-[#D97706] rounded-full" />
-                    <div className="h-1 w-12 bg-[#CB1760] rounded-full" />
-                    <div className="h-1 w-12 bg-[#D97706] rounded-full" />
-                  </div>
+                  {/* Prize Badge */}
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5, type: "spring" }}
+                    className="inline-block bg-[#F4F437] border-2 border-[#271811] px-4 py-1 rotate-[-2deg] shadow-[4px_4px_0px_0px_rgba(39,24,17,1)]"
+                  >
+                    <span className="font-black text-[#CB1760] text-lg sm:text-xl">
+                      PRIZE POOL: ₹ 1 LAKH
+                    </span>
+                  </motion.div>
 
                   {/* Description */}
                   <motion.p
@@ -110,8 +112,8 @@ const Popup = () => {
                     className="text-stone-700 text-sm sm:text-base leading-relaxed max-w-md mx-auto"
                     style={{ fontFamily: "'Montserrat', sans-serif" }}
                   >
-                    Join us for the most spectacular group dance competition! 
-                    Showcase your talent, creativity, and teamwork on the biggest stage.
+                    Battle it out on <b>January 24th</b> at RSET Kochi! 
+                    Showcase your team's synchronization and energy to win big.
                   </motion.p>
 
                   {/* Explore Button */}
@@ -159,7 +161,7 @@ const Popup = () => {
                     </div>
                   </motion.div>
                 </div>
-
+                
                 {/* Decorative Bottom Border */}
                 <div className="h-4 bg-gradient-to-r from-[#D97706] via-[#CB1760] to-[#D97706]" />
               </div>

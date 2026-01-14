@@ -1,15 +1,15 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { MdGroups, MdEventAvailable, MdLocationOn, MdCalendarToday } from "react-icons/md";
-import {Pointer} from "../components/Pointer";
+import { MdGroups, MdEventAvailable, MdLocationOn, MdCalendarToday, MdEmojiEvents, MdInfo } from "react-icons/md";
+import { Pointer } from "../components/Pointer";
 
 const SpecialEventPage = () => {
   const navigate = useNavigate();
 
   const handleRegister = () => {
     // Navigate to registration page or open registration form
-    navigate("/registration");
+    window.open("https://konfhub.com/bharatham-2026", "_blank");
   };
 
   return (
@@ -97,7 +97,7 @@ const SpecialEventPage = () => {
               letterSpacing: "0.02em"
             }}
           >
-            NRITYA UTSAV
+            RAJAGIRI RHYTHMIX
           </motion.h1>
 
           <motion.p
@@ -107,7 +107,7 @@ const SpecialEventPage = () => {
             className="text-xl sm:text-2xl md:text-3xl font-bold text-[#271811]"
             style={{ fontFamily: "'Montserrat', sans-serif" }}
           >
-            Inter-College Group Dance Competition
+            BHARATHAM 2026 Presents: Inter-College Dance Competition
           </motion.p>
         </div>
 
@@ -126,22 +126,23 @@ const SpecialEventPage = () => {
           <div className="grid md:grid-cols-2 gap-8 p-6 sm:p-8 lg:p-10">
             
             {/* Left: Image */}
-            <div className="relative">
-              <div className="relative w-full bg-gradient-to-br from-[#FEE89B] to-[#D97706] rounded-lg border-4 border-[#271811] overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                {/* Placeholder Image - Replace with actual group dance image */}
-                <img 
-                  src="https://i.pinimg.com/736x/31/31/0a/31310ad2508be1c4058447f03f85fdb2.jpg" 
-                  alt="Group Dance" 
-                  className="w-full h-full object-contain"
-                />
-                
-                {/* Overlay Badge */}
-                <div className="absolute top-4 left-4 bg-[#CB1760] text-white px-4 py-2 rounded-lg border-2 border-[#271811] font-bold text-sm shadow-lg">
-                  <MdGroups className="inline mr-2" size={20} />
-                  Group Event
-                </div>
-              </div>
-            </div>
+           {/* Left: Image */}
+<div className="relative">
+  <div className="relative w-full bg-stone-200 rounded-lg border-4 border-[#271811] overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+    {/* Actual Event Poster Image */}
+    <img 
+      src="/images/special_event/special.png" 
+      alt="Rajagiri Rhythmix Poster" 
+      className="w-full h-auto object-cover display-block"
+    />
+    
+    {/* Overlay Badge - Kept as requested */}
+    <div className="absolute top-4 left-4 bg-[#CB1760] text-white px-4 py-2 rounded-lg border-2 border-[#271811] font-bold text-sm shadow-lg z-10">
+      <MdGroups className="inline mr-2" size={20} />
+      7-15 Members
+    </div>
+  </div>
+</div>
 
             {/* Right: Details */}
             <div className="flex flex-col justify-between space-y-6">
@@ -160,8 +161,8 @@ const SpecialEventPage = () => {
                   <div className="flex items-start gap-3">
                     <MdCalendarToday className="text-[#CB1760] mt-1 flex-shrink-0" size={24} />
                     <div>
-                      <p className="font-bold text-stone-900">Date & Time</p>
-                      <p className="text-stone-600">February 15, 2026 | 2:00 PM onwards</p>
+                      <p className="font-bold text-stone-900">Date</p>
+                      <p className="text-stone-600">January 24, 2026</p>
                     </div>
                   </div>
 
@@ -169,15 +170,15 @@ const SpecialEventPage = () => {
                     <MdLocationOn className="text-[#CB1760] mt-1 flex-shrink-0" size={24} />
                     <div>
                       <p className="font-bold text-stone-900">Venue</p>
-                      <p className="text-stone-600">Main Auditorium, Cultural Center</p>
+                      <p className="text-stone-600">RSET, Kakkanad, Kochi</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <MdEventAvailable className="text-[#CB1760] mt-1 flex-shrink-0" size={24} />
+                    <MdEmojiEvents className="text-[#D97706] mt-1 flex-shrink-0" size={24} />
                     <div>
-                      <p className="font-bold text-stone-900">Eligibility</p>
-                      <p className="text-stone-600">Open to all colleges (6-12 members per group)</p>
+                      <p className="font-bold text-stone-900">Grand Prize Pool</p>
+                      <p className="text-[#CB1760] font-black text-xl">₹ 1,00,000</p>
                     </div>
                   </div>
                 </div>
@@ -186,15 +187,22 @@ const SpecialEventPage = () => {
               {/* Description */}
               <div className="bg-[#FEE89B]/30 border-2 border-[#D97706] rounded-lg p-4">
                 <p className="text-stone-700 leading-relaxed" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                  Showcase your team's choreography, synchronization, and creativity in this prestigious 
-                  inter-college dance competition. Express your cultural heritage through contemporary or 
-                  traditional dance forms. Amazing prizes and recognition await the winners!
+                  Join the most anticipated inter-college dance battle at Bharatham 2026. Bring your best choreography, energy, and style to the RSET stage and compete for the massive 1 Lakh prize pool!
                 </p>
               </div>
 
-              {/* Open to All Badge */}
-              <div className="text-center py-3 px-6 font-bold text-lg tracking-wide text-[#CB1760]" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                🌟 OPEN TO ALL COLLEGES 🌟
+              {/* Contact Info */}
+              <div className="grid grid-cols-2 gap-4 text-[10px] sm:text-xs">
+                  <div>
+                      <p className="font-bold border-b border-stone-300 mb-1">STUDENT CONTACTS</p>
+                      <p>Milan Joe Baby: +91 6282067346</p>
+                      <p>Tona Rose Tomy: +91 9847343601</p>
+                  </div>
+                  <div>
+                      <p className="font-bold border-b border-stone-300 mb-1">FACULTY CONTACTS</p>
+                      <p>Ms. Neethu Radha Gopan: +91 9048521275</p>
+                      <p>Mr. John Paul CD: +91 6238767856</p>
+                  </div>
               </div>
 
               {/* Register Button */}
@@ -217,38 +225,57 @@ const SpecialEventPage = () => {
           <div className="h-6 bg-gradient-to-r from-[#D97706] via-[#CB1760] to-[#D97706]" />
         </motion.div>
 
-        {/* Additional Info Section */}
+        {/* Rules Section */}
         <motion.div
           initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.7 }}
           className="mt-8 bg-white border-4 border-[#271811] rounded-xl p-6 sm:p-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
         >
-          <h3 className="text-2xl font-bold text-[#271811] mb-4 border-b-2 border-[#D97706] pb-2">
-            Rules & Guidelines
-          </h3>
-          <ul className="space-y-2 text-stone-700">
-            <li className="flex items-start gap-2">
-              <span className="text-[#CB1760] font-bold">•</span>
-              <span>Each team must have 6-12 members</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-[#CB1760] font-bold">•</span>
-              <span>Performance duration: 5-8 minutes</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-[#CB1760] font-bold">•</span>
-              <span>Props and costumes are allowed</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-[#CB1760] font-bold">•</span>
-              <span>All dance forms are welcome (Classical, Contemporary, Fusion, Folk, etc.)</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-[#CB1760] font-bold">•</span>
-              <span>Judges' decision will be final</span>
-            </li>
-          </ul>
+          <div className="flex items-center gap-2 mb-4 border-b-2 border-[#D97706] pb-2">
+            <MdInfo className="text-[#CB1760]" size={28} />
+            <h3 className="text-2xl font-bold text-[#271811]">
+                Guidelines & Rules
+            </h3>
+          </div>
+          <div className="grid md:grid-cols-2 gap-x-8 gap-y-2 text-sm sm:text-base text-stone-700">
+            <ul className="space-y-2">
+                <li className="flex items-start gap-2">
+                <span className="text-[#CB1760] font-bold">01.</span>
+                <span>Team Size: 7-15 members. No solo performances.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                <span className="text-[#CB1760] font-bold">02.</span>
+                <span>Max Time: 12 mins (including setup). Exceeding leads to disqualification.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                <span className="text-[#CB1760] font-bold">03.</span>
+                <span>All dance forms allowed. Costumes must be appropriate for a general audience.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                <span className="text-[#CB1760] font-bold">04.</span>
+                <span>Music & backdrops must be submitted 24 hours prior in MP3 format.</span>
+                </li>
+            </ul>
+            <ul className="space-y-2">
+                <li className="flex items-start gap-2">
+                <span className="text-[#CB1760] font-bold">05.</span>
+                <span>Strictly Prohibited: Fire, hazardous materials, water, or breakable items.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                <span className="text-[#CB1760] font-bold">06.</span>
+                <span>Reporting: Teams must report 1 hour before their scheduled slot.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                <span className="text-[#CB1760] font-bold">07.</span>
+                <span>Mandatory: A valid college ID card is required for all participants.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                <span className="text-[#CB1760] font-bold">08.</span>
+                <span>Judging: Based on choreography, synchronization, energy, and overall impact.</span>
+                </li>
+            </ul>
+          </div>
         </motion.div>
       </motion.main>
     </div>
