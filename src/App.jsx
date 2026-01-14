@@ -17,6 +17,7 @@ const Events = lazy(() => import("./pages/Events.jsx"));
 const EventPage = lazy(() => import("./pages/EventPage.jsx"));
 const Credits = lazy(() => import("./pages/Credits.jsx"));
 const AdminEventView = lazy(() => import("./components/admin/AdminEventView.jsx"));
+const SpecialEventPage = lazy(() => import("./pages/SpecialEventPage.jsx"));
 
 // Participant Routes
 const CreateParticipant = lazy(() => import("./pages/Participant/CreateParticipant.jsx"));
@@ -78,6 +79,7 @@ const App = () => {
             <Route path="/admin/event/view/:id" element={<AdminEventView />} />
             <Route path="/scoreboard" element={<Scoreboard />} />
             <Route path="/events" element={<Events />} />
+            <Route path="/special-event/group-dance" element={<SpecialEventPage />} /> 
             <Route path="/event/:id" element={<EventPage />} />
             <Route path="/credits" element={<Credits />} />
 

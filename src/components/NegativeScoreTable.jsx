@@ -1,13 +1,9 @@
 import React, { useState } from "react";
-// Removed Link and admin-specific icons/imports: AiOutlineEdit, MdOutlineAdd, MdOutlineDelete, MdOutlineInfo
 import { 
     MdSearch,
     MdWarning
 } from "react-icons/md";
-// Removed ExportToExcel as it's an admin feature
-// import { ExportToExcel } from "../../ExportToExcel";
 
-// Removed 'admin' prop from the signature
 const NegativeScoreTable = ({ scores }) => {
     const [filter, setFilter] = useState("");
 
@@ -21,7 +17,6 @@ const NegativeScoreTable = ({ scores }) => {
 
     const negativeScores = filteredScores.filter((s) => s.position === "Negative");
 
-    // --- Custom Styles based on Figma Table Layout ---
     const cellClass = "px-6 py-4 border-r-[3px] border-stone-300 flex items-center justify-center text-center";
 
     return (
@@ -45,19 +40,17 @@ const NegativeScoreTable = ({ scores }) => {
                 </div>
             </div>
 
-            {/* Table Card (Responsive container for the table) */}
-            <div className="bg-white overflow-hidden mx-auto">
-                <div className="overflow-x-auto"> {/* Enables horizontal scrolling on small screens */}
+            {/* Desktop Table View (hidden on mobile) */}
+            <div className="hidden lg:block bg-white overflow-hidden mx-auto">
+                <div className="overflow-x-auto">
                     
-                    {/* Table Headers (Structure maintained) */}
+                    {/* Table Headers */}
                     <div className="flex border-b-[3px] border-stone-900 bg-red-50 min-w-[1241px]">
-                        {/* Column Widths (Approximated to match the fixed Figma layout) */}
                         <div className="w-[80px] min-w-[80px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">NO.</div>
                         <div className="w-[256px] min-w-[256px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">EVENTS</div>
                         <div className="w-[224px] min-w-[224px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">HOUSE</div>
                         <div className="w-[440px] min-w-[440px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">REASON</div>
                         <div className="w-[160px] min-w-[160px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">POINTS</div>
-                        {/* Action Column removed: w-[80px] space is implicitly left empty to preserve other columns' widths */}
                         <div className="w-[80px] min-w-[80px] h-[60px]"></div> 
                     </div>
 
@@ -102,6 +95,52 @@ const NegativeScoreTable = ({ scores }) => {
                         <MdWarning className="text-4xl mx-auto mb-2 opacity-50" />
                         <p className="text-xl">No penalties found in the log.</p>
                     </div>
+                )}
+            </div>
+
+            {/* Mobile Card View (visible on mobile only) */}
+            <div className="lg:hidden space-y-4">
+                {negativeScores.length === 0 ? (
+                    <div className="bg-white border-[3px] border-stone-900 p-12 text-center text-stone-600">
+                        <MdWarning className="text-4xl mx-auto mb-2 opacity-50" />
+                        <p className="text-xl">No penalties found in the log.</p>
+                    </div>
+                ) : (
+                    negativeScores.map((score, index) => (
+                        <div key={score._id} className="bg-white border-[3px] border-red-900 shadow-[4px_4px_0px_0px_rgba(127,29,29,1)] p-4 space-y-3">
+                            
+                            {/* Header Row: Number and Points */}
+                            <div className="flex justify-between items-center border-b-2 border-red-200 pb-2 bg-red-50 -m-4 mb-3 p-4">
+                                <span className="text-sm font-bold text-stone-500">#{index + 1}</span>
+                                <div className="flex items-center gap-2">
+                                    <MdWarning className="text-red-600" size={20} />
+                                    <span className="text-2xl font-extrabold text-desi-maroon">{score.points} pts</span>
+                                </div>
+                            </div>
+
+                            {/* Event Name */}
+                            <div>
+                                <div className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-1">Event</div>
+                                <div className="text-lg font-bold text-stone-800">{score.event}</div>
+                            </div>
+
+                            {/* House */}
+                            <div>
+                                <div className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-1">House</div>
+                                <span className="px-2.5 py-1 inline-flex text-sm font-bold rounded-sm bg-stone-200 text-stone-800 border border-stone-300">
+                                    {score.house}
+                                </span>
+                            </div>
+
+                            {/* Reason */}
+                            <div>
+                                <div className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-1">Reason</div>
+                                <div className="text-sm text-stone-700 italic bg-red-50 p-3 rounded border border-red-200">
+                                    "{score.reason || 'Not specified'}"
+                                </div>
+                            </div>
+                        </div>
+                    ))
                 )}
             </div>
         </div>
