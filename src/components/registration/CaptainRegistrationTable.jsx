@@ -1,22 +1,27 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
-import { MdOutlineAdd, MdAppRegistration } from "react-icons/md";
+import { MdOutlineAdd, MdAppRegistration, MdLock } from "react-icons/md";
 import { ExportToExcel } from "../../../ExportToExcel";
 import { useSnackbar } from "notistack";
 
 const CaptainRegistrationTable = ({
   registrations,
-  admin = false,
+  admin = false, // Use this prop to toggle visibility of the 'New Registration' button
   handleDeleteRegistration,
 }) => {
   const { enqueueSnackbar } = useSnackbar();
 
+  // UPDATED LOGIC: Global Lockdown Deadline
+  const GLOBAL_LOCKDOWN = new Date("2026-01-24T23:59:59");
+  const now = new Date();
+  const isLocked = now > GLOBAL_LOCKDOWN;
+
   const handleRegistrationClick = (e) => {
-    if (!e.currentTarget.dataset.enabled) {
+    if (isLocked) {
       e.preventDefault();
-      enqueueSnackbar("Registration is currently closed for this event", {
-        variant: "warning",
+      enqueueSnackbar("All registrations are now locked for Bharatham '26", {
+        variant: "error",
       });
     }
   };
@@ -35,17 +40,27 @@ const CaptainRegistrationTable = ({
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons Section */}
         <div className="flex items-center gap-3">
-          <Link
-            to="/captain/registration/create"
-            className="flex items-center gap-2 px-5 py-2 bg-desi-teal text-white rounded-full shadow-lg hover:bg-teal-800 hover:scale-105 transition-all font-medium"
-            onClick={handleRegistrationClick}
-            data-enabled={true}
-          >
-            <MdOutlineAdd className="text-xl" />
-            <span>New Registration</span>
-          </Link>
+          {/* LOGIC: Hide button if admin prop is true (used in specific Event Views) 
+             or if the system is locked.
+          */}
+          {!admin && (
+            !isLocked ? (
+              <Link
+                to="/captain/registration/create"
+                className="flex items-center justify-center w-12 h-12 bg-desi-teal text-white rounded-full shadow-lg hover:bg-teal-800 hover:scale-110 transition-all"
+                onClick={handleRegistrationClick}
+                title="New Registration"
+              >
+                <MdOutlineAdd className="text-2xl" />
+              </Link>
+            ) : (
+              <div className="flex items-center justify-center w-12 h-12 bg-stone-100 text-stone-400 rounded-full border border-stone-200 cursor-not-allowed" title="System Locked">
+                <MdLock className="text-xl" />
+              </div>
+            )
+          )}
         </div>
       </div>
 
@@ -80,7 +95,6 @@ const CaptainRegistrationTable = ({
                     </span>
                   </td>
                   
-                  {/* Participants List */}
                   <td className="px-6 py-4">
                     <div className="flex flex-col gap-2">
                       {registration.participants.map((participant, pIndex) => (
@@ -96,6 +110,12 @@ const CaptainRegistrationTable = ({
                             </span>
                           )}
 
+                          {participant.genderCategory && (
+                            <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-full uppercase tracking-wide">
+                              {participant.genderCategory}
+                            </span>
+                          )}
+
                           {participant.performanceType && (
                             <span className="px-2 py-0.5 text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 rounded-full uppercase tracking-wide">
                               {participant.performanceType}
@@ -106,26 +126,29 @@ const CaptainRegistrationTable = ({
                     </div>
                   </td>
 
-                  {/* Actions Column - Fixed Layout */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link
-                        to={`/captain/registration/edit/${registration._id}`}
-                        className="text-stone-400 hover:text-desi-teal hover:bg-teal-50 p-2 rounded-lg transition-all"
-                        title="Edit Participants"
-                      >
-                        <AiOutlineEdit size={20} />
-                      </Link>
-                      
-                      <button
-                        id={registration._id}
-                        onClick={handleDeleteRegistration}
-                        className="text-stone-400 hover:text-desi-maroon hover:bg-red-50 p-2 rounded-lg transition-all opacity-60 group-hover:opacity-100"
-                        title="Delete Registration"
-                      >
-                        <AiOutlineDelete size={20} />
-                      </button>
-                    </div>
+                    {!isLocked ? (
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          to={`/captain/registration/edit/${registration._id}`}
+                          className="text-stone-400 hover:text-desi-teal hover:bg-teal-50 p-2 rounded-lg transition-all"
+                          title="Edit Participants"
+                        >
+                          <AiOutlineEdit size={20} />
+                        </Link>
+                        
+                        <button
+                          id={registration._id}
+                          onClick={handleDeleteRegistration}
+                          className="text-stone-400 hover:text-desi-maroon hover:bg-red-50 p-2 rounded-lg transition-all opacity-60 group-hover:opacity-100"
+                          title="Delete Registration"
+                        >
+                          <AiOutlineDelete size={20} />
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-stone-300 italic text-xs">Locked</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -133,17 +156,21 @@ const CaptainRegistrationTable = ({
           </table>
         </div>
 
-        {/* Empty State */}
         {registrations.length === 0 && (
           <div className="p-12 text-center flex flex-col items-center justify-center text-stone-400">
             <MdAppRegistration className="text-4xl mb-2 opacity-20" />
             <p>No registrations found yet.</p>
-            <Link 
-              to="/captain/registration/create"
-              className="mt-4 text-sm text-desi-teal font-medium hover:underline"
-            >
-              Create your first registration
-            </Link>
+            {/* Only show 'Create' link if not locked 
+                AND not in an admin/specific view 
+            */}
+            {!isLocked && !admin && (
+              <Link 
+                to="/captain/registration/create"
+                className="mt-4 text-sm text-desi-teal font-medium hover:underline"
+              >
+                Create your first registration
+              </Link>
+            )}
           </div>
         )}
       </div>

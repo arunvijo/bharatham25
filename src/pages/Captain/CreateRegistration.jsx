@@ -19,7 +19,7 @@ const CreateRegistration = () => {
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(false);
   
-  // Specific Fields
+  // Specific Fields from your original logic
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [performanceType, setPerformanceType] = useState("");
   const [gender, setGender] = useState("");
@@ -32,10 +32,15 @@ const CreateRegistration = () => {
 
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
 
-  // Rules
+  // DEADLINES (Manual 2026)
+  const PRE_EVENT_DEADLINE = new Date("2026-01-04T23:59:59");
+  const MAIN_EVENT_DEADLINE = new Date("2026-01-24T23:59:59");
+  const now = new Date();
+
+  // Rules from your original logic + Manual fixes
   const literaryEventsForLanguage = ["Recitation", "Extempore"];
   const diversityRuleEvents = ["Essay Writing", "Short Story", "Poetry"];
-  const musicEvents = ["Light Music", "Western Vocal", "Classical Music"];
+  const musicEvents = ["Light Music", "Western Vocal", "Classical Music", "Rap", "Mappilappattu"];
   const danceEvents = ["Classical Dance forms"]; 
   const instrumentEvents = ["Instruments"];
   const openMicEvent = "Open Mic";
@@ -44,10 +49,10 @@ const CreateRegistration = () => {
   const houseRegistrationEvents = [
     "Photography", 
     "Graffiti", 
-    "Vogue", 
+    "Vogue Photoshoot", 
     "Short Film", 
     "Making of Bharatham",
-    "Adzap"
+    "ADZAP"
   ];
   
   const languageEvents = [...new Set([...literaryEventsForLanguage, ...diversityRuleEvents])]; 
@@ -99,8 +104,11 @@ const CreateRegistration = () => {
       const selectedEvent = events.find((e) => e.name === event);
       if (!selectedEvent) return;
       
-      if (!selectedEvent?.registrationEnabled) {
-        enqueueSnackbar("Registration Closed", { variant: "error" });
+      // Deadline Enforcement
+      const isPre = selectedEvent.category === "Pre-Event" || selectedEvent.isPreEvent;
+      const dLine = isPre ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
+      if (now > dLine) {
+        enqueueSnackbar(`Registration ended on ${dLine.toLocaleDateString()}`, { variant: "error" });
         return;
       }
 
@@ -115,7 +123,9 @@ const CreateRegistration = () => {
       if (languageEvents.includes(event) && !selectedLanguage) {
         enqueueSnackbar("Select a language", { variant: "warning" }); return;
       }
-      // ... (Rest of validation omitted for brevity) ...
+      if (musicEvents.includes(event) && !gender) {
+        enqueueSnackbar("Select gender category", { variant: "warning" }); return;
+      }
 
       if (participants.some((p) => p.uid === participantData)) {
         enqueueSnackbar("Already added", { variant: "warning" }); return;
@@ -127,7 +137,7 @@ const CreateRegistration = () => {
           ...pObj,
           language: selectedLanguage || null,
           performanceType: performanceType || null,
-          gender: gender || null,
+          genderCategory: gender || null,
           danceType: danceType || null,
           instrumentType: instrumentType || null
         }]);
@@ -144,11 +154,7 @@ const CreateRegistration = () => {
 
   const handleAddHouseEntry = () => {
     if (!event) { enqueueSnackbar("Select event first", { variant: "error" }); return; }
-    
-    if (participants.length > 0) {
-      enqueueSnackbar("House entry already added.", { variant: "warning" });
-      return;
-    }
+    if (participants.length > 0) { enqueueSnackbar("House entry already added.", { variant: "warning" }); return; }
 
     const houseParticipant = {
       _id: `HOUSE_${house}_${Date.now()}`,
@@ -170,27 +176,36 @@ const CreateRegistration = () => {
     if (participants.length === 0) { enqueueSnackbar("No participants", { variant: "error" }); return; }
 
     const selectedEvent = events.find((e) => e.name === event);
-    if (!selectedEvent) { enqueueSnackbar("Invalid event selected", { variant: "error" }); return; }
+    if (!selectedEvent) return;
 
-    // Check if House Entry
     const isHouseEntry = participants.some(p => p.isHouseEntry);
 
+    // Min Limit check
     const minLimit = selectedEvent.minTeamSize || selectedEvent.minIndividualLimit || 1;
     if (!isHouseEntry && participants.length < minLimit) {
       enqueueSnackbar(`Minimum ${minLimit} required`, { variant: "error" }); return;
     }
 
+    // Synchronization Rule
+    if (event === "Synchronization" && participants.length === 2) {
+      const gnds = participants.map(p => p.gender);
+      if (!gnds.includes("Male") || !gnds.includes("Female")) {
+        enqueueSnackbar("Synchronization requires 1 Male and 1 Female", { variant: "error" }); return;
+      }
+    }
+
+    // House Registration Limit
     const houseLimit = selectedEvent.maxRegistrations || selectedEvent.teamLimit || 1;
     const currentRegs = registrations.filter(r => r.event === event);
-    
     if (currentRegs.length >= houseLimit) {
       enqueueSnackbar(`House registration limit reached`, { variant: "error" }); return;
     }
 
-    if (diversityRuleEvents.includes(event) && !isHouseEntry) {
+    // Literary Diversity Rule
+    if (diversityRuleEvents.includes(event) && !isHouseEntry && participants.length > 1) {
       const langs = new Set(participants.map(p => p.language).filter(Boolean));
       if (langs.size < 2) {
-        enqueueSnackbar("Must have 2+ languages.", { variant: "error" }); return;
+        enqueueSnackbar("Must have 2+ different languages.", { variant: "error" }); return;
       }
     }
 
@@ -207,7 +222,6 @@ const CreateRegistration = () => {
       .finally(() => setLoading(false));
   };
 
-  const currentEventObj = events.find(e => e.name === event);
   const isLiterary = languageEvents.includes(event);
   const isOpenMic = event === openMicEvent;
   const isMusic = musicEvents.includes(event);
@@ -221,7 +235,6 @@ const CreateRegistration = () => {
     <DashboardLayout role="Captain" title="New Registration" subtitle={`For ${house} House`}>
       <div className="max-w-4xl mx-auto space-y-6">
         
-        {/* Configuration */}
         <div className="bg-white p-6 rounded-xl shadow-sm border-t-4 border-desi-saffron">
           <div className="flex items-center gap-2 mb-4 text-stone-800 font-bold text-lg">
             <MdEvent className="text-desi-saffron text-2xl" />
@@ -237,7 +250,11 @@ const CreateRegistration = () => {
             className="w-full p-3 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-saffron outline-none"
           >
             <option value="">-- Choose Event --</option>
-            {events.filter(e => e.registrationEnabled).map((e) => (
+            {events.filter(e => {
+                const isPre = e.category === "Pre-Event" || e.isPreEvent;
+                const dLine = isPre ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
+                return e.registrationEnabled && now < dLine;
+            }).map((e) => (
               <option key={e._id} value={e.name}>{e.name}</option>
             ))}
           </select>
@@ -251,68 +268,70 @@ const CreateRegistration = () => {
             </div>
 
             <div className="flex flex-col md:flex-row gap-4 items-end bg-stone-50 p-4 rounded-lg">
-              
-              {/* === CONDITIONAL HOUSE ENTRY === */}
               {isHouseEvent ? (
                 <div className="w-full flex flex-col items-center justify-center py-4 text-center">
-                   <p className="text-stone-500 mb-4 max-w-sm text-sm">
-                     Register the <strong>{house}</strong> team for {event} directly. Individual student names are not required for this registration.
-                   </p>
-                   <button
-                    onClick={handleAddHouseEntry}
-                    disabled={participants.length > 0}
-                    className="px-6 py-2 bg-desi-teal text-white font-bold rounded-lg shadow-md hover:bg-teal-800 disabled:opacity-50 transition-all flex items-center gap-2"
-                  >
-                    <MdDomain />
-                    {participants.length > 0 ? "Team Added" : `Register ${house}`}
-                  </button>
+                   <p className="text-stone-500 mb-4 max-w-sm text-sm">Individual student names are not required for this house entry.</p>
+                   <button onClick={handleAddHouseEntry} disabled={participants.length > 0} className="px-6 py-2 bg-desi-teal text-white font-bold rounded-lg hover:bg-teal-800 transition-all">Register {house}</button>
                 </div>
               ) : (
                 <>
                   <div className="flex-1 w-full">
-                    <SearchableDropdown
-                      options={participantList}
-                      label="Search Student..."
-                      id="participant"
-                      selectedVal={participantData}
-                      handleChange={(val) => setParticipantData(val)}
-                    />
+                    <SearchableDropdown options={participantList} label="Search Student..." selectedVal={participantData} handleChange={setParticipantData} />
                   </div>
-                  {/* ... Conditional Inputs ... */}
-                  {/* ... Omitted for brevity, assumed to be same as before ... */}
+                  {isLiterary && (
+                    <div className="w-full md:w-40">
+                      <label className="block text-xs font-bold mb-1">Language</label>
+                      <select value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)} className="w-full p-3 border rounded-lg text-sm bg-white outline-none">
+                        <option value="">Select</option>
+                        <option value="English">English</option>
+                        <option value="Malayalam">Malayalam</option>
+                        <option value="Hindi">Hindi</option>
+                      </select>
+                    </div>
+                  )}
+                  {isMusic && (
+                    <div className="w-full md:w-40">
+                      <label className="block text-xs font-bold mb-1">Category</label>
+                      <select value={gender} onChange={(e) => setGender(e.target.value)} className="w-full p-3 border rounded-lg text-sm bg-white outline-none">
+                        <option value="">Select</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </div>
+                  )}
+                  {isOpenMic && (
+                    <div className="w-full md:w-40">
+                      <label className="block text-xs font-bold mb-1">Act Type</label>
+                      <input value={performanceType} onChange={(e) => setPerformanceType(e.target.value)} placeholder="e.g. Standup" className="w-full p-3 border rounded-lg text-sm" />
+                    </div>
+                  )}
                   <button onClick={handleAddParticipants} className="w-full md:w-auto px-6 py-2.5 bg-desi-teal text-white font-medium rounded-lg hover:bg-teal-800 transition-all">Add</button>
                 </>
               )}
             </div>
-          </div>
-        )}
 
-        {participants.length > 0 && (
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
-            <h4 className="text-sm font-bold text-stone-400 uppercase mb-4">
-              {isHouseEvent ? "Entry Confirmation" : `Team (${participants.length})`}
-            </h4>
-            <div className="flex flex-wrap gap-3">
-              {participants.map((p) => (
-                <div key={p.uid} className={`flex items-center gap-3 border px-4 py-2 rounded-full ${p.isHouseEntry ? 'bg-amber-50 border-amber-200' : 'bg-stone-50 border-stone-200'}`}>
-                  <div className="flex flex-col leading-tight">
-                    <span className="font-bold text-stone-800 text-sm">{p.fullName}</span>
-                    <span className="text-[10px] text-stone-500 font-mono">
-                       {p.isHouseEntry ? "HOUSE ENTRY" : p.uid}
-                    </span>
+            {participants.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-3">
+                {participants.map((p) => (
+                  <div key={p.uid} className={`flex items-center gap-3 border px-4 py-2 rounded-full ${p.isHouseEntry ? 'bg-amber-50 border-amber-200' : 'bg-white border-stone-200 shadow-sm'}`}>
+                    <div className="flex flex-col leading-tight">
+                        <span className="font-bold text-stone-800 text-sm">{p.fullName}</span>
+                        <span className="text-[10px] text-stone-500 font-mono">
+                           {p.isHouseEntry ? "HOUSE ENTRY" : p.uid} {p.language && `• ${p.language}`} {p.genderCategory && `• ${p.genderCategory}`}
+                        </span>
+                    </div>
+                    <button onClick={() => handleDeleteParticipants(p.uid)} className="text-stone-400 hover:text-red-600"><MdDelete /></button>
                   </div>
-                  <button onClick={() => handleDeleteParticipants(p.uid)} className="text-stone-400 hover:text-red-600"><MdDelete /></button>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-4 pt-6 border-t mt-6">
+              <button onClick={() => navigate("/captain")} className="flex items-center gap-2 px-6 py-3 text-stone-500 font-medium hover:bg-stone-100 rounded-lg"><MdArrowBack /> Cancel</button>
+              <button onClick={handleSaveRegistration} disabled={participants.length === 0} className="flex items-center gap-2 px-8 py-3 bg-desi-saffron text-white font-bold rounded-lg shadow-lg hover:bg-amber-700 disabled:opacity-50"><MdSave /> Confirm</button>
             </div>
           </div>
         )}
-
-        <div className="flex justify-end gap-4 pt-6">
-          <button onClick={() => navigate("/captain")} className="flex items-center gap-2 px-6 py-3 text-stone-500 font-medium hover:bg-stone-100 rounded-lg"><MdArrowBack /> Cancel</button>
-          <button onClick={handleSaveRegistration} disabled={participants.length === 0} className="flex items-center gap-2 px-8 py-3 bg-desi-saffron text-white font-bold rounded-lg shadow-lg hover:bg-amber-700 disabled:opacity-50"><MdSave /> Confirm</button>
-        </div>
-
       </div>
     </DashboardLayout>
   );

@@ -8,13 +8,35 @@ const EventCardList = ({ events = [] }) => {
   // Safety check: Ensure events is an array before filtering
   const safeEvents = Array.isArray(events) ? events : [];
 
-  const filteredEvents = safeEvents.filter(
-    (event) =>
-      event?.name?.toLowerCase().includes(filter.toLowerCase()) ||
-      event?.category?.toLowerCase().includes(filter.toLowerCase()) ||
-      event?.type?.toLowerCase().includes(filter.toLowerCase()) ||
-      event?.participation?.toLowerCase().includes(filter.toLowerCase())
-  );
+  // UPDATED LOGIC: Deadlines from Manual 2026 
+  const PRE_EVENT_DEADLINE = new Date("2026-01-04T23:59:59");
+  const MAIN_EVENT_DEADLINE = new Date("2026-01-24T23:59:59");
+  const now = new Date();
+
+  const filteredAndSortedEvents = safeEvents
+    .filter(
+      (event) =>
+        event?.name?.toLowerCase().includes(filter.toLowerCase()) ||
+        event?.category?.toLowerCase().includes(filter.toLowerCase()) ||
+        event?.type?.toLowerCase().includes(filter.toLowerCase()) ||
+        event?.participation?.toLowerCase().includes(filter.toLowerCase())
+    )
+    .sort((a, b) => {
+      // Helper to check if an event is open based on manual rules 
+      const isOpen = (ev) => {
+        const isPre = ev.category === "Pre-Event" || ev.isPreEvent === true;
+        const deadline = isPre ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
+        return ev.registrationEnabled && now < deadline;
+      };
+
+      const aOpen = isOpen(a);
+      const bOpen = isOpen(b);
+
+      // Place Open events (true/1) before Closed events (false/0)
+      if (aOpen && !bOpen) return -1;
+      if (!aOpen && bOpen) return 1;
+      return 0;
+    });
 
   return (
     <div className="space-y-6">
@@ -32,9 +54,9 @@ const EventCardList = ({ events = [] }) => {
       </div>
 
       {/* Events Grid */}
-      {filteredEvents.length > 0 ? (
+      {filteredAndSortedEvents.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEvents.map((event) => (
+          {filteredAndSortedEvents.map((event) => (
             // Key fix: Ensure event exists before rendering
             event && <EventCard key={event._id} event={event} />
           ))}
@@ -50,45 +72,3 @@ const EventCardList = ({ events = [] }) => {
 };
 
 export default EventCardList;
-
-// import React, { useState } from "react";
-// import EventCard from "./EventCard";
-
-// const EventCardList = ({ events }) => {
-//   const [filter, setFilter] = useState("");
-
-//   const filteredEvents = events.filter(
-//     (event) =>
-//       event.name.toLowerCase().includes(filter.toLowerCase()) ||
-//       event.category.toLowerCase().includes(filter.toLowerCase()) ||
-//       event.type.toLowerCase().includes(filter.toLowerCase()) ||
-//       event.participation.toLowerCase().includes(filter.toLowerCase())
-//   );
-
-//   return (
-//     <>
-//       <input
-//         type="text"
-//         placeholder="Filter by name, category, type, participation"
-//         value={filter}
-//         onChange={(e) => setFilter(e.target.value)}
-//         style={{
-//           marginBottom: 20,
-//           borderRadius: 30,
-//           width: "70%",
-//           border: "none",
-//           paddingBlock: 10,
-//           paddingInline: 20,
-//           fontFamily: "DM Sans",
-//         }}
-//       />
-//       <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-//         {filteredEvents.map((event) => (
-//           <EventCard key={event._id} event={event} />
-//         ))}
-//       </div>
-//     </>
-//   );
-// };
-
-// export default EventCardList;

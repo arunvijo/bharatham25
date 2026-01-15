@@ -1,12 +1,24 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { MdArrowForward, MdGroups, MdPerson } from "react-icons/md";
+import { MdArrowForward, MdGroups, MdPerson, MdTimer } from "react-icons/md";
 
 const EventCard = ({ event }) => {
   // Safety Check: If event prop is missing, don't render anything (prevents crash)
   if (!event) return null;
 
-  const isOpen = event.registrationEnabled;
+  // UPDATED LOGIC: Deadlines from Manual 2026
+  const PRE_EVENT_DEADLINE = new Date("2026-01-04T23:59:59");
+  const MAIN_EVENT_DEADLINE = new Date("2026-01-24T23:59:59");
+  const now = new Date();
+
+  // Check if event is a Pre-Event to determine which deadline to use
+  const isPreEvent = event.category === "Pre-Event" || event.isPreEvent === true;
+  const deadline = isPreEvent ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
+  
+  // Event is "Open" only if enabled AND within the deadline
+  const isWithinDeadline = now < deadline;
+  const isOpen = event.registrationEnabled && isWithinDeadline;
+  
   const isTeam = event.participation === "Group";
 
   return (
@@ -24,9 +36,17 @@ const EventCard = ({ event }) => {
           <span className="text-[10px] font-bold uppercase tracking-widest text-stone-500 bg-stone-100 px-2 py-1 rounded-md border border-stone-200">
             {event.category || "Event"}
           </span>
-          <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded-full border ${isOpen ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
-            {isOpen ? 'Open' : 'Closed'}
-          </span>
+          <div className="flex flex-col items-end gap-1">
+            <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded-full border ${isOpen ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+              {isOpen ? 'Open' : 'Closed'}
+            </span>
+            {/* Show deadline warning for Pre-Events if Jan 4 is near or passed */}
+            {isPreEvent && isWithinDeadline && (
+              <span className="text-[9px] text-orange-600 font-bold flex items-center gap-0.5">
+                <MdTimer /> Jan 4
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Title */}
@@ -42,12 +62,12 @@ const EventCard = ({ event }) => {
         {/* Footer Info */}
         <div className="mt-auto pt-4 border-t border-stone-100 flex justify-between items-center">
           <div className="text-xs text-stone-400 font-mono">
-             {/* Safety check for limits */}
-             {event.minIndividualLimit || 1}-{event.maxIndividualLimit || event.teamLimit || 1} / Team
+             {/* Safety check for team limits based on manual data */}
+             {event.minTeamSize || event.minIndividualLimit || 1}-{event.maxTeamSize || event.maxIndividualLimit || 1} / Entry
           </div>
           
           <span className="flex items-center gap-1 text-xs font-bold text-desi-saffron opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
-            Manage <MdArrowForward />
+            {isOpen ? 'Register' : 'View'} <MdArrowForward />
           </span>
         </div>
       </div>
@@ -56,20 +76,3 @@ const EventCard = ({ event }) => {
 };
 
 export default EventCard;
-
-// import React from "react";
-// import { Link } from "react-router-dom";
-
-// const EventCard = ({ event }) => {
-//   return (
-//     <Link to={`/captain/event/view/${event._id}`} className="event-card">
-//       <h3 style={{ color: `#270B55` }}>{event.name}</h3>
-//       <p>{event.type} | {event.category}</p>
-//       <p>{event.participation}</p>
-//       <p>{event.date}</p>
-//       <p style={{ color: event.registrationEnabled ? "green" : "red", fontWeight: "bold" }}>{event.registrationEnabled ? "Registration Open" : "Registration Closed"}</p>
-//     </Link>
-//   );
-// };
-
-// export default EventCard;

@@ -10,10 +10,10 @@ import DashboardLayout from "../../components/layout/DashboardLayout";
 import CaptainRegistrationTable from "../../components/registration/CaptainRegistrationTable";
 import SearchableDropdown from "../../components/SearchableDropdown";
 import Spinner from "../../components/Spinner";
-import BackButton from "../../components/BackButton"; // You might want to update or remove this if DashboardLayout handles nav
+import BackButton from "../../components/BackButton"; 
 
 const EventView = () => {
-  const { user, isAuthenticated, isLoading } = useAuth0();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth0();
   const [registrations, setRegistrations] = useState([]);
   const [active, setActive] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -28,8 +28,9 @@ const EventView = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [performanceType, setPerformanceType] = useState("");
 
-  // ADD THESE HERE:
-  const DEADLINE = new Date("2026-01-04T23:59:59");
+  // DEADLINES (Manual 2026)
+  const PRE_EVENT_DEADLINE = new Date("2026-01-04T23:59:59");
+  const MAIN_EVENT_DEADLINE = new Date("2026-01-24T23:59:59");
   const now = new Date();
 
   const navigate = useNavigate();
@@ -37,7 +38,9 @@ const EventView = () => {
 
   // Use Env Variable for API URL
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
-  const literaryEvents = ["Essay Writing", "Short Story", "Poetry"];
+  
+  // FIX: Added Extempore and Recitation so the language dropdown shows for them
+  const literaryEvents = ["Essay Writing", "Short Story", "Poetry", "Extempore", "Recitation"];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,9 +75,13 @@ const EventView = () => {
         );
         setRegistrations(registrationResponse.data.data);
 
-        // 5. Check Active Status with Deadline Enforcement
-        const isRegistrationOpen = eventData.registrationEnabled || (new Date(eventData.date) > now) || eventData.date === "TBD";
-        const withinDeadline = now < DEADLINE;
+        // 5. Check Active Status with Category-Based Deadline Enforcement
+        const isPreEvent = eventData.category === "Pre-Event" || eventData.isPreEvent === true;
+        const deadlineToUse = isPreEvent ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
+        
+        const isRegistrationOpen = eventData.registrationEnabled || eventData.date === "TBD";
+        const withinDeadline = now < deadlineToUse;
+        
         setActive(isRegistrationOpen && withinDeadline);
 
       } catch (error) {
@@ -86,7 +93,7 @@ const EventView = () => {
     };
 
     if (isAuthenticated) fetchData();
-  }, [isAuthenticated, user, id, enqueueSnackbar, apiUrl]);
+  }, [isAuthenticated, user, id, apiUrl]);
 
   const handleAddParticipants = () => {
     if (participantData) {
@@ -158,8 +165,8 @@ const EventView = () => {
     }
 
     // 3. Language Diversity Rule (At least 2 languages for Literary Events)
-    if (literaryEvents.includes(event.name)) {
-      const languages = new Set(participants.map(p => p.language));
+    if (literaryEvents.includes(event.name) && participants.length > 1) {
+      const languages = new Set(participants.map(p => p.language).filter(l => l));
       if (languages.size < 2) {
         enqueueSnackbar("Participants must represent at least 2 different languages.", { variant: "error" });
         return;
@@ -191,27 +198,20 @@ const EventView = () => {
   };
 
   const handleDeleteRegistration = (e) => {
-    const id = e.currentTarget.id || e.target.id;
-    
+    const regId = e.currentTarget.id || e.target.id;
     if(!window.confirm("Are you sure you want to delete this registration?")) return;
 
     setLoading(true);
-
-    // Backend now handles participant counter updates automatically on delete
     axios
-      .delete(`${apiUrl}/registration/${id}`)
+      .delete(`${apiUrl}/registration/${regId}`)
       .then(() => {
-        setRegistrations((old) => old.filter((r) => r._id !== id));
+        setRegistrations((old) => old.filter((r) => r._id !== regId));
         enqueueSnackbar("Registration deleted successfully", { variant: "success" });
         setLoading(false);
       })
       .catch((error) => {
-        console.error("Error in delete process:", error);
         setLoading(false);
-        enqueueSnackbar(
-          error.response?.data?.message || "Error processing deletion!",
-          { variant: "error" }
-        );
+        enqueueSnackbar(error.response?.data?.message || "Error processing deletion!", { variant: "error" });
       });
   };
 
@@ -222,7 +222,9 @@ const EventView = () => {
   const isOpenMic = event.name === "Open Mic";
   const maxLimit = event.maxTeamSize || event.maxIndividualLimit || 1;
   const houseLimit = event.maxRegistrations || event.teamLimit || 1;
-  const canRegister = registrations.length < houseLimit;
+  
+  // Logic: Only show the 'New Entry' form if the house limit isn't reached AND the deadline hasn't passed
+  const canRegisterNew = registrations.length < houseLimit && active;
 
   return (
     <DashboardLayout
@@ -258,28 +260,34 @@ const EventView = () => {
           </div>
         </div>
 
-        {/* 2. Existing Registrations Table */}
+        {/* 2. Existing Registrations Table - Always visible for Editing/Deleting (until global deadline) */}
         <div className="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
-           <div className="px-6 py-4 border-b border-stone-100 bg-stone-50">
+           <div className="px-6 py-4 border-b border-stone-100 bg-stone-50 flex justify-between items-center">
             <h3 className="text-lg font-bold text-stone-800">Current Registrations</h3>
+            { (event.category === "Pre-Event" && now > PRE_EVENT_DEADLINE) && (
+                <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded font-bold uppercase">
+                    New Entries Locked (Jan 4)
+                </span>
+            )}
           </div>
           <div className="p-0">
             <CaptainRegistrationTable
                 registrations={registrations}
+                admin={true} // This hides the redundant circular button
                 handleDeleteRegistration={handleDeleteRegistration}
             />
           </div>
         </div>
         
-        {/* 3. Registration Form (Conditional) */}
-        {canRegister && active ? (
+        {/* 3. New Registration Form - Hidden if deadline passed or limit reached */}
+        {canRegisterNew ? (
           <div className="bg-white p-6 rounded-xl shadow-lg border-t-4 border-desi-teal animate-fade-in-up">
             <div className="flex items-center gap-2 mb-6 pb-4 border-b border-stone-100">
               <MdPersonAdd className="text-desi-teal text-2xl" />
-              <h3 className="text-xl font-bold text-stone-800">New Registration Team</h3>
+              <h3 className="text-xl font-bold text-stone-800">New Registration Entry</h3>
             </div>
 
-            {/* A. Team Preview */}
+            {/* Team Preview */}
             <div className="mb-6">
                 {participants.length > 0 ? (
                     <div className="flex flex-wrap gap-3 p-4 bg-stone-50 rounded-lg border border-stone-200 border-dashed">
@@ -303,11 +311,11 @@ const EventView = () => {
                     ))}
                     </div>
                 ) : (
-                    <p className="text-stone-400 italic text-sm text-center py-4">No participants added to this team yet.</p>
+                    <p className="text-stone-400 italic text-sm text-center py-4">No participants added to this entry yet.</p>
                 )}
             </div>
 
-            {/* B. Add Participant Controls */}
+            {/* Add Participant Controls */}
             {participants.length < maxLimit && (
               <div className="flex flex-col md:flex-row gap-4 items-end bg-stone-50 p-4 rounded-lg border border-stone-200">
                 
@@ -359,7 +367,6 @@ const EventView = () => {
               </div>
             )}
             
-            {/* C. Submit Button */}
             <div className="flex justify-end mt-6 pt-4 border-t border-stone-100">
                 <button 
                     onClick={handleSaveRegistration}
@@ -372,14 +379,14 @@ const EventView = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-r-lg flex items-start gap-4">
-             <MdInfo className="text-red-500 text-2xl mt-0.5" />
+          <div className="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-r-lg flex items-start gap-4">
+             <MdInfo className="text-amber-500 text-2xl mt-0.5" />
              <div>
-                <h3 className="text-red-800 font-bold text-lg">Registration Closed</h3>
-                <p className="text-red-600 text-sm mt-1">
-                    {!active 
-                        ? "This event is not currently accepting registrations." 
-                        : `Your house has reached the maximum limit of ${houseLimit} registration(s) for this event.`}
+                <h3 className="text-amber-800 font-bold text-lg">Registration Limited</h3>
+                <p className="text-amber-600 text-sm mt-1">
+                    {registrations.length >= houseLimit 
+                        ? `Your house has reached the maximum limit of ${houseLimit} registration(s) for this event.`
+                        : `New registrations for Pre-Events closed on Jan 4th. You may still view or edit existing registrations above.`}
                 </p>
              </div>
           </div>
@@ -390,6 +397,3 @@ const EventView = () => {
 };
 
 export default EventView;
-
-
-
