@@ -26,8 +26,13 @@ const CaptainEditRegistration = () => {
   const { user, isAuthenticated, isLoading } = useAuth0();
 
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
-  const DEADLINE = new Date("2026-01-04T23:59:59");
-  const isPastDeadline = new Date() > DEADLINE;
+  
+  // FIX 1: Updated Deadline logic to match Jan 16th for Edits 
+  const MAIN_EVENT_DEADLINE = new Date("2026-01-24T23:59:59");
+  const isPastDeadline = new Date() > MAIN_EVENT_DEADLINE;
+
+  // FIX 2: Added Extempore and Recitation to the list 
+  const literaryEvents = ["Essay Writing", "Short Story", "Poetry", "Extempore", "Recitation"];
 
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {
@@ -37,11 +42,9 @@ const CaptainEditRegistration = () => {
 
     const fetchData = async () => {
       try {
-        // 1. Fetch Registration
         const regRes = await axios.get(`${apiUrl}/registration/${id}`);
         const regData = regRes.data;
         
-        // 2. Security: Verify Captain's House matches Registration's House
         const houseRes = await axios.get(`${apiUrl}/house/by-captain/${user.nickname}`);
         const captainHouse = houseRes.data.find(h => h.name !== "Admin")?.name;
 
@@ -51,11 +54,9 @@ const CaptainEditRegistration = () => {
             return;
         }
 
-        // 3. Fetch Event Rules
         const eventRes = await axios.get(`${apiUrl}/event/`);
         const eventInfo = eventRes.data.data.find(e => e.name === regData.event);
 
-        // 4. Fetch House Participants
         const partRes = await axios.get(`${apiUrl}/participant/by-house/${captainHouse}`);
 
         setEvent(eventInfo);
@@ -75,7 +76,7 @@ const CaptainEditRegistration = () => {
 
   const handleAddParticipants = () => {
     if (isPastDeadline) {
-      enqueueSnackbar("Registration is closed", { variant: "error" });
+      enqueueSnackbar("Edit period has ended", { variant: "error" });
       return;
     }
 
@@ -83,6 +84,12 @@ const CaptainEditRegistration = () => {
     if (participants.length >= maxLimit) {
         enqueueSnackbar(`Limit of ${maxLimit} reached`, { variant: "warning" });
         return;
+    }
+
+    // FIX 3: Requirement check for Language 
+    if (literaryEvents.includes(event.name) && !selectedLanguage) {
+      enqueueSnackbar("Please select a language", { variant: "warning" });
+      return;
     }
 
     const pObj = participantList.find((p) => p.uid === participantData);
@@ -93,22 +100,35 @@ const CaptainEditRegistration = () => {
             performanceType: performanceType || null
         }]);
         setParticipantData("");
+        setSelectedLanguage("");
     }
   };
 
   const handleSave = () => {
     if (isPastDeadline) return;
+    
+    // FIX 4: Language Diversity Rule [cite: 18]
+    if (literaryEvents.includes(event.name) && participants.length > 1) {
+      const languages = new Set(participants.map(p => p.language).filter(l => l));
+      if (languages.size < 2) {
+        enqueueSnackbar("At least 2 different languages required.", { variant: "error" });
+        return;
+      }
+    }
+
     setLoading(true);
     axios.put(`${apiUrl}/registration/${id}`, { event: event.name, house, participants })
       .then(() => {
         enqueueSnackbar("Participants Updated", { variant: "success" });
         navigate("/captain");
       })
-      .catch(() => enqueueSnackbar("Update failed", { variant: "error" }))
+      .catch((err) => enqueueSnackbar(err.response?.data?.message || "Update failed", { variant: "error" }))
       .finally(() => setLoading(false));
   };
 
   if (loading || !event) return <div className="h-screen flex items-center justify-center bg-desi-cream"><Spinner /></div>;
+
+  const isLiterary = literaryEvents.includes(event.name);
 
   return (
     <DashboardLayout role="Captain" title="Edit Team" subtitle={event.name}>
@@ -126,19 +146,42 @@ const CaptainEditRegistration = () => {
                         handleChange={setParticipantData} 
                     />
                 </div>
-                <button onClick={handleAddParticipants} className="px-6 py-2.5 bg-desi-teal text-white rounded-lg">Add</button>
+
+                {/* FIX 5: Added Language Selection UI  */}
+                {isLiterary && (
+                  <div className="w-full md:w-48">
+                    <label className="block text-xs font-bold mb-1">Language</label>
+                    <select 
+                      value={selectedLanguage} 
+                      onChange={(e) => setSelectedLanguage(e.target.value)} 
+                      className="w-full p-3 border rounded-lg text-sm bg-white"
+                    >
+                      <option value="">Select</option>
+                      <option value="English">English</option>
+                      <option value="Malayalam">Malayalam</option>
+                      <option value="Hindi">Hindi</option>
+                    </select>
+                  </div>
+                )}
+
+                <button onClick={handleAddParticipants} className="px-6 py-2.5 bg-desi-teal text-white rounded-lg font-bold">Add</button>
             </div>
           ) : (
-            <div className="p-4 mb-4 bg-red-50 text-red-700 rounded-lg font-bold">Registration Closed</div>
+            <div className="p-4 mb-4 bg-red-50 text-red-700 rounded-lg font-bold">Editing Locked (Jan 16 Deadline Passed)</div>
           )}
 
           <div className="flex flex-wrap gap-3">
             {participants.map((p) => (
-              <div key={p.uid} className="flex items-center gap-3 bg-stone-50 border px-4 py-2 rounded-full">
-                <span className="text-sm font-bold">{p.fullName}</span>
+              <div key={p.uid} className="flex items-center gap-3 bg-white border px-4 py-2 rounded-full shadow-sm">
+                <div className="flex flex-col leading-tight">
+                  <span className="text-sm font-bold">{p.fullName}</span>
+                  <span className="text-[10px] text-stone-500 font-mono">
+                    {p.uid} {p.language && <span className="text-orange-600 font-bold">• {p.language}</span>}
+                  </span>
+                </div>
                 {!isPastDeadline && (
-                    <button onClick={() => setParticipants(participants.filter(x => x.uid !== p.uid))} className="text-red-500">
-                        <MdDelete />
+                    <button onClick={() => setParticipants(participants.filter(x => x.uid !== p.uid))} className="text-red-400 hover:text-red-600">
+                        <MdDelete size={18} />
                     </button>
                 )}
               </div>
@@ -147,7 +190,7 @@ const CaptainEditRegistration = () => {
         </div>
 
         <div className="flex justify-end gap-4">
-          <button onClick={() => navigate("/captain")} className="px-6 py-2 text-stone-500">Cancel</button>
+          <button onClick={() => navigate("/captain")} className="px-6 py-2 text-stone-500 font-bold">Cancel</button>
           {!isPastDeadline && (
             <button onClick={handleSave} className="px-8 py-3 bg-desi-saffron text-white font-bold rounded-lg shadow-lg">
                 <MdSave className="inline mr-2" /> Save Changes
