@@ -1,18 +1,20 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
-import { MdOutlineAdd, MdAppRegistration } from "react-icons/md";
+import { MdOutlineAdd, MdAppRegistration, MdSearch, MdFilterList, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { ExportToExcel } from "../../../ExportToExcel";
-import { useSnackbar } from "notistack";
 
 const RegistrationTable = ({
-  registrations,
-  admin = false,
+  registrations = [],
   handleDeleteRegistration,
 }) => {
-  const { enqueueSnackbar } = useSnackbar();
+  // --- States for Filtering & Pagination ---
+  const [searchTerm, setSearchTerm] = useState("");
+  const [houseFilter, setHouseFilter] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  // Helper for house badge colors
+  // --- Helper for house badge colors ---
   const getHouseBadgeColor = (houseName) => {
     switch (houseName?.toLowerCase()) {
       case 'rajputs': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
@@ -25,34 +27,70 @@ const RegistrationTable = ({
     }
   };
 
+  // --- Filtering Logic ---
+  const filteredRegistrations = useMemo(() => {
+    return registrations.filter((reg) => {
+      const matchesSearch = reg.event.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            reg.participants.some(p => p.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesHouse = houseFilter === "All" || reg.house === houseFilter;
+      return matchesSearch && matchesHouse;
+    });
+  }, [registrations, searchTerm, houseFilter]);
+
+  // --- Pagination Logic ---
+  const totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredRegistrations.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredRegistrations, currentPage]);
+
+  const uniqueHouses = ["All", ...new Set(registrations.map(r => r.house))];
+
   return (
     <div className="space-y-6 font-sans">
-      {/* Header Card */}
+      {/* Header & Main Actions */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white p-5 rounded-xl shadow-sm border-l-4 border-desi-saffron">
         <div className="flex items-center gap-4">
           <h3 className="text-2xl font-bold text-black tracking-wide flex items-center gap-2">
             <MdAppRegistration className="text-desi-saffron" />
-            All Registrations <span className="text-stone-400 text-base font-sans font-normal">({registrations.length})</span>
+            Admin Portal <span className="text-stone-400 text-base font-normal">({filteredRegistrations.length})</span>
           </h3>
-          <div className="opacity-80 hover:opacity-100 transition-opacity">
-            <ExportToExcel apiData={registrations} fileName={"registrations"} />
-          </div>
+          <ExportToExcel apiData={filteredRegistrations} fileName={"filtered_registrations"} />
         </div>
+        <Link
+          to="/registration/create"
+          className="flex items-center gap-2 px-5 py-2 bg-desi-saffron text-white rounded-full shadow hover:bg-amber-700 transition-all font-medium"
+        >
+          <MdOutlineAdd className="text-xl" />
+          <span>New Entry</span>
+        </Link>
+      </div>
 
-        {/* Admin Actions */}
-        <div className="flex items-center gap-3">
-          <Link
-            to="/registration/create"
-            className="flex items-center gap-2 px-5 py-2 bg-desi-saffron text-white rounded-full shadow-lg hover:bg-amber-700 hover:scale-105 transition-all font-medium"
-            title="Add Registration"
+      {/* Filters & Search Bar */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-4 rounded-xl border border-stone-100 shadow-sm">
+        <div className="relative col-span-2">
+          <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xl" />
+          <input 
+            type="text"
+            placeholder="Search by event or participant name..."
+            className="w-full pl-10 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-saffron outline-none text-sm"
+            value={searchTerm}
+            onChange={(e) => {setSearchTerm(e.target.value); setCurrentPage(1);}}
+          />
+        </div>
+        <div className="relative">
+          <MdFilterList className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-xl" />
+          <select 
+            className="w-full pl-10 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-saffron outline-none text-sm appearance-none"
+            value={houseFilter}
+            onChange={(e) => {setHouseFilter(e.target.value); setCurrentPage(1);}}
           >
-            <MdOutlineAdd className="text-xl" />
-            <span>New Entry</span>
-          </Link>
+            {uniqueHouses.map(h => <option key={h} value={h}>{h}</option>)}
+          </select>
         </div>
       </div>
 
-      {/* Table Card */}
+      {/* Table Section */}
       <div className="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-stone-200">
@@ -66,65 +104,36 @@ const RegistrationTable = ({
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-stone-200">
-              {registrations.map((registration, index) => (
-                <tr key={registration._id} className="hover:bg-orange-50/30 transition-colors group">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-400 font-medium">
-                    {index + 1}
+              {paginatedData.map((registration, index) => (
+                <tr key={registration._id} className="hover:bg-orange-50/30 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-xs text-stone-400">
+                    {(currentPage - 1) * itemsPerPage + index + 1}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm font-bold text-stone-800">{registration.event}</span>
                   </td>
-
-                  {/* House Badge */}
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full border ${getHouseBadgeColor(registration.house)}`}>
+                    <span className={`px-2.5 py-0.5 inline-flex text-[10px] font-bold rounded-full border ${getHouseBadgeColor(registration.house)}`}>
                       {registration.house}
                     </span>
                   </td>
-
-                  {/* Participants List */}
                   <td className="px-6 py-4">
-                    <div className="flex flex-col gap-2">
-                      {registration.participants.map((participant, pIndex) => (
-                        <div key={pIndex} className="flex items-center gap-2 text-sm text-stone-700">
-                          <span className="font-mono text-desi-teal text-xs bg-teal-50 px-1.5 rounded border border-teal-100">
-                            {participant.uid}
-                          </span>
-                          <span className="font-medium">{participant.fullName}</span>
-
-                          {participant.language && (
-                            <span className="px-2 py-0.5 text-[10px] font-bold bg-orange-50 text-orange-700 border border-orange-200 rounded-full uppercase tracking-wide">
-                              {participant.language}
-                            </span>
-                          )}
-
-                          {participant.performanceType && (
-                            <span className="px-2 py-0.5 text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200 rounded-full uppercase tracking-wide">
-                              {participant.performanceType}
-                            </span>
-                          )}
+                    <div className="flex flex-col gap-1">
+                      {registration.participants.map((p, i) => (
+                        <div key={i} className="flex items-center gap-2 text-xs text-stone-600">
+                          <span className="font-mono text-[10px] bg-teal-50 px-1 rounded border border-teal-100">{p.uid}</span>
+                          <span>{p.fullName}</span>
                         </div>
                       ))}
                     </div>
                   </td>
-
-                  {/* Combined Action Column */}
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link
-                        to={`/registration/edit/${registration._id}`}
-                        className="text-stone-400 hover:text-desi-saffron hover:bg-orange-50 p-2 rounded-lg transition-all"
-                        title="Edit Registration"
-                      >
-                        <AiOutlineEdit size={20} />
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link to={`/registration/edit/${registration._id}`} className="p-2 text-stone-400 hover:text-desi-saffron hover:bg-orange-50 rounded-lg transition-all">
+                        <AiOutlineEdit size={18} />
                       </Link>
-
-                      <button
-                        onClick={() => handleDeleteRegistration(registration._id)}
-                        className="text-stone-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-all opacity-60 group-hover:opacity-100"
-                        title="Delete Registration"
-                      >
-                        <AiOutlineDelete size={20} />
+                      <button onClick={() => handleDeleteRegistration(registration._id)} className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                        <AiOutlineDelete size={18} />
                       </button>
                     </div>
                   </td>
@@ -134,11 +143,33 @@ const RegistrationTable = ({
           </table>
         </div>
 
-        {/* Empty State */}
-        {registrations.length === 0 && (
-          <div className="p-12 text-center flex flex-col items-center justify-center text-stone-400">
-            <MdAppRegistration className="text-4xl mb-2 opacity-20" />
-            <p>No registrations found.</p>
+        {/* Pagination Controls */}
+        <div className="bg-stone-50 px-6 py-4 flex items-center justify-between border-t border-stone-200">
+          <p className="text-xs text-stone-500">
+            Showing <span className="font-bold">{paginatedData.length}</span> of <span className="font-bold">{filteredRegistrations.length}</span> results
+          </p>
+          <div className="flex items-center gap-2">
+            <button 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              className="p-2 bg-white border border-stone-200 rounded-lg hover:bg-stone-100 disabled:opacity-30"
+            >
+              <MdChevronLeft size={20} />
+            </button>
+            <span className="text-sm font-bold text-stone-700">Page {currentPage} of {totalPages || 1}</span>
+            <button 
+              disabled={currentPage === totalPages || totalPages === 0}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              className="p-2 bg-white border border-stone-200 rounded-lg hover:bg-stone-100 disabled:opacity-30"
+            >
+              <MdChevronRight size={20} />
+            </button>
+          </div>
+        </div>
+
+        {filteredRegistrations.length === 0 && (
+          <div className="p-12 text-center text-stone-400">
+            <p>No matches found for your current filters.</p>
           </div>
         )}
       </div>

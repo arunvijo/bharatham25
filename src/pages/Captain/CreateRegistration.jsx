@@ -106,7 +106,9 @@ const CreateRegistration = () => {
       
       // Deadline Enforcement
       const isPre = selectedEvent.category === "Pre-Event" || selectedEvent.isPreEvent;
-      const dLine = isPre ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
+      const isTurnAround = selectedEvent.name === "Turn Around";
+      const dLine = (isPre && !isTurnAround) ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
+      
       if (now > dLine) {
         enqueueSnackbar(`Registration ended on ${dLine.toLocaleDateString()}`, { variant: "error" });
         return;
