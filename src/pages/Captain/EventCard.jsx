@@ -13,7 +13,8 @@ const EventCard = ({ event }) => {
 
   // Check if event is a Pre-Event to determine which deadline to use
   const isPreEvent = event.category === "Pre-Event" || event.isPreEvent === true;
-  const deadline = isPreEvent ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
+  const isTurnAround = event.name === "Turn Around";
+  const deadline = (isPreEvent && !isTurnAround) ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
   
   // Event is "Open" only if enabled AND within the deadline
   const isWithinDeadline = now < deadline;

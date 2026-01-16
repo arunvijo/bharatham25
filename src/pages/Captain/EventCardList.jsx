@@ -24,10 +24,11 @@ const EventCardList = ({ events = [] }) => {
     .sort((a, b) => {
       // Helper to check if an event is open based on manual rules 
       const isOpen = (ev) => {
-        const isPre = ev.category === "Pre-Event" || ev.isPreEvent === true;
-        const deadline = isPre ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
-        return ev.registrationEnabled && now < deadline;
-      };
+      const isPre = ev.category === "Pre-Event" || ev.isPreEvent === true;
+      const isTurnAround = ev.name === "Turn Around";
+      const deadline = (isPre && !isTurnAround) ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
+      return ev.registrationEnabled && now < deadline;
+    };
 
       const aOpen = isOpen(a);
       const bOpen = isOpen(b);

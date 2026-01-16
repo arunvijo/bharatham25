@@ -3,393 +3,473 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import axios from "axios";
-import { MdOutlineDelete, MdEvent, MdGroup, MdInfo, MdPersonAdd, MdSave, MdArrowBack } from "react-icons/md";
+import { 
+  MdOutlineDelete, 
+  MdEvent, 
+  MdGroup, 
+  MdInfo, 
+  MdPersonAdd, 
+  MdSave, 
+  MdArrowBack,
+  MdCategory,
+  MdLayers,
+  MdPeople
+} from "react-icons/md";
 
 // Modern Components
 import DashboardLayout from "../../components/layout/DashboardLayout";
 import CaptainRegistrationTable from "../../components/registration/CaptainRegistrationTable";
 import SearchableDropdown from "../../components/SearchableDropdown";
 import Spinner from "../../components/Spinner";
-import BackButton from "../../components/BackButton"; 
+import BackButton from "../../components/BackButton";
 
 const EventView = () => {
+  // --- AUTH & ROUTING ---
   const { user, isAuthenticated, isLoading: authLoading } = useAuth0();
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const { enqueueSnackbar } = useSnackbar();
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
+
+  // --- STATE MANAGEMENT ---
   const [registrations, setRegistrations] = useState([]);
   const [active, setActive] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { id } = useParams();
   const [house, setHouse] = useState("");
   const [event, setEvent] = useState(null);
   const [participantData, setParticipantData] = useState("");
   const [participantList, setParticipantList] = useState([]);
   const [participants, setParticipants] = useState([]);
   
-  // NEW: States for specific event rules
+  // Rule-Specific States
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [performanceType, setPerformanceType] = useState("");
 
-  // DEADLINES (Manual 2026)
+  // --- CONSTANTS & MANUAL RULES ---
   const PRE_EVENT_DEADLINE = new Date("2026-01-04T23:59:59");
   const MAIN_EVENT_DEADLINE = new Date("2026-01-24T23:59:59");
   const now = new Date();
 
-  const navigate = useNavigate();
-  const { enqueueSnackbar } = useSnackbar();
-
-  // Use Env Variable for API URL
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
-  
-  // FIX: Added Extempore and Recitation so the language dropdown shows for them
   const literaryEvents = ["Essay Writing", "Short Story", "Poetry", "Extempore", "Recitation"];
+  const houseRegistrationEvents = [
+    "Photography", 
+    "Graffiti", 
+    "Vogue Photoshoot", 
+    "Short Film", 
+    "Making of Bharatham", 
+    "ADZAP"
+  ];
 
+  // --- DATA FETCHING ---
   useEffect(() => {
     const fetchData = async () => {
+      if (!isAuthenticated || !user?.nickname) return;
+      
       try {
-        if (!user?.nickname) return;
+        setLoading(true);
 
-        // 1. Get House
-        const houseResponse = await axios.get(
-          `${apiUrl}/house/by-captain/${user.nickname}`
-        );
+        // 1. Get House Details for Captain
+        const houseResponse = await axios.get(`${apiUrl}/house/by-captain/${user.nickname}`);
         const houseData = houseResponse.data.find(d => d.name !== "Admin");
+        
         if (!houseData) {
-            enqueueSnackbar("Captain house not found", { variant: "error" });
-            return;
+          enqueueSnackbar("Captain house not found", { variant: "error" });
+          navigate("/captain");
+          return;
         }
         setHouse(houseData.name);
 
-        // 2. Get Participants
-        const participantResponse = await axios.get(
-          `${apiUrl}/participant/by-house/${houseData.name}`
-        );
-        setParticipantList(participantResponse.data.data);
+        // 2. Load Participants for this House
+        const participantResponse = await axios.get(`${apiUrl}/participant/by-house/${houseData.name}`);
+        setParticipantList(participantResponse.data.data || []);
 
-        // 3. Get Event Details
+        // 3. Load Event Configuration
         const eventResponse = await axios.get(`${apiUrl}/event/${id}`);
         const eventData = eventResponse.data;
         setEvent(eventData);
 
-        // 4. Get Existing Registrations
+        // 4. Load House's Existing Registrations for this specific Event
         const registrationResponse = await axios.get(
           `${apiUrl}/registration/by-house-event/${id}/${houseData.name}`
         );
-        setRegistrations(registrationResponse.data.data);
+        setRegistrations(registrationResponse.data.data || []);
 
-        // 5. Check Active Status with Category-Based Deadline Enforcement
+        // 5. Calculate Deadline & Active Status
         const isPreEvent = eventData.category === "Pre-Event" || eventData.isPreEvent === true;
-        const deadlineToUse = isPreEvent ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
+        const isTurnAround = eventData.name === "Turn Around";
+
+        // Logic Exception: Turn Around stays open until Main Event Deadline
+        const deadlineToUse = (isPreEvent && !isTurnAround) ? PRE_EVENT_DEADLINE : MAIN_EVENT_DEADLINE;
         
-        const isRegistrationOpen = eventData.registrationEnabled || eventData.date === "TBD";
-        const withinDeadline = now < deadlineToUse;
-        
-        setActive(isRegistrationOpen && withinDeadline);
+        const isRegistrationOpen = eventData.registrationEnabled !== false;
+        const isWithinDeadline = now < deadlineToUse;
+
+        setActive(isRegistrationOpen && isWithinDeadline);
 
       } catch (error) {
-        console.error(error);
-        enqueueSnackbar("Error loading event data", { variant: "error" });
+        console.error("Fetch Error:", error);
+        enqueueSnackbar("Failed to sync with server", { variant: "error" });
       } finally {
         setLoading(false);
       }
     };
 
-    if (isAuthenticated) fetchData();
-  }, [isAuthenticated, user, id, apiUrl]);
+    fetchData();
+  }, [isAuthenticated, user, id, apiUrl, navigate]);
+
+  // --- HANDLERS ---
 
   const handleAddParticipants = () => {
-    if (participantData) {
-      // Check if already added
-      if (participants.some((p) => p.uid === participantData)) {
-        enqueueSnackbar("Participant already added", { variant: "warning" });
-        return;
-      }
+    if (!participantData) return;
 
-      // Check Limits (Frontend Check)
-      const maxLimit = event.maxTeamSize || event.maxIndividualLimit || 1;
-      if (participants.length >= maxLimit) {
-        enqueueSnackbar(`Maximum limit of ${maxLimit} participants reached`, { variant: "error" });
-        return;
-      }
+    // Duplication Check
+    if (participants.some((p) => p.uid === participantData)) {
+      enqueueSnackbar("Participant already added to this entry", { variant: "warning" });
+      return;
+    }
 
-      // Validate Literary Events (Language Required)
-      if (literaryEvents.includes(event.name) && !selectedLanguage) {
-        enqueueSnackbar("Please select a language for this participant", { variant: "warning" });
-        return;
-      }
+    // Capacity Check
+    const maxLimit = event.maxTeamSize || event.maxIndividualLimit || 1;
+    if (participants.length >= maxLimit) {
+      enqueueSnackbar(`This event allows a maximum of ${maxLimit} participants`, { variant: "error" });
+      return;
+    }
 
-      // Validate Open Mic (Act Type Required)
-      if (event.name === "Open Mic" && !performanceType) {
-        enqueueSnackbar("Please enter the act type", { variant: "warning" });
-        return;
-      }
+    // Literary Language Check
+    if (literaryEvents.includes(event.name) && !selectedLanguage) {
+      enqueueSnackbar("Please select a language for this student", { variant: "warning" });
+      return;
+    }
 
-      // Add to list
-      const pObj = participantList.find((p) => p.uid === participantData);
-      if (pObj) {
-        const newParticipant = {
-          ...pObj,
-          language: selectedLanguage || null,
-          performanceType: performanceType || null
-        };
-        setParticipants((old) => [...old, newParticipant]);
-        
-        // Reset inputs
-        setParticipantData("");
-        setSelectedLanguage("");
-        setPerformanceType("");
-      }
+    // Open Mic Performance Check
+    if (event.name === "Open Mic" && !performanceType) {
+      enqueueSnackbar("Please specify the act type for Open Mic", { variant: "warning" });
+      return;
+    }
+
+    const pObj = participantList.find((p) => p.uid === participantData);
+    if (pObj) {
+      setParticipants((old) => [
+        ...old, 
+        { 
+          ...pObj, 
+          language: selectedLanguage || null, 
+          performanceType: performanceType || null 
+        }
+      ]);
+      
+      // Clear Input fields
+      setParticipantData("");
+      setSelectedLanguage("");
+      setPerformanceType("");
     }
   };
 
-  const handleDeleteParticipants = (uid) => {
-    setParticipants(participants.filter((p) => p.uid !== uid));
+  const handleAddHouseEntry = () => {
+    const houseEntry = {
+      uid: `HOUSE_${house.toUpperCase().replace(/\s/g, "_")}`,
+      fullName: `${house} House Team`,
+      house: house,
+      isHouseEntry: true
+    };
+    setParticipants([houseEntry]);
+    enqueueSnackbar(`${house} House Team selected for entry`, { variant: "info" });
   };
 
-  const handleSaveRegistration = () => {
+  const handleSaveRegistration = async () => {
     if (participants.length === 0) {
-      enqueueSnackbar("No participant selected", { variant: "error" });
+      enqueueSnackbar("Please add at least one participant", { variant: "error" });
       return;
     }
 
-    // 1. Check Min Participants
+    // Validate Minimum Requirement
     const minLimit = event.minTeamSize || event.minIndividualLimit || 1;
-    if (participants.length < minLimit) {
-      enqueueSnackbar(`Minimum ${minLimit} participants required`, { variant: "error" });
+    const isHouseEntry = participants.some(p => p.isHouseEntry);
+    
+    if (!isHouseEntry && participants.length < minLimit) {
+      enqueueSnackbar(`Minimum ${minLimit} participant(s) required for this event`, { variant: "error" });
       return;
     }
 
-    // 2. Check House Registration Limit
-    const houseLimit = event.maxRegistrations || event.teamLimit || 1;
-    if (registrations.length >= houseLimit) {
-      enqueueSnackbar(`Registration limit reached for ${house}`, { variant: "error" });
-      return;
-    }
-
-    // 3. Language Diversity Rule (At least 2 languages for Literary Events)
+    // Literary Language Diversity Check (Mandatory for group literary items)
     if (literaryEvents.includes(event.name) && participants.length > 1) {
       const languages = new Set(participants.map(p => p.language).filter(l => l));
       if (languages.size < 2) {
-        enqueueSnackbar("Participants must represent at least 2 different languages.", { variant: "error" });
+        enqueueSnackbar("Participants must represent at least 2 different languages", { variant: "error" });
         return;
       }
     }
 
-    const data = {
-      event: event.name,
-      house,
-      participants,
-    };
-
     setLoading(true);
-    // 4. Send to Backend
-    axios
-      .post(`${apiUrl}/registration/`, data)
-      .then((response) => {
-        setLoading(false);
-        setRegistrations((old) => [...old, response.data]);
-        enqueueSnackbar("Registration Created successfully", { variant: "success" });
-        setParticipants([]);
-        setParticipantData("");
-      })
-      .catch((error) => {
-        setLoading(false);
-        const msg = error.response?.data?.message || "Error creating registration!";
-        enqueueSnackbar(msg, { variant: "error" });
-      });
+    try {
+      const payload = {
+        event: event.name,
+        house: house,
+        participants: participants
+      };
+
+      const response = await axios.post(`${apiUrl}/registration/`, payload);
+      setRegistrations((old) => [...old, response.data]);
+      enqueueSnackbar("Registration successfully recorded!", { variant: "success" });
+      setParticipants([]);
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || "Internal Server Error";
+      enqueueSnackbar(errorMsg, { variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteRegistration = (e) => {
+  const handleDeleteRegistration = async (e) => {
     const regId = e.currentTarget.id || e.target.id;
-    if(!window.confirm("Are you sure you want to delete this registration?")) return;
+    if (!window.confirm("Are you sure you want to withdraw this registration?")) return;
 
     setLoading(true);
-    axios
-      .delete(`${apiUrl}/registration/${regId}`)
-      .then(() => {
-        setRegistrations((old) => old.filter((r) => r._id !== regId));
-        enqueueSnackbar("Registration deleted successfully", { variant: "success" });
-        setLoading(false);
-      })
-      .catch((error) => {
-        setLoading(false);
-        enqueueSnackbar(error.response?.data?.message || "Error processing deletion!", { variant: "error" });
-      });
+    try {
+      await axios.delete(`${apiUrl}/registration/${regId}`);
+      setRegistrations((old) => old.filter((r) => r._id !== regId));
+      enqueueSnackbar("Registration withdrawn", { variant: "success" });
+    } catch (error) {
+      enqueueSnackbar("Deletion failed", { variant: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading || !event) return <div className="h-screen w-full flex items-center justify-center bg-desi-cream"><Spinner /></div>;
+  // --- UI RENDER HELPERS ---
+  if (loading || !event) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-desi-cream">
+        <Spinner />
+      </div>
+    );
+  }
 
-  // Helper variables
   const isLiterary = literaryEvents.includes(event.name);
   const isOpenMic = event.name === "Open Mic";
-  const maxLimit = event.maxTeamSize || event.maxIndividualLimit || 1;
+  const isHouseEvent = houseRegistrationEvents.includes(event.name);
+  const isTurnAround = event.name === "Turn Around";
   const houseLimit = event.maxRegistrations || event.teamLimit || 1;
-  
-  // Logic: Only show the 'New Entry' form if the house limit isn't reached AND the deadline hasn't passed
   const canRegisterNew = registrations.length < houseLimit && active;
 
   return (
-    <DashboardLayout
-      role="Captain"
-      title="Event Details"
-      subtitle={`Managing: ${event.name}`}
-    >
-      <div className="max-w-5xl mx-auto space-y-8">
+    <DashboardLayout role="Captain" title="Event Console" subtitle={`Portal for ${event.name}`}>
+      <div className="max-w-5xl mx-auto space-y-8 pb-12">
         
-        {/* 1. Event Header Card */}
-        <div className="bg-white rounded-xl shadow-sm border-l-4 border-desi-saffron p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-black font-reality tracking-wide flex items-center gap-2">
-              <MdEvent className="text-desi-saffron" />
-              {event.name}
-            </h1>
-            <div className="flex gap-3 mt-2 text-sm font-medium text-stone-500 uppercase tracking-wider">
-              <span className="bg-stone-100 px-2 py-1 rounded border border-stone-200">{event.category}</span>
-              <span className="bg-stone-100 px-2 py-1 rounded border border-stone-200">{event.type}</span>
-              <span className="bg-stone-100 px-2 py-1 rounded border border-stone-200">{event.participation}</span>
+        {/* SECTION 1: EVENT IDENTITY */}
+        <div className="bg-white rounded-2xl shadow-sm border-l-8 border-desi-saffron p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-desi-saffron/10 rounded-lg">
+                <MdEvent className="text-3xl text-desi-saffron" />
+              </div>
+              <h1 className="text-4xl font-bold text-stone-900 font-reality">{event.name}</h1>
+            </div>
+            <div className="flex flex-wrap gap-2 pt-2">
+              <span className="flex items-center gap-1 bg-stone-100 px-3 py-1 rounded-full text-xs font-bold text-stone-600 border border-stone-200">
+                <MdCategory /> {event.category}
+              </span>
+              <span className="flex items-center gap-1 bg-stone-100 px-3 py-1 rounded-full text-xs font-bold text-stone-600 border border-stone-200">
+                <MdLayers /> {event.type}
+              </span>
+              <span className="flex items-center gap-1 bg-stone-100 px-3 py-1 rounded-full text-xs font-bold text-stone-600 border border-stone-200">
+                <MdPeople /> {event.participation}
+              </span>
             </div>
           </div>
-          
-          <div className="flex gap-4 text-right">
-             <div className="text-center px-4 py-2 bg-orange-50 rounded-lg border border-orange-100">
-                <span className="block text-xs text-orange-600 font-bold uppercase">House Limit</span>
-                <span className="text-xl font-bold text-stone-800">{registrations.length} <span className="text-stone-400 text-sm">/ {houseLimit}</span></span>
-             </div>
-             <div className="text-center px-4 py-2 bg-teal-50 rounded-lg border border-teal-100">
-                <span className="block text-xs text-teal-600 font-bold uppercase">Team Size</span>
-                <span className="text-xl font-bold text-stone-800">{event.minTeamSize || event.minIndividualLimit} - {maxLimit}</span>
-             </div>
+
+          <div className="flex gap-4">
+            <div className="bg-orange-50 px-6 py-3 rounded-2xl border border-orange-100 text-center min-w-[120px]">
+              <p className="text-[10px] font-black text-orange-600 uppercase tracking-tighter">House Limit</p>
+              <p className="text-2xl font-black text-stone-800">{registrations.length} <span className="text-stone-300 text-sm">/ {houseLimit}</span></p>
+            </div>
+            <div className="bg-teal-50 px-6 py-3 rounded-2xl border border-teal-100 text-center min-w-[120px]">
+              <p className="text-[10px] font-black text-teal-600 uppercase tracking-tighter">Size Requirement</p>
+              <p className="text-2xl font-black text-stone-800">
+                {event.minTeamSize || event.minIndividualLimit || 1} - {event.maxTeamSize || event.maxIndividualLimit || 1}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* 2. Existing Registrations Table - Always visible for Editing/Deleting (until global deadline) */}
-        <div className="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden">
-           <div className="px-6 py-4 border-b border-stone-100 bg-stone-50 flex justify-between items-center">
-            <h3 className="text-lg font-bold text-stone-800">Current Registrations</h3>
-            { (event.category === "Pre-Event" && now > PRE_EVENT_DEADLINE) && (
-                <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded font-bold uppercase">
-                    New Entries Locked (Jan 4)
-                </span>
+        {/* SECTION 2: CURRENT STATUS TABLE */}
+        <div className="bg-white rounded-2xl shadow-md border border-stone-200 overflow-hidden">
+          <div className="px-8 py-5 border-b border-stone-100 bg-stone-50/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <h3 className="text-xl font-bold text-stone-800 tracking-tight">Registered Entries</h3>
+            { (event.category === "Pre-Event" && now > PRE_EVENT_DEADLINE && !isTurnAround) && (
+              <div className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-1.5 rounded-full border border-red-100 animate-pulse">
+                <MdInfo />
+                <span className="text-xs font-black uppercase">Submissions Closed on Jan 4</span>
+              </div>
             )}
           </div>
-          <div className="p-0">
+          <div className="p-2">
             <CaptainRegistrationTable
-                registrations={registrations}
-                admin={true} // This hides the redundant circular button
-                handleDeleteRegistration={handleDeleteRegistration}
+              registrations={registrations}
+              admin={true} 
+              handleDeleteRegistration={handleDeleteRegistration}
             />
           </div>
         </div>
-        
-        {/* 3. New Registration Form - Hidden if deadline passed or limit reached */}
+
+        {/* SECTION 3: DYNAMIC REGISTRATION FORM */}
         {canRegisterNew ? (
-          <div className="bg-white p-6 rounded-xl shadow-lg border-t-4 border-desi-teal animate-fade-in-up">
-            <div className="flex items-center gap-2 mb-6 pb-4 border-b border-stone-100">
-              <MdPersonAdd className="text-desi-teal text-2xl" />
-              <h3 className="text-xl font-bold text-stone-800">New Registration Entry</h3>
+          <div className="bg-white p-8 rounded-2xl shadow-xl border-t-4 border-desi-teal transition-all">
+            <div className="flex items-center gap-3 mb-8 pb-4 border-b border-stone-100">
+              <div className="p-2 bg-desi-teal/10 rounded-lg text-desi-teal">
+                <MdPersonAdd className="text-2xl" />
+              </div>
+              <h3 className="text-2xl font-black text-stone-800">
+                {isHouseEvent ? "Submit House Team Entry" : "Create New Registration"}
+              </h3>
             </div>
 
-            {/* Team Preview */}
-            <div className="mb-6">
-                {participants.length > 0 ? (
-                    <div className="flex flex-wrap gap-3 p-4 bg-stone-50 rounded-lg border border-stone-200 border-dashed">
-                    {participants.map((p) => (
-                        <div key={p.uid} className="flex items-center gap-3 bg-white border border-stone-200 px-3 py-2 rounded-full shadow-sm group">
-                            <div className="flex flex-col leading-tight">
-                                <span className="font-bold text-stone-800 text-sm">{p.fullName}</span>
-                                <span className="text-[10px] text-stone-500 font-mono">
-                                    {p.uid} 
-                                    {p.language && <span className="text-orange-600 font-bold ml-1">• {p.language}</span>}
-                                    {p.performanceType && <span className="text-purple-600 font-bold ml-1">• {p.performanceType}</span>}
-                                </span>
-                            </div>
-                            <button 
-                                onClick={() => handleDeleteParticipants(p.uid)}
-                                className="text-stone-300 hover:text-red-600 transition-colors"
-                            >
-                                <MdOutlineDelete size={18} />
-                            </button>
-                        </div>
-                    ))}
-                    </div>
+            {isHouseEvent ? (
+              /* THE HOUSE ENTRY PATH */
+              <div className="py-12 flex flex-col items-center justify-center bg-stone-50 rounded-3xl border-2 border-dashed border-stone-200">
+                <MdGroup className="text-7xl text-stone-200 mb-4" />
+                <p className="text-stone-500 font-medium text-center max-w-md mb-8">
+                  For <strong>{event.name}</strong>, you register the entire house as one unit. 
+                  Individual student names are not required for this category.
+                </p>
+                {participants.length === 0 ? (
+                  <button 
+                    onClick={handleAddHouseEntry}
+                    className="group flex items-center gap-3 px-10 py-4 bg-desi-teal text-white font-black rounded-2xl shadow-lg hover:bg-teal-800 transition-all hover:scale-105"
+                  >
+                    Register {house} House Team
+                  </button>
                 ) : (
-                    <p className="text-stone-400 italic text-sm text-center py-4">No participants added to this entry yet.</p>
+                  <div className="flex items-center gap-4 bg-white border-2 border-desi-teal px-8 py-4 rounded-3xl shadow-sm text-desi-teal font-black animate-in fade-in zoom-in">
+                    <MdGroup className="text-2xl" />
+                    <span>{house.toUpperCase()} TEAM READY</span>
+                    <button 
+                      onClick={() => setParticipants([])} 
+                      className="ml-4 p-1 hover:bg-red-50 text-stone-300 hover:text-red-500 rounded-lg transition-colors"
+                    >
+                       <MdOutlineDelete size={24} />
+                    </button>
+                  </div>
                 )}
-            </div>
-
-            {/* Add Participant Controls */}
-            {participants.length < maxLimit && (
-              <div className="flex flex-col md:flex-row gap-4 items-end bg-stone-50 p-4 rounded-lg border border-stone-200">
-                
-                <div className="flex-1 w-full">
-                  <SearchableDropdown
-                    options={participantList}
-                    label="Search Student"
-                    id="participant"
-                    selectedVal={participantData}
-                    handleChange={(val) => setParticipantData(val)}
-                  />
+              </div>
+            ) : (
+              /* THE STANDARD ENTRY PATH */
+              <div className="space-y-8">
+                {/* Visual Team Preview */}
+                <div className="min-h-[60px]">
+                  {participants.length > 0 ? (
+                    <div className="flex flex-wrap gap-3">
+                      {participants.map((p) => (
+                        <div key={p.uid} className="flex items-center gap-4 bg-stone-50 border border-stone-200 px-5 py-3 rounded-2xl group hover:border-desi-teal transition-colors">
+                          <div className="flex flex-col">
+                            <span className="font-black text-stone-800 text-sm leading-none">{p.fullName}</span>
+                            <span className="text-[10px] text-stone-400 font-mono mt-1">
+                              {p.uid} {p.language && `• ${p.language}`} {p.performanceType && `• ${p.performanceType}`}
+                            </span>
+                          </div>
+                          <button 
+                            onClick={() => handleDeleteParticipants(p.uid)}
+                            className="text-stone-300 hover:text-red-500 transition-colors"
+                          >
+                            <MdOutlineDelete size={20} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-stone-400 py-4 italic text-sm">
+                      <MdInfo /> No students added to this registration yet
+                    </div>
+                  )}
                 </div>
 
-                {isLiterary && (
-                  <div className="w-full md:w-48">
-                     <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Language</label>
-                     <select
-                        value={selectedLanguage}
-                        onChange={(e) => setSelectedLanguage(e.target.value)}
-                        className="w-full p-3 bg-white border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-teal outline-none text-sm"
-                     >
-                        <option value="">Select</option>
-                        <option value="English">English</option>
-                        <option value="Malayalam">Malayalam</option>
-                        <option value="Hindi">Hindi</option>
-                     </select>
+                {/* Input Controls */}
+                {participants.length < (event.maxTeamSize || event.maxIndividualLimit || 1) && (
+                  <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 flex flex-col md:flex-row gap-4 items-end">
+                    <div className="flex-1 w-full">
+                      <SearchableDropdown
+                        options={participantList}
+                        label="Find Student by Name or UID"
+                        selectedVal={participantData}
+                        handleChange={setParticipantData}
+                      />
+                    </div>
+                    
+                    {isLiterary && (
+                      <div className="w-full md:w-48">
+                        <label className="block text-[10px] font-black text-stone-400 uppercase mb-2">Language</label>
+                        <select
+                          value={selectedLanguage}
+                          onChange={(e) => setSelectedLanguage(e.target.value)}
+                          className="w-full p-3.5 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-desi-teal outline-none text-sm font-bold"
+                        >
+                          <option value="">Select Language</option>
+                          <option value="English">English</option>
+                          <option value="Malayalam">Malayalam</option>
+                          <option value="Hindi">Hindi</option>
+                        </select>
+                      </div>
+                    )}
+
+                    {isOpenMic && (
+                      <div className="w-full md:w-48">
+                        <label className="block text-[10px] font-black text-stone-400 uppercase mb-2">Act Category</label>
+                        <input 
+                          type="text"
+                          placeholder="e.g. Monoact"
+                          value={performanceType}
+                          onChange={(e) => setPerformanceType(e.target.value)}
+                          className="w-full p-3.5 bg-white border border-stone-200 rounded-xl focus:ring-2 focus:ring-desi-teal outline-none text-sm font-bold"
+                        />
+                      </div>
+                    )}
+
+                    <button
+                      onClick={handleAddParticipants}
+                      className="w-full md:w-auto px-8 py-3.5 bg-desi-teal text-white font-black rounded-xl shadow-md hover:bg-teal-800 hover:translate-y-[-2px] transition-all"
+                    >
+                      ADD TO LIST
+                    </button>
                   </div>
                 )}
-
-                {isOpenMic && (
-                  <div className="w-full md:w-48">
-                    <label className="block text-xs font-bold text-stone-400 uppercase mb-1">Act Type</label>
-                    <input 
-                      type="text"
-                      placeholder="e.g. Standup"
-                      value={performanceType}
-                      onChange={(e) => setPerformanceType(e.target.value)}
-                      className="w-full p-3 bg-white border border-stone-200 rounded-lg focus:ring-2 focus:ring-desi-teal outline-none text-sm"
-                    />
-                  </div>
-                )}
-
-                <button
-                  className="w-full md:w-auto px-6 py-3 bg-desi-teal text-white font-bold rounded-lg shadow hover:bg-teal-800 active:scale-95 transition-all"
-                  onClick={handleAddParticipants}
-                >
-                  + Add
-                </button>
               </div>
             )}
-            
-            <div className="flex justify-end mt-6 pt-4 border-t border-stone-100">
-                <button 
-                    onClick={handleSaveRegistration}
-                    disabled={participants.length === 0}
-                    className="flex items-center gap-2 px-8 py-3 bg-desi-saffron text-white font-bold rounded-lg shadow-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all"
-                >
-                    <MdSave className="text-xl" />
-                    Confirm Registration
-                </button>
+
+            {/* Final Action */}
+            <div className="flex justify-end mt-12 pt-6 border-t border-stone-100">
+              <button 
+                onClick={handleSaveRegistration}
+                disabled={participants.length === 0}
+                className="flex items-center gap-3 px-12 py-4 bg-desi-saffron text-white font-black rounded-2xl shadow-xl hover:bg-amber-700 disabled:opacity-20 disabled:grayscale transition-all hover:scale-105 active:scale-95"
+              >
+                <MdSave className="text-2xl" />
+                SUBMIT REGISTRATION
+              </button>
             </div>
           </div>
         ) : (
-          <div className="bg-amber-50 border-l-4 border-amber-500 p-6 rounded-r-lg flex items-start gap-4">
-             <MdInfo className="text-amber-500 text-2xl mt-0.5" />
-             <div>
-                <h3 className="text-amber-800 font-bold text-lg">Registration Limited</h3>
-                <p className="text-amber-600 text-sm mt-1">
-                    {registrations.length >= houseLimit 
-                        ? `Your house has reached the maximum limit of ${houseLimit} registration(s) for this event.`
-                        : `New registrations for Pre-Events closed on Jan 4th. You may still view or edit existing registrations above.`}
+          /* BLOCK: DISPLAYED WHEN REGISTRATION IS UNAVAILABLE */
+          !isTurnAround && (
+            <div className="bg-stone-50 border-2 border-stone-100 p-10 rounded-3xl flex flex-col items-center text-center space-y-4">
+              <div className="p-4 bg-stone-200/50 rounded-full text-stone-400">
+                <MdInfo size={40} />
+              </div>
+              <div className="max-w-md">
+                <h3 className="text-2xl font-black text-stone-800">Registration Restricted</h3>
+                <p className="text-stone-500 font-medium leading-relaxed mt-2">
+                  {registrations.length >= houseLimit 
+                    ? `Your house has already filled the quota (${houseLimit} entry) for this event.`
+                    : `Pre-event submissions officially closed on January 4th. Existing registrations can still be modified via the table above.`}
                 </p>
-             </div>
-          </div>
+                <button 
+                  onClick={() => navigate("/captain")} 
+                  className="mt-6 text-desi-teal font-black hover:underline flex items-center justify-center gap-2 mx-auto"
+                >
+                  <MdArrowBack /> Return to Dashboard
+                </button>
+              </div>
+            </div>
+          )
         )}
       </div>
     </DashboardLayout>
