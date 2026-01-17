@@ -54,10 +54,10 @@ const EventView = () => {
   const houseRegistrationEvents = [
     "Photography", 
     "Graffiti", 
-    "Vogue Photoshoot", 
+    "Vogue", 
     "Short Film", 
     "Making of Bharatham", 
-    "ADZAP"
+    "Adzap"
   ];
 
   // --- DATA FETCHING ---
