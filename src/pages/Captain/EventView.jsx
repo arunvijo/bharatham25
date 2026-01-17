@@ -52,13 +52,14 @@ const EventView = () => {
 
   const literaryEvents = ["Essay Writing", "Short Story", "Poetry", "Extempore", "Recitation"];
   const houseRegistrationEvents = [
-    "Photography", 
-    "Graffiti", 
-    "Vogue", 
-    "Short Film", 
-    "Making of Bharatham", 
-    "Adzap"
-  ];
+  "Photography", 
+  "Graffiti", 
+  "Vogue",               // Matches database "Vogue"
+  "Short Film", 
+  "Making of Bharatham", 
+  "Adzap",               // Matches database "Adzap"
+  "Patriotic Song"       // Added based on your previous request
+];
 
   // --- DATA FETCHING ---
   useEffect(() => {
