@@ -48,7 +48,7 @@ const CreateRegistration = () => {
     "Graffiti", 
     "Vogue", 
     "Short Film", 
-    "Making of Bharatham",
+    "Making of Bharatham", 
     "Adzap"
   ];
 

@@ -49,10 +49,10 @@ const CreateRegistration = () => {
   const houseRegistrationEvents = [
     "Photography", 
     "Graffiti", 
-    "Vogue Photoshoot", 
+    "Vogue", 
     "Short Film", 
-    "Making of Bharatham",
-    "ADZAP"
+    "Making of Bharatham", 
+    "Adzap"
   ];
   
   const languageEvents = [...new Set([...literaryEventsForLanguage, ...diversityRuleEvents])]; 
