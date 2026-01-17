@@ -47,13 +47,14 @@ const CreateRegistration = () => {
 
   // Events where we register the HOUSE, not specific students
   const houseRegistrationEvents = [
-    "Photography", 
-    "Graffiti", 
-    "Vogue", 
-    "Short Film", 
-    "Making of Bharatham", 
-    "Adzap"
-  ];
+  "Photography", 
+  "Graffiti", 
+  "Vogue",               // Matches database "Vogue"
+  "Short Film", 
+  "Making of Bharatham", 
+  "Adzap",               // Matches database "Adzap"
+  "Patriotic Song"       // Added based on your previous request
+];
   
   const languageEvents = [...new Set([...literaryEventsForLanguage, ...diversityRuleEvents])]; 
 
