@@ -28,7 +28,7 @@ const CaptainEditRegistration = () => {
   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
   
   // FIX 1: Updated Deadline logic to match Jan 16th for Edits 
-  const MAIN_EVENT_DEADLINE = new Date("2026-01-24T23:59:59");
+  const MAIN_EVENT_DEADLINE = new Date("2026-01-19T12:00:00");
   const isPastDeadline = new Date() > MAIN_EVENT_DEADLINE;
 
   // FIX 2: Added Extempore and Recitation to the list 
