@@ -28,7 +28,7 @@ const CaptainRegistrationTable = ({
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // UPDATED LOGIC: Global Lockdown Deadline
-  const GLOBAL_LOCKDOWN = new Date("2026-01-24T23:59:59");
+  const GLOBAL_LOCKDOWN = new Date("2026-01-19T12:00:00");
   const now = new Date();
   const isLocked = now > GLOBAL_LOCKDOWN;
 

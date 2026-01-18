@@ -10,7 +10,7 @@ const EventCardList = ({ events = [] }) => {
 
   // UPDATED LOGIC: Deadlines from Manual 2026 
   const PRE_EVENT_DEADLINE = new Date("2026-01-04T23:59:59");
-  const MAIN_EVENT_DEADLINE = new Date("2026-01-24T23:59:59");
+  const MAIN_EVENT_DEADLINE = new Date("2026-01-19T12:00:00");
   const now = new Date();
 
   const filteredAndSortedEvents = safeEvents

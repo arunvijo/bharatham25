@@ -13,16 +13,38 @@ import { ExportToExcel } from "../../../ExportToExcel";
 const ScoreTable = ({ scores, admin = false }) => {
   const [filter, setFilter] = useState("");
 
-  const filteredScores = scores.filter(
-    (score) =>
-      score.event.toLowerCase().includes(filter.toLowerCase()) ||
-      score.house.toLowerCase().includes(filter.toLowerCase()) ||
-      score.position.toLowerCase().includes(filter.toLowerCase())
-  );
+  // --- HELPER 1: Safe Event Name Access ---
+  // Handles both new (Object) and old (String) data formats
+  const getEventName = (event) => {
+    if (!event) return "";
+    return typeof event === "string" ? event : event.name || "";
+  };
+
+  // --- HELPER 2: Safe Participant Access ---
+  // Handles new direct participant data or old registration links
+  const getParticipants = (score) => {
+    if (score.participant && score.participant.name) {
+        return [{ _id: score.participant.uid, fullName: score.participant.name }];
+    }
+    return score.registration?.participants || [];
+  };
+
+  const filteredScores = scores.filter((score) => {
+    const eventName = getEventName(score.event).toLowerCase();
+    const houseName = (score.house || "").toLowerCase();
+    const positionName = (score.position || "").toLowerCase();
+    const search = filter.toLowerCase();
+
+    return (
+      eventName.includes(search) ||
+      houseName.includes(search) ||
+      positionName.includes(search)
+    );
+  });
 
   // Helper for Position Badges
   const getPositionStyle = (pos) => {
-    const p = pos.toLowerCase();
+    const p = (pos || "").toLowerCase();
     if (p.includes("1") || p.includes("first")) return "bg-yellow-100 text-yellow-800 border-yellow-200";
     if (p.includes("2") || p.includes("second")) return "bg-stone-100 text-stone-700 border-stone-200";
     if (p.includes("3") || p.includes("third")) return "bg-orange-100 text-orange-800 border-orange-200";
@@ -86,18 +108,23 @@ const ScoreTable = ({ scores, admin = false }) => {
                   .map((score, index) => (
                 <tr key={score._id} className="hover:bg-orange-50/30 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-400">{index + 1}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-stone-800">{score.event}</td>
+                    
+                    {/* Event Name Safe Render */}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-stone-800">
+                        {getEventName(score.event)}
+                    </td>
+                    
                     <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-stone-100 text-stone-600 border border-stone-200">
                             {score.house}
                         </span>
                     </td>
                     
-                    {/* Participants List */}
+                    {/* Participants List Safe Render */}
                     <td className="px-6 py-4">
                         <div className="flex flex-col gap-1">
-                            {score.registration?.participants?.map((p) => (
-                                <span key={p._id} className="text-xs font-medium text-stone-500 bg-stone-50 px-2 py-1 rounded border border-stone-100 w-fit">
+                            {getParticipants(score).map((p, i) => (
+                                <span key={p._id || i} className="text-xs font-medium text-stone-500 bg-stone-50 px-2 py-1 rounded border border-stone-100 w-fit">
                                     {p.fullName}
                                 </span>
                             ))}
@@ -134,115 +161,3 @@ const ScoreTable = ({ scores, admin = false }) => {
 };
 
 export default ScoreTable;
-
-// import React, { useState } from "react";
-// import { Link } from "react-router-dom";
-// import { AiOutlineEdit } from "react-icons/ai";
-// import { BsInfoCircle } from "react-icons/bs";
-// import {
-//   MdOutlineAdd,
-//   MdOutlineAddBox,
-//   MdOutlineDelete,
-//   MdOutlineInfo,
-// } from "react-icons/md";
-// import { ExportToExcel } from "../../../ExportToExcel";
-
-// const ScoreTable = ({ scores, admin = false }) => {
-//   const [filter, setFilter] = useState("");
-
-//   const filteredScores = scores.filter(
-//     (score) =>
-//       score.event.toLowerCase().includes(filter.toLowerCase()) ||
-//       score.house.toLowerCase().includes(filter.toLowerCase()) ||
-//       score.position.toLowerCase().includes(filter.toLowerCase())
-//   );
-//   return (
-//     <div className="score-table">
-//       <div className="row">
-//         <h3>Scores ({filteredScores?.length})</h3>
-//         {admin && <ExportToExcel apiData={scores} fileName={"scores"} />}
-//         {admin && (
-//           <>
-//             <Link to="/score/create" className="btn-icon">
-//               <MdOutlineAdd />
-//             </Link>
-//             <input
-//               type="text"
-//               placeholder="Filter by event, house, position"
-//               value={filter}
-//               onChange={(e) => setFilter(e.target.value)}
-//               style={{
-//                 marginBottom: 20,
-//                 borderRadius: 30,
-//                 width: "70%",
-//                 border: "none",
-//                 paddingBlock: 10,
-//                 paddingInline: 20,
-//                 fontFamily: "DM Sans",
-//               }}
-//             />
-//           </>
-//         )}
-//       </div>
-//       <table>
-//         <thead>
-//           <tr>
-//             <th>No</th>
-//             <th>Event</th>
-//             <th>House</th>
-//             <th>Participants</th>
-//             <th>Position</th>
-//             <th>Points</th>
-//             {admin && <th>Operations</th>}
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {filteredScores
-//             .filter((s) => s.position != "Negative")
-//             .map((score, index) => (
-//               <tr key={score._id} className="h-8">
-//                 <td>{index + 1}</td>
-//                 <td>{score.event}</td>
-//                 <td>{score.house}</td>
-//                 <td>
-//                   {score.registration.participants.map((p) => (
-//                     <p key={p._id} style={{ fontSize: "inherit" }}>
-//                       {p.uid} | {p.fullName}
-//                     </p>
-//                   ))}
-//                 </td>
-//                 <td>{score.position}</td>
-//                 <td>{score.points}</td>
-//                 {admin && (
-//                   <td>
-//                     <div>
-//                       <Link
-//                         to={`/score/details/${score._id}`}
-//                         className="btn-icon"
-//                       >
-//                         <MdOutlineInfo />
-//                       </Link>
-//                       <Link
-//                         to={`/score/edit/${score._id}`}
-//                         className="btn-icon"
-//                       >
-//                         <AiOutlineEdit />
-//                       </Link>
-//                       <Link
-//                         to={`/score/delete/${score._id}`}
-//                         className="btn-icon"
-//                       >
-//                         <MdOutlineDelete />
-//                       </Link>
-//                     </div>
-//                   </td>
-//                 )}
-//               </tr>
-//             ))}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// };
-
-// export default ScoreTable;
