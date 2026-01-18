@@ -1,0 +1,35 @@
+name: Auto-Close Registrations
+
+on:
+  schedule:
+    # Runs at 07:30 UTC (which is 1:00 PM IST)
+    # Cron format: 'Minute Hour Day Month DayOfWeek'
+    - cron: '30 7 19 1 *' 
+  workflow_dispatch: # Allows you to run it manually button click for testing
+
+jobs:
+  lock-database:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install Dependencies
+      # Moves into backend folder to install specific packages
+      run: |
+        cd backend
+        npm install
+
+    - name: Run Lock Script
+      env:
+        # You must add this secret in GitHub Repo Settings
+        MONGODB_URL: ${{ secrets.MONGODB_URL }}
+      run: |
+        cd backend
+        node scripts/closeRegistrations.js
