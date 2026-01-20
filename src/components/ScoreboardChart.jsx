@@ -44,26 +44,22 @@ const HOUSE_PATTERN_TINTS = {
     Rajputs: "rgba(90, 170, 186, 1)",
 };
 
-const ScoreboardChart = ({ scores }) => {
+const ScoreboardChart = ({ scores = [] }) => {
     const chartRef = React.useRef(null);
     const patternImage = React.useRef(null);
     const mascotImages = React.useRef({});
     const [imageLoaded, setImageLoaded] = React.useState(false);
     const [mascotsLoaded, setMascotsLoaded] = React.useState(false);
     
-    // Demo data - remove this when using real data
-    const demoScores = [
-        { name: 'Mughals', points: 450 },
-        { name: 'Aryans', points: 380 },
-        { name: 'Vikings', points: 520 },
-        { name: 'Spartans', points: 290 },
-        { name: 'Rajputs', points: 410 }
-    ];
+    if (!scores || !Array.isArray(scores) || scores.length === 0) {
+        return (
+            <div className="text-center p-4 text-stone-600 font-['Montserrat']">
+                No score data available to display the leaderboard.
+            </div>
+        );
+    }
     
-    // Use demo data if scores is empty or undefined
-    const actualScores = (scores && scores.length > 0) ? scores : demoScores;
-    
-    const sortedScores = [...actualScores].sort((a, b) => b.points - a.points);
+    const sortedScores = [...scores].sort((a, b) => b.points - a.points);
 
     // Load pattern image
     React.useEffect(() => {
@@ -114,75 +110,41 @@ const ScoreboardChart = ({ scores }) => {
     // Custom plugin to draw pattern overlay on bars
     const patternOverlayPlugin = {
         id: 'patternOverlay',
-beforeDatasetsDraw: (chart) => {
-    const ctx = chart.ctx;
-    const meta = chart.getDatasetMeta(0);
-
-    const now = Date.now();
-    if (!chart.startTime) chart.startTime = now;
-
-    const elapsed = now - chart.startTime;
-
-    meta.data.forEach((bar, index) => {
-
-        const { x, y, width, base } = bar.getProps(
-            ['x', 'y', 'width', 'base'],
-            false
-        );
-
-        const barWidth = width * 0.7;
-        const houseName = sortedScores[index].name;
-        const mascotImg = mascotImages.current[houseName];
-
-        if (!mascotImg) return;
-
-        const maxMascotWidth = barWidth * 1.2;
-        const ratio = mascotImg.width / mascotImg.height;
-
-        const mascotWidth = maxMascotWidth;
-        const mascotHeight = mascotWidth / ratio;
-
-        const mascotGap = 10;
-        const offsetRight = 8;
-
-        const finalY = y - mascotHeight - mascotGap;
-
-        /* ---- animation ---- */
-        const delay = 100; 
-        const animDuration = 1000;
-
-        let progress =
-            (elapsed - delay) / animDuration;
-
-        progress = Math.min(Math.max(progress, 0), 1);
-
-        const startY = base; // start from bar bottom
-        const animatedY =
-            startY - (startY - finalY) * progress;
-
-        const mascotX =
-            (x - barWidth / 2) +
-            (barWidth - mascotWidth) / 2 +
-            offsetRight;
-
-        ctx.save();
-        ctx.globalAlpha = progress;
-        ctx.drawImage(
-            mascotImg,
-            mascotX,
-            animatedY,
-            mascotWidth,
-            mascotHeight
-        );
-        ctx.restore();
-    });
-},
+        beforeDatasetsDraw: (chart) => {
+            // Draw mascots before bars so we can calculate needed space
+            const ctx = chart.ctx;
+            const meta = chart.getDatasetMeta(0);
+            
+            meta.data.forEach((bar, index) => {
+                const { x, y, width } = bar.getProps(['x', 'y', 'width'], true);
+                const barWidth = width * 0.7;
+                
+                const houseName = sortedScores[index].name;
+                const mascotImg = mascotImages.current[houseName];
+                
+                if (mascotImg) {
+                    const maxMascotWidth = barWidth * 1.1;
+                    const mascotAspectRatio = mascotImg.width / mascotImg.height;
+                    let mascotWidth = maxMascotWidth;
+                    let mascotHeight = mascotWidth / mascotAspectRatio;
+                    
+                    const mascotGap = 10;
+                    const offsetRight = 15; // Offset to the right
+                    const mascotX = (x - barWidth / 2) + (barWidth - mascotWidth) / 2 + offsetRight;
+                    const mascotY = y - mascotHeight - mascotGap;
+                    
+                    ctx.save();
+                    ctx.drawImage(mascotImg, mascotX, mascotY, mascotWidth, mascotHeight);
+                    ctx.restore();
+                }
+            });
+        },
         afterDatasetsDraw: (chart) => {
             const ctx = chart.ctx;
             const meta = chart.getDatasetMeta(0);
             
             meta.data.forEach((bar, index) => {
-                const { x, y, width, height, base } = bar.getProps(['x', 'y', 'width', 'height', 'base'], false);
+                const { x, y, width, height, base } = bar.getProps(['x', 'y', 'width', 'height', 'base'], true);
                 
                 // Reduce bar width by 30%
                 const barWidth = width * 0.7;
@@ -257,18 +219,8 @@ beforeDatasetsDraw: (chart) => {
                     tempCtx.fillRect(0, 0, patternWidth, patternHeight);
                     
                     // Draw the tinted pattern onto the main canvas (centered)
-                    // CLIP inside bar
-ctx.beginPath();
-ctx.rect(barX, y, barWidth, barHeight);
-ctx.clip();
-
-// Draw pattern safely
-ctx.globalAlpha = 0.6;
-ctx.drawImage(tempCanvas, patternX, patternY);
-
-// Restore clipping
-ctx.restore();
-
+                    ctx.globalAlpha = 0.6; // Pattern opacity
+                    ctx.drawImage(tempCanvas, patternX, patternY);
                     
                     ctx.restore();
                 }
@@ -293,42 +245,18 @@ ctx.restore();
     const options = {
         responsive: true,
         maintainAspectRatio: false,
-        animation: {
-    duration: 1200,
-    easing: 'easeOutQuart',
-}
-,
         plugins: {
             legend: { display: false },
             title: { display: false },
             tooltip: {
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    titleColor: 'white',
-    bodyColor: 'white',
-    padding: 10,
-
-    callbacks: {
-        label: function (context) {
-            const house = sortedScores[context.dataIndex].name;
-            const points = context.raw;
-            return `${house}: ${points}`;
-        },
-
-        labelColor: function (context) {
-            const house = sortedScores[context.dataIndex].name;
-            const gradient = HOUSE_GRADIENTS[house];
-
-            return {
-                borderColor: 'black',
-                backgroundColor: gradient.start, 
-            };
-        }
-    }
-}
-
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: 'white',
+                bodyColor: 'white',
+                padding: 10,
+            }
         },
         layout: {
-            padding: { top: 80, bottom: 20, left: 10, right: 10 } // Increased top padding for mascots
+            padding: { top: 120, bottom: 20, left: 10, right: 10 } // Increased top padding significantly for mascots
         },
         scales: {
             y: {
