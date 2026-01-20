@@ -28,7 +28,7 @@ const CaptainRegistrationTable = ({
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // UPDATED LOGIC: Global Lockdown Deadline
-  const GLOBAL_LOCKDOWN = new Date("2026-01-24T23:59:59");
+  const GLOBAL_LOCKDOWN = new Date("2026-01-19T13:00:00");
   const now = new Date();
   const isLocked = now > GLOBAL_LOCKDOWN;
 
@@ -46,7 +46,33 @@ const CaptainRegistrationTable = ({
     });
   }, [registrations, searchTerm]);
 
-  // --- 2. Pagination Logic ---
+  // --- 2. NEW: Flatten Data for Excel Export (Hybrid Approach) ---
+  // This creates one row per student in Excel, but groups them by Team ID
+  const exportData = useMemo(() => {
+    return filteredRegistrations.flatMap((reg) => {
+      // Map EACH participant to their own row
+      return reg.participants.map((p) => ({
+        "Event": reg.event,
+        "House": reg.house,
+        "Team ID": reg._id, // Critical for coloring logic in ExportToExcel
+        "Team Size": reg.participants.length,
+        
+        "Participant Name": p.fullName,
+        "UID": p.uid,
+        "Branch": p.branch || "-",    // Restored Branch
+        "Semester": p.semester || "-", // Restored Semester
+        
+        "Act Type": p.performanceType || "-",
+        "Language": p.language || "-",
+        "Gender": p.genderCategory || "-",
+        "Dance/Instrument": p.danceType || p.instrumentType || "-",
+        
+        "Registered At": new Date(reg.createdAt).toLocaleDateString(),
+      }));
+    });
+  }, [filteredRegistrations]);
+
+  // --- 3. Pagination Logic ---
   const totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = useMemo(() => {
@@ -97,8 +123,9 @@ const CaptainRegistrationTable = ({
         </div>
 
         <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+          {/* UPDATED EXPORT: Uses 'exportData' instead of filteredRegistrations */}
           <div className="flex items-center justify-center w-10 h-10 bg-white border border-stone-200 text-stone-400 hover:text-desi-teal hover:border-desi-teal hover:bg-teal-50 rounded-full shadow-sm transition-all cursor-pointer group" title="Export to Excel">
-             <ExportToExcel apiData={filteredRegistrations} fileName={"house_registrations"} />
+             <ExportToExcel apiData={exportData} fileName={"house_registrations"} />
           </div>
 
           {!admin && (
@@ -144,10 +171,13 @@ const CaptainRegistrationTable = ({
                         <div key={pIndex} className="flex items-center gap-2 text-sm text-stone-700">
                           <span className="font-mono text-desi-teal text-[10px] bg-teal-50 px-1.5 py-0.5 rounded border border-teal-100">{participant.uid}</span>
                           <span className="font-medium whitespace-nowrap">{participant.fullName}</span>
+                          
+                          {/* Visual Badges for Table View */}
                           <div className="flex flex-wrap gap-1">
                             {participant.language && <span className="px-2 py-0.5 text-[9px] font-bold bg-orange-50 text-orange-700 border border-orange-200 rounded-full uppercase">{participant.language}</span>}
                             {participant.genderCategory && <span className="px-2 py-0.5 text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200 rounded-full uppercase">{participant.genderCategory}</span>}
                             {participant.performanceType && <span className="px-2 py-0.5 text-[9px] font-bold bg-purple-50 text-purple-700 border border-purple-200 rounded-full uppercase">{participant.performanceType}</span>}
+                            {(participant.danceType || participant.instrumentType) && <span className="px-2 py-0.5 text-[9px] font-bold bg-pink-50 text-pink-700 border border-pink-200 rounded-full uppercase">{participant.danceType || participant.instrumentType}</span>}
                           </div>
                         </div>
                       ))}

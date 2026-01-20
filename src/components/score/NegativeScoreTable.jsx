@@ -13,12 +13,20 @@ import { ExportToExcel } from "../../../ExportToExcel";
 const NegativeScoreTable = ({ scores, admin = false }) => {
   const [filter, setFilter] = useState("");
 
-  const filteredScores = scores.filter(
-    (score) =>
-      score.event.toLowerCase().includes(filter.toLowerCase()) ||
-      score.house.toLowerCase().includes(filter.toLowerCase()) ||
-      score.reason?.toLowerCase().includes(filter.toLowerCase())
-  );
+  // Helper for Safe Event Name
+  const getEventName = (event) => {
+    if (!event) return "";
+    return typeof event === "string" ? event : event.name || "";
+  };
+
+  const filteredScores = scores.filter((score) => {
+      const eventName = getEventName(score.event).toLowerCase();
+      const houseName = (score.house || "").toLowerCase();
+      const reasonText = (score.reason || "").toLowerCase();
+      const search = filter.toLowerCase();
+
+      return eventName.includes(search) || houseName.includes(search) || reasonText.includes(search);
+  });
 
   const negativeScores = filteredScores.filter((s) => s.position === "Negative");
 
@@ -77,7 +85,12 @@ const NegativeScoreTable = ({ scores, admin = false }) => {
                 {negativeScores.map((score, index) => (
                 <tr key={score._id} className="hover:bg-red-50/30 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-400">{index + 1}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-stone-800">{score.event}</td>
+                    
+                    {/* Safe Event Name */}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-stone-800">
+                        {getEventName(score.event)}
+                    </td>
+
                     <td className="px-6 py-4 whitespace-nowrap">
                         <span className="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-stone-100 text-stone-600 border border-stone-200">
                             {score.house}
@@ -120,117 +133,3 @@ const NegativeScoreTable = ({ scores, admin = false }) => {
 };
 
 export default NegativeScoreTable;
-
-// import React, { useState } from "react";
-// import { Link } from "react-router-dom";
-// import { AiOutlineEdit } from "react-icons/ai";
-// import { BsInfoCircle } from "react-icons/bs";
-// import {
-//   MdOutlineAdd,
-//   MdOutlineAddBox,
-//   MdOutlineDelete,
-//   MdOutlineInfo,
-// } from "react-icons/md";
-// import { ExportToExcel } from "../../../ExportToExcel";
-
-// const NegativeScoreTable = ({ scores, admin = false }) => {
-//   const [filter, setFilter] = useState("");
-
-//   const filteredScores = scores.filter(
-//     (score) =>
-//       score.event.toLowerCase().includes(filter.toLowerCase()) ||
-//       score.house.toLowerCase().includes(filter.toLowerCase()) ||
-//       score.reason?.toLowerCase().includes(filter.toLowerCase())
-//   );
-
-//   return (
-//     <div className="score-table">
-//       <div className="row">
-//         <h3>Negative Scores ({filteredScores?.filter((s) => s.position == "Negative").length})</h3>
-//         {admin && <ExportToExcel apiData={scores} fileName={"scores"} />}
-//         {admin && (
-//           <>
-//             <Link to="/score/create" className="btn-icon">
-//               <MdOutlineAdd />
-//             </Link>
-//             <input
-//               type="text"
-//               placeholder="Filter by event, house, reason"
-//               value={filter}
-//               onChange={(e) => setFilter(e.target.value)}
-//               style={{
-//                 marginBottom: 20,
-//                 borderRadius: 30,
-//                 width: "70%",
-//                 border: "none",
-//                 paddingBlock: 10,
-//                 paddingInline: 20,
-//                 fontFamily: "DM Sans",
-//               }}
-//             />
-//           </>
-//         )}
-//       </div>
-
-//       <table>
-//         <thead>
-//           <tr>
-//             <th>No</th>
-//             <th>Event</th>
-//             <th>House</th>
-//             {/* <th>Participants</th> */}
-//             <th>Reason</th>
-//             <th>Points</th>
-//             {admin && <th>Operations</th>}
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {filteredScores
-//             .filter((s) => s.position == "Negative")
-//             .map((score, index) => (
-//               <tr key={score._id} className="h-8">
-//                 <td>{index + 1}</td>
-//                 <td>{score.event}</td>
-//                 <td>{score.house}</td>
-//                 {/* <td>
-//                   {score.registration.participants.map((p) => (
-//                     <p key={p._id} style={{ fontSize: "inherit" }}>
-//                       {p.uid} | {p.fullName}
-//                     </p>
-//                   ))}
-//                 </td> */}
-//                 <td>{score.reason}</td>
-//                 <td>{score.points}</td>
-//                 {admin && (
-//                   <td>
-//                     <div>
-//                       <Link
-//                         to={`/score/details/${score._id}`}
-//                         className="btn-icon"
-//                       >
-//                         <MdOutlineInfo />
-//                       </Link>
-//                       <Link
-//                         to={`/score/edit/${score._id}`}
-//                         className="btn-icon"
-//                       >
-//                         <AiOutlineEdit />
-//                       </Link>
-//                       <Link
-//                         to={`/score/delete/${score._id}`}
-//                         className="btn-icon"
-//                       >
-//                         <MdOutlineDelete />
-//                       </Link>
-//                     </div>
-//                   </td>
-//                 )}
-//               </tr>
-//             ))}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// };
-
-// export default NegativeScoreTable;

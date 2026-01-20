@@ -40,8 +40,9 @@ const CaptainDashboard = () => {
   const [participants, setParticipants] = useState([]);
   const [events, setEvents] = useState([]);
   const [registrations, setRegistrations] = useState([]);
+  const [rank, setRank] = useState("-"); // <--- NEW: Rank State
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("events"); // <--- NEW: Tab State
+  const [activeTab, setActiveTab] = useState("events");
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
@@ -81,15 +82,30 @@ const CaptainDashboard = () => {
         
         setHouse(houseData.name);
         
-        const [partRes, eventRes, regRes] = await Promise.all([
+        // Fetch all required data in parallel, including the leaderboard for ranking
+        const [partRes, eventRes, regRes, scoreRes] = await Promise.all([
            axios.get(`${apiUrl}/participant/by-house/${houseData.name}`),
            axios.get(`${apiUrl}/event/`),
-           axios.get(`${apiUrl}/registration/by-house/${houseData.name}`)
+           axios.get(`${apiUrl}/registration/by-house/${houseData.name}`),
+           axios.get(`${apiUrl}/score/leaderboard`) // <--- NEW: Fetch Leaderboard
         ]);
 
         setParticipants(partRes.data.data);
         setEvents(eventRes.data.data);
         setRegistrations(regRes.data.data);
+
+        // Calculate Rank Logic
+        // The backend returns an array sorted by points (highest to lowest).
+        // e.g. [{_id: "Spartans", totalPoints: 100}, {_id: "Vikings", totalPoints: 50}]
+        const leaderboard = scoreRes.data; 
+        const myRankIndex = leaderboard.findIndex(h => h._id === houseData.name);
+        
+        // If found, rank is index + 1. If not found (0 points), show '-'
+        if (myRankIndex !== -1) {
+            setRank(`#${myRankIndex + 1}`);
+        } else {
+            setRank("-"); 
+        }
 
       } catch (error) {
         console.error("Error:", error);
@@ -122,7 +138,8 @@ const CaptainDashboard = () => {
         <StatCard title="Total Events" value={events.length} icon={<MdEmojiEvents />} color="bg-amber-600" />
         <StatCard title="Registrations" value={registrations.length} icon={<MdAppRegistration />} color="bg-teal-700" />
         <StatCard title="House Strength" value={participants.length} icon={<MdGroups />} color="bg-indigo-600" />
-        <StatCard title="Current Rank" value="#1" icon={<MdPerson />} color="bg-rose-700" />
+        {/* Updated Value to use dynamic rank state */}
+        <StatCard title="Current Rank" value={rank} icon={<MdPerson />} color="bg-rose-700" />
       </div>
 
       {/* 2. Tab Navigation */}
@@ -179,4 +196,3 @@ const CaptainDashboard = () => {
 };
 
 export default CaptainDashboard;
-

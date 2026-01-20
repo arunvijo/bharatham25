@@ -47,7 +47,7 @@ const EventView = () => {
 
   // --- CONSTANTS & MANUAL RULES ---
   const PRE_EVENT_DEADLINE = new Date("2026-01-04T23:59:59");
-  const MAIN_EVENT_DEADLINE = new Date("2026-01-24T23:59:59");
+  const MAIN_EVENT_DEADLINE = new Date("2026-01-19T13:00:00");
   const now = new Date();
 
   const literaryEvents = ["Essay Writing", "Short Story", "Poetry", "Extempore", "Recitation"];
