@@ -22,7 +22,7 @@ const Bharatham26Winner = ({ winner = 'Mughals', totalPoints = 3000, rank = 1 })
 
     const bgColor = HOUSE_COLORS[winner] || HOUSE_COLORS.Mughals;
 
-    // Generate confetti particles
+    
     const confettiColors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE'];
     const leftConfetti = Array.from({ length: 30 }, (_, i) => ({
         id: i,
