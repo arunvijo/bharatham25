@@ -9,6 +9,7 @@ import Spinner from "../components/Spinner";
 import ScoreboardChart from "../components/ScoreboardChart";
 import ScoreTable from "../components/ScoreTable";
 import NegativeScoreTable from "../components/NegativeScoreTable";
+import Winner from "../components/Winner";
 import Footer from "../components/Footer";
 
 // Utility component for the repeating vertical floral images
@@ -75,6 +76,25 @@ const Scoreboard = () => {
         // 3. Cleanup on unmount to prevent memory leaks
         return () => clearInterval(intervalId);
     }, [apiUrl]);
+
+    // Calculate winner from leaderboard
+    const getWinner = () => {
+        if (leaderboard.length === 0) return null;
+        
+        // Sort leaderboard by points in descending order
+        const sortedLeaderboard = [...leaderboard].sort((a, b) => b.points - a.points);
+        
+        // Get the winner (highest points)
+        const winner = sortedLeaderboard[0];
+        
+        return {
+            house: winner.name,
+            points: winner.points,
+            rank: 1
+        };
+    };
+
+    const winnerData = getWinner();
 
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-orange-100"><Spinner /></div>;
 
@@ -217,11 +237,23 @@ const Scoreboard = () => {
                             </div>
                         </div>
                     </section>
+                    
 
                 </main>
                 
             </div>
-             <Footer />
+            
+            {/* Winner Component with Dynamic Data */}
+            {/* {winnerData && (
+                <Winner 
+                    winner={winnerData.house}
+                    totalPoints={winnerData.points}
+                    rank={winnerData.rank}
+                />
+            )} */}
+            
+            
+            <Footer />
         </VerticalPatternBackground>
     );
 };
