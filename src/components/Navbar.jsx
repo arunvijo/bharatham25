@@ -76,46 +76,46 @@ export default function Navbar() {
       
       {/* 1. THE LOGO - Increased Size & Moved Higher */}
       <div 
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-full flex justify-center pointer-events-none z-[5000]"
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-full flex justify-center pointer-events-none z-[5200]"
       >
         <img 
-  src="/images/logonew.png" 
-  alt="BHARATHAM26" 
-  className={`
-    transition-all duration-500 ease-in-out
-    w-auto object-contain
-    
-    /* PROPORTIONAL SIZE: Growing steadily from mobile to ultra-wide */
-    h-[110px] sm:h-[140px] md:h-[180px] lg:h-[210px] xl:h-[240px]
-    
-    /* PROPORTIONAL POSITIONING: Anchored to your -10px and -20px values */
-    ${isNavOpen 
-      ? 'translate-y-[-15px] sm:translate-y-[-25px] md:translate-y-[-35px] lg:translate-y-[-45px]' 
-      : 'translate-y-[-10px] sm:translate-y-[-15px] md:translate-y-[-20px] lg:translate-y-[-25px] xl:translate-y-[-30px]'}
-      
-    filter drop-shadow-2xl
-  `}
-/>
+          src="/images/logonew.png" 
+          alt="BHARATHAM26" 
+          className={`
+            transition-all duration-500 ease-in-out
+            w-auto object-contain
+            
+            /* PROPORTIONAL SIZE: Growing steadily from mobile to ultra-wide */
+            h-[110px] sm:h-[140px] md:h-[180px] lg:h-[210px] xl:h-[240px]
+            
+            /* PROPORTIONAL POSITIONING: Anchored to your -10px and -20px values */
+            ${isNavOpen 
+              ? 'translate-y-[-15px] sm:translate-y-[-25px] md:translate-y-[-35px] lg:translate-y-[-45px]' 
+              : 'translate-y-[-10px] sm:translate-y-[-15px] md:translate-y-[-20px] lg:translate-y-[-25px] xl:translate-y-[-30px]'}
+              
+            filter drop-shadow-2xl
+          `}
+        />
       </div>
 
       {/* 2. MAIN NAVBAR BAR */}
       <nav
-        className={`relative z-[3010] w-full px-3 sm:px-6 py-2 sm:py-4 flex items-center justify-between transition-colors duration-300 ${
-          isNavOpen ? 'bg-primary' : 'bg-cream shadow-md'
+        className={`relative w-full px-3 sm:px-6 py-2 sm:py-4 flex items-center justify-between transition-colors duration-300 ${
+          isNavOpen ? 'bg-primary z-[5000]' : 'bg-cream shadow-md z-[3010]'
         }`}
       >
         {/* LEFT: HAMBURGER BUTTON */}
         <button
           onClick={toggleNav}
           aria-label="Toggle menu"
-          className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 cursor-pointer relative z-[3100] group"
+          className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 cursor-pointer relative z-[5100] group"
         >
           <Pointer>
             <div className="text-xl sm:text-2xl">👆</div>
           </Pointer>
-          <span className={`absolute h-[2px] sm:h-[3px] w-5 sm:w-8 bg-black rounded-full transition-all duration-200 ${isNavOpen ? "rotate-45 top-1/2 -translate-y-1/2" : "top-2 sm:top-3"}`} />
-          <span className={`absolute h-[2px] sm:h-[3px] w-5 sm:w-8 bg-black rounded-full transition-all duration-200 ${isNavOpen ? "opacity-0" : "top-1/2 -translate-y-1/2"}`} />
-          <span className={`absolute h-[2px] sm:h-[3px] w-5 sm:w-8 bg-black rounded-full transition-all duration-200 ${isNavOpen ? "-rotate-45 top-1/2 -translate-y-1/2" : "bottom-2 sm:bottom-3"}`} />
+          <span className={`absolute h-[3px] sm:h-[4px] w-5 sm:w-8 rounded-full transition-all duration-300 ${isNavOpen ? "rotate-45 top-1/2 -translate-y-1/2 bg-yellow" : "top-1 sm:top-1.5 bg-black"}`} />
+          <span className={`absolute h-[3px] sm:h-[4px] w-5 sm:w-8 rounded-full transition-all duration-300 ${isNavOpen ? "opacity-0 bg-yellow" : "top-1/2 -translate-y-1/2 bg-black"}`} />
+          <span className={`absolute h-[3px] sm:h-[4px] w-5 sm:w-8 rounded-full transition-all duration-300 ${isNavOpen ? "-rotate-45 top-1/2 -translate-y-1/2 bg-yellow" : "bottom-1 sm:bottom-1.5 bg-black"}`} />
         </button>
 
         {/* RIGHT: ACTIONS (Dashboard + Login) */}
