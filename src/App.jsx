@@ -49,6 +49,8 @@ const EventView = lazy(() => import("./pages/Captain/EventView.jsx"));
 const CaptainCreateRegistration = lazy(() => import("./pages/Captain/CreateRegistration.jsx"));
 const CaptainEditRegistration = lazy(() => import("./pages/Captain/EditRegistration.jsx"));
 
+const CommitteeScoreEntry = lazy(() => import("./pages/CommitteeScoreEntry.jsx"));
+
 const App = () => {
   return (
     <Auth0Provider
@@ -112,6 +114,10 @@ const App = () => {
             <Route path="/captain/event/view/:id" element={<EventView />} />
             <Route path="/captain/registration/create" element={<CaptainCreateRegistration />} />
             <Route path="/captain/registration/edit/:id" element={<CaptainEditRegistration />} />
+
+             {/* Give this link to your 3 people: https://yoursite.com/committee-entry */}
+             <Route path="/committee-entry" element={<CommitteeScoreEntry />} />
+
           </Routes>
         </Suspense>
       </div>
