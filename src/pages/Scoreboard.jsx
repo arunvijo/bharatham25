@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { MdEmojiEvents, MdScore, MdWarning } from "react-icons/md";
+import { MdEmojiEvents, MdScore, MdWarning, MdRefresh } from "react-icons/md";
 
 // Components
 import Spinner from "../components/Spinner";
@@ -33,6 +33,7 @@ const Scoreboard = () => {
     const [leaderboard, setLeaderboard] = useState([]); // For the Chart
     const [recentScores, setRecentScores] = useState([]); // For the Tables
     const [loading, setLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false); // State for manual refresh button
     
     const navigate = useNavigate();
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
@@ -40,10 +41,14 @@ const Scoreboard = () => {
     // --- OPTIMIZED DATA FETCHING STRATEGY ---
     const fetchScoreData = async () => {
         try {
+            // FIX: CACHE BUSTING
+            // Adding a timestamp query param forces the browser to fetch fresh data
+            const timestamp = Date.now();
+
             // Parallel Fetch: Get aggregated Leaderboard AND detailed History simultaneously
             const [leaderboardRes, historyRes] = await Promise.all([
-                axios.get(`${apiUrl}/score/leaderboard`), // Returns pre-calculated totals
-                axios.get(`${apiUrl}/score/`)             // Returns full list for tables
+                axios.get(`${apiUrl}/score/leaderboard?t=${timestamp}`), // Returns pre-calculated totals
+                axios.get(`${apiUrl}/score/?t=${timestamp}`)             // Returns full list for tables
             ]);
 
             // 1. Process Leaderboard Data for Chart
@@ -58,12 +63,22 @@ const Scoreboard = () => {
 
             setLeaderboard(formattedLeaderboard);
             setRecentScores(historyData);
-            setLoading(false); // Stop loading spinner after first fetch
+            
+            // Only stop main loading on the very first load
+            setLoading(false); 
 
         } catch (error) {
             console.error("Error fetching live scores:", error);
             setLoading(false);
         }
+    };
+
+    // Manual Refresh Handler
+    const handleManualRefresh = async () => {
+        setIsRefreshing(true);
+        await fetchScoreData();
+        // Small timeout to ensure the user sees the spin interaction
+        setTimeout(() => setIsRefreshing(false), 800);
     };
 
     useEffect(() => {
@@ -160,9 +175,25 @@ const Scoreboard = () => {
                         >
                             Scoreboard
                         </h1>
-                        <p className="text-stone-500 font-bold tracking-widest mt-2 animate-pulse text-sm">
-                            LIVE UPDATES ENABLED (AUTO-REFRESH)
-                        </p>
+                        
+                        <div className="flex items-center justify-center gap-3 mt-4">
+                            <p className="text-stone-500 font-bold tracking-widest text-sm animate-pulse">
+                                LIVE UPDATES ENABLED
+                            </p>
+                            
+                            {/* Manual Refresh Button */}
+                            <button 
+                                onClick={handleManualRefresh}
+                                disabled={isRefreshing}
+                                className="p-2 rounded-full hover:bg-black/5 transition-all text-stone-500 hover:text-stone-800 active:scale-95"
+                                title="Force Refresh Data"
+                            >
+                                <MdRefresh 
+                                    size={24} 
+                                    className={`transition-transform duration-700 ${isRefreshing ? 'animate-spin text-desi-saffron' : ''}`} 
+                                />
+                            </button>
+                        </div>
                     </header>
 
                     {/* --- 1. Leaderboard Chart Section --- */}
