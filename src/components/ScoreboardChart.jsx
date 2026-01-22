@@ -37,54 +37,56 @@ const HOUSE_PATTERN_TINTS = {
 };
 
 const ScoreboardChart = ({ scores = [] }) => {
-    // --- 1. DEFINE ALL HOOKS FIRST (Prevents Render Error) ---
+    // --- 1. DEFINE HOOKS ---
     const chartRef = React.useRef(null);
     const patternImage = React.useRef(null);
     const mascotImages = React.useRef({});
-    
-    // Track loading state to trigger re-renders once images are ready
     const [assetsLoaded, setAssetsLoaded] = React.useState(false);
 
-    // --- 2. DATA PROCESSING ---
+    // --- 2. DATA PROCESSING & LIVE REF ---
     // SORTING: Largest on Left (Descending: b - a)
     const sortedScores = React.useMemo(() => {
         if (!scores || !Array.isArray(scores)) return [];
         return [...scores].sort((a, b) => b.points - a.points);
     }, [scores]);
 
+    // FIX: Create a Ref to hold the latest sorted scores
+    // This allows the plugin to always access "fresh" data without stale closures
+    const liveScoresRef = React.useRef(sortedScores);
+
+    // Update the Ref whenever sortedScores changes
+    React.useEffect(() => {
+        liveScoresRef.current = sortedScores;
+    }, [sortedScores]);
+
     // --- 3. IMAGE LOADING EFFECTS ---
     React.useEffect(() => {
         let loadedCount = 0;
-        const totalImages = 6; // 1 pattern + 5 mascots
+        const totalImages = 6; 
 
         const checkDone = () => {
             loadedCount++;
             if (loadedCount === totalImages) setAssetsLoaded(true);
         };
 
-        // Load Pattern
         const pImg = new Image();
         pImg.onload = () => { patternImage.current = pImg; checkDone(); };
-        pImg.onerror = () => { checkDone(); }; // Proceed even if error
+        pImg.onerror = () => { checkDone(); }; 
         pImg.src = '/images/pattern.png';
 
-        // Load Mascots
         const houses = ['Mughals', 'Aryans', 'Vikings', 'Spartans', 'Rajputs'];
         houses.forEach(house => {
             const mImg = new Image();
-            mImg.onload = () => { 
-                mascotImages.current[house] = mImg; 
-                checkDone(); 
-            };
+            mImg.onload = () => { mascotImages.current[house] = mImg; checkDone(); };
             mImg.onerror = () => { checkDone(); };
             mImg.src = `/images/${house.toLowerCase()}_mascot.png`;
         });
     }, []);
 
-    // --- 4. CONDITIONAL RETURN (After Hooks) ---
+    // --- 4. CONDITIONAL RETURN ---
     if (!scores || !Array.isArray(scores) || scores.length === 0) {
         return (
-            <div className="text-center p-4 font-mont_light">
+            <div className="text-center p-4 text-stone-600 font-['Montserrat']">
                 No score data available to display the leaderboard.
             </div>
         );
@@ -94,27 +96,33 @@ const ScoreboardChart = ({ scores = [] }) => {
     const dataPoints = sortedScores.map((house) => house.points);
 
     const maxScore = Math.max(...dataPoints, 0);
-    const yAxisMax = Math.max(100, maxScore * 1.15); // Headroom for mascots
+    const yAxisMax = Math.max(100, maxScore * 1.15); 
     const stepSize = yAxisMax > 500 ? Math.round(yAxisMax / 5) : 50;
 
-    // --- 5. ANIMATION PLUGIN ---
+    // --- 5. ANIMATION & DRAWING PLUGIN ---
     const patternOverlayPlugin = {
         id: 'patternOverlay',
         afterDatasetsDraw: (chart) => {
             const ctx = chart.ctx;
             const meta = chart.getDatasetMeta(0);
             
+            // FIX: Access the FRESH data from the Ref
+            const currentData = liveScoresRef.current;
+
             meta.data.forEach((bar, index) => {
-                // KEY FIX FOR SMOOTH ANIMATION:
-                // Use getProps(..., false) to get the INTERMEDIATE values during animation frames.
-                // This makes the pattern/mascot grow WITH the bar.
+                // Smooth Animation values
                 const { x, y, width, height, base } = bar.getProps(['x', 'y', 'width', 'height', 'base'], false);
                 
                 const barWidth = width * 0.7;
                 const barX = x - barWidth / 2;
                 const barHeight = base - y;
                 
-                const houseName = sortedScores[index].name;
+                // Get data for this specific bar index from our Live Ref
+                const scoreItem = currentData[index];
+                if (!scoreItem) return; // Safety check
+
+                const houseName = scoreItem.name;
+                const housePoints = scoreItem.points;
                 const gradientColors = HOUSE_GRADIENTS[houseName] || { start: '#888', end: '#666' };
                 
                 // A. Draw Gradient Background
@@ -137,7 +145,6 @@ const ScoreboardChart = ({ scores = [] }) => {
                 // C. Draw Pattern Overlay
                 if (patternImage.current) {
                     ctx.save();
-                    // Scale pattern to fit bar
                     const patternAspectRatio = patternImage.current.width / patternImage.current.height;
                     let patternWidth = patternImage.current.width;
                     let patternHeight = patternImage.current.height;
@@ -150,7 +157,6 @@ const ScoreboardChart = ({ scores = [] }) => {
                     const patternX = barX + (barWidth - patternWidth) / 2;
                     const patternY = y + (barHeight - patternHeight) / 2;
                     
-                    // Create temp canvas for tinting
                     const tempCanvas = document.createElement('canvas');
                     tempCanvas.width = patternWidth;
                     tempCanvas.height = patternHeight;
@@ -162,7 +168,6 @@ const ScoreboardChart = ({ scores = [] }) => {
                     tempCtx.fillStyle = tintColor;
                     tempCtx.fillRect(0, 0, patternWidth, patternHeight);
                     
-                    // Clip to bar area so pattern doesn't bleed
                     ctx.globalAlpha = 0.5;
                     ctx.beginPath();
                     ctx.rect(barX, y, barWidth, barHeight);
@@ -172,7 +177,7 @@ const ScoreboardChart = ({ scores = [] }) => {
                     ctx.restore();
                 }
 
-                // D. Draw Mascot (Floating on Top)
+                // D. Draw Mascot
                 const mascotImg = mascotImages.current[houseName];
                 if (mascotImg) {
                     const maxMascotWidth = barWidth * 1.4;
@@ -180,19 +185,39 @@ const ScoreboardChart = ({ scores = [] }) => {
                     let mascotWidth = maxMascotWidth;
                     let mascotHeight = mascotWidth / mascotAspectRatio;
                     
-                    const mascotGap = 5;
+                    const mascotGap = 5; 
                     const mascotX = x - (mascotWidth / 2); 
                     const mascotY = y - mascotHeight - mascotGap; 
                     
                     ctx.save();
-                    // Add subtle shadow to pop mascot from background
                     ctx.shadowColor = "rgba(0,0,0,0.3)";
                     ctx.shadowBlur = 8;
                     ctx.shadowOffsetY = 4;
-                    
                     ctx.drawImage(mascotImg, mascotX, mascotY, mascotWidth, mascotHeight);
                     ctx.restore();
                 }
+
+                // E. Draw Points Text (Inside or Above Bar)
+                ctx.save();
+                ctx.font = 'bold 15px Montserrat'; 
+                ctx.textAlign = 'center';
+                
+                if (barHeight > 35) {
+                    // Inside the rectangle (White with shadow)
+                    ctx.fillStyle = '#FFFFFF'; 
+                    ctx.textBaseline = 'top';
+                    ctx.shadowColor = "rgba(0,0,0,0.6)"; 
+                    ctx.shadowBlur = 4;
+                    ctx.shadowOffsetX = 1;
+                    ctx.shadowOffsetY = 1;
+                    ctx.fillText(`${housePoints} pts`, x, y + 10); 
+                } else {
+                    // Above the bar (Black)
+                    ctx.fillStyle = '#1c1917'; 
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillText(`${housePoints} pts`, x, y - 5);
+                }
+                ctx.restore();
             });
         }
     };
@@ -214,38 +239,23 @@ const ScoreboardChart = ({ scores = [] }) => {
     const options = {
         responsive: true,
         maintainAspectRatio: false,
-        // SMOOTH REORDERING ANIMATION CONFIG
+        // --- ANIMATION SETTINGS ---
         animation: {
-            duration: 1000, 
-            easing: 'easeInOutQuart', 
+            duration: 2500, // 2.5s Smooth Animation
+            easing: 'easeInOutCubic', 
         },
         transitions: {
             active: {
-                animation: {
-                    duration: 500
-                }
+                animation: { duration: 800 }
             }
         },
         plugins: {
             legend: { display: false },
             title: { display: false },
-            tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                titleColor: '#FEE89B',
-                bodyColor: 'white',
-                padding: 12,
-                titleFont: { family: 'Montserrat', size: 14, weight: 'bold' },
-                bodyFont: { family: 'Montserrat', size: 13 },
-                displayColors: false,
-                callbacks: {
-                    label: function(context) {
-                        return `${context.parsed.y} Points`;
-                    }
-                }
-            }
+            tooltip: { enabled: false }
         },
         layout: {
-            padding: { top: 120, bottom: 20, left: 10, right: 10 }
+            padding: { top: 140, bottom: 20, left: 10, right: 10 }
         },
         scales: {
             y: {
@@ -255,7 +265,7 @@ const ScoreboardChart = ({ scores = [] }) => {
                 ticks: {
                     stepSize: stepSize,
                     color: 'black',
-                    font: { family: 'Mont', size: 14, weight: 'normal' },
+                    font: { family: 'Montserrat', size: 12, weight: '600' },
                     padding: 10,
                 },
                 grid: { color: 'rgba(0, 0, 0, 0.1)', lineWidth: 1 }
@@ -264,7 +274,7 @@ const ScoreboardChart = ({ scores = [] }) => {
                 border: { color: 'black', width: 3 },
                 ticks: {
                     color: 'black',
-                    font: { family: 'Mont', size: 14, weight: 'normal' },
+                    font: { family: 'Montserrat', size: 13, weight: 'bold' },
                     padding: 10,
                 },
                 grid: { display: false },
@@ -273,7 +283,7 @@ const ScoreboardChart = ({ scores = [] }) => {
     };
 
     return (
-        <div className="w-full h-full font-mont min-h-[400px]"> 
+        <div className="w-full h-full font-['Montserrat'] min-h-[400px]"> 
             <Bar 
                 ref={chartRef} 
                 options={options} 

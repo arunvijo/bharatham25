@@ -86,7 +86,7 @@ const Scoreboard = () => {
         fetchScoreData();
 
         // 2. Set up Auto-Refresh (Polling) every 30 seconds
-        const intervalId = setInterval(fetchScoreData, 30000);
+        const intervalId = setInterval(fetchScoreData, 5000);
 
         // 3. Cleanup on unmount to prevent memory leaks
         return () => clearInterval(intervalId);
@@ -187,7 +187,7 @@ const handleViewWinners = () => {
                             </button>
                         </div>
                       {/* View Winners Button */}
-                        <div className="mt-6">
+                        {/* <div className="mt-6">
                             
                             <button
                                 onClick={handleViewWinners}
@@ -204,7 +204,7 @@ const handleViewWinners = () => {
                                     </span>
                                 </div>
                             </button>
-                        </div>
+                        </div> */}
                     </header>
 
                     {/* --- 1. Leaderboard Chart Section --- */}
