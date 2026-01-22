@@ -110,9 +110,12 @@ const handleViewWinners = () => {
                 
                 {/* --- Custom SVG Back Button --- */}
                 <div className="fixed top-4 right-0 z-[60] px-6 sm:px-10 md:px-12">
+                    <Pointer>
+                                      <div className="text-2xl">👆</div>
+                                    </Pointer>
                     <button
                         onClick={() => navigate(-1)}
-                        className="group relative cursor-pointer select-none"
+                        className="group relative select-none"
                         title="Go Back"
                     >
                         {/* SVG Button Container */}
@@ -163,7 +166,7 @@ const handleViewWinners = () => {
                         </h1>
                         
                         <div className="flex items-center justify-center gap-3 mt-4">
-                            <p className="text-stone-500 font-bold tracking-widest text-sm animate-pulse">
+                            <p className="text-stone-500 font-mont tracking-widest text-sm animate-pulse">
                                 LIVE UPDATES ENABLED
                             </p>
                             
@@ -174,10 +177,31 @@ const handleViewWinners = () => {
                                 className="p-2 rounded-full hover:bg-black/5 transition-all text-stone-500 hover:text-stone-800 active:scale-95"
                                 title="Force Refresh Data"
                             >
+                                <Pointer>
+                                                  <div className="text-2xl">👆</div>
+                                                </Pointer>
                                 <MdRefresh 
                                     size={24} 
                                     className={`transition-transform duration-700 ${isRefreshing ? 'animate-spin text-desi-saffron' : ''}`} 
                                 />
+                            </button>
+                        </div>
+                      {/* View Winners Button */}
+                        <div className="mt-6">
+                            <Pointer>
+                                              <div className="text-2xl">👆</div>
+                                            </Pointer>
+                            <button
+                                onClick={handleViewWinners}
+                                className="group relative"
+                            >
+                                <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-xl" style={{ backgroundColor: '#000' }} />
+                                <div className="relative px-8 py-4 rounded-xl border-4 border-stone-900 transform transition-all duration-300 group-hover:translate-x-2 group-hover:translate-y-2 group-hover:shadow-none shadow-lg flex items-center gap-3" style={{ backgroundColor: '#cb1760' }}>
+                                    <MdEmojiEvents className="text-white text-2xl" />
+                                    <span className="text-xl md:text-2xl font-black text-white tracking-wider">
+                                        VIEW WINNERS
+                                    </span>
+                                </div>
                             </button>
                         </div>
                     </header>
