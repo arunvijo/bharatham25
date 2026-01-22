@@ -188,13 +188,14 @@ const handleViewWinners = () => {
                         </div>
                       {/* View Winners Button */}
                         <div className="mt-6">
-                            <Pointer>
-                                              <div className="text-2xl">👆</div>
-                                            </Pointer>
+                            
                             <button
                                 onClick={handleViewWinners}
                                 className="group relative"
                             >
+                                <Pointer>
+                                              <div className="text-2xl">👆</div>
+                                            </Pointer>
                                 <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-xl" style={{ backgroundColor: '#000' }} />
                                 <div className="relative px-8 py-4 rounded-xl border-4 border-stone-900 transform transition-all duration-300 group-hover:translate-x-2 group-hover:translate-y-2 group-hover:shadow-none shadow-lg flex items-center gap-3" style={{ backgroundColor: '#cb1760' }}>
                                     <MdEmojiEvents className="text-white text-2xl" />
