@@ -36,11 +36,11 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
     const cellClass = "px-6 py-4 border-r-[3px] border-stone-300 flex items-center justify-center text-center";
 
     return (
-        <div className="space-y-6 font-['Montserrat'] w-full">
+        <div className="space-y-6 w-full">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-end items-center gap-4 bg-transparent p-5">
                 <div className="flex items-center gap-4">
-                    <h3 className="text-2xl font-bold text-black tracking-wide flex items-center gap-2">
+                    <h3 className="text-2xl font-mont text-black tracking-wide flex items-center gap-2">
                         <MdWarning className="text-desi-maroon" /> 
                         Penalties <span className="text-stone-400 text-base font-normal">({negativeScores.length})</span>
                     </h3>
@@ -59,7 +59,7 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
                             placeholder="Search penalties..."
                             value={filter}
                             onChange={(e) => setFilter(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-white text-black focus:outline-none transition-all text-sm font-['Montserrat']"
+                            className="w-full pl-10 pr-4 py-2 bg-white text-black focus:outline-none transition-all text-sm"
                         />
                     </div>
                 </div>
@@ -93,7 +93,7 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
                                     "{score.reason || 'General House Penalty'}"
                                 </div>
 
-                                <div className={`w-[160px] min-w-[160px] text-2xl font-extrabold text-desi-maroon ${cellClass}`}>{score.points}</div>
+                                <div className={`w-[160px] min-w-[160px] text-2xl font-mont text-desi-maroon ${cellClass}`}>{score.points}</div>
 
                                 <div className={`w-[80px] min-w-[80px] ${cellClass}`}>
                                     {isAdminMode && (
@@ -113,10 +113,10 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
                 {negativeScores.map((score, index) => (
                     <div key={score._id} className="bg-white border-[3px] border-stone-900 shadow-[4px_4px_0px_0px_rgba(127,29,29,1)] p-4 space-y-3 border-l-8 border-l-desi-maroon">
                         <div className="flex justify-between items-center border-b-2 border-red-200 pb-2 bg-red-50 -m-4 mb-3 p-4">
-                            <span className="text-sm font-bold text-stone-500">#{index + 1}</span>
+                            <span className="text-sm font-mont text-stone-500">#{index + 1}</span>
                             <div className="flex items-center gap-2">
                                 <MdWarning className="text-red-600" size={20} />
-                                <span className="text-2xl font-extrabold text-desi-maroon">{score.points} pts</span>
+                                <span className="text-2xl font-mont text-desi-maroon">{score.points} pts</span>
                             </div>
                         </div>
                         

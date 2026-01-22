@@ -35,6 +35,12 @@
   font-weight: normal;
   font-style: normal;
 }
+@font-face {
+  font-family: "Mont_light";  /* Name it correctly */
+  src: url("/fonts/Mont-ExtraLight.otf") format("opentype"); /* Fixed extension typo */
+  font-weight: normal;
+  font-style: normal;
+}
 /* Global Uniformity */
 body {
   cursor: none;

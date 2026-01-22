@@ -61,14 +61,14 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
     const tableCellClass = "px-6 py-4 border-r-[3px] border-stone-300 flex items-center justify-center text-center";
 
     return (
-        <div className="space-y-6 font-['Montserrat'] w-full">
+        <div className="space-y-6 w-full">
             
             {/* --- HEADER SECTION --- */}
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-transparent p-5">
                 
                 {/* Left: Title & Export */}
                 <div className="flex items-center gap-4">
-                    <h3 className="text-2xl font-bold text-black tracking-wide flex items-center gap-2">
+                    <h3 className="text-2xl font-mont text-black tracking-wide flex items-center gap-2">
                         <MdScore className="text-desi-saffron" /> 
                         Records <span className="text-stone-400 text-base font-normal">({displayedScores?.length})</span>
                     </h3>
@@ -90,7 +90,7 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
                             placeholder="Search records..."
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-white text-black focus:outline-none transition-all text-sm font-['Montserrat']"
+                            className="w-full pl-10 pr-4 py-2 bg-white text-black focus:outline-none transition-all text-sm"
                         />
                     </div>
 
@@ -111,13 +111,13 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
             <div className="hidden lg:block bg-white overflow-hidden mx-auto">
                 <div className="overflow-x-auto">
                     <div className="flex border-b-[3px] border-stone-900 bg-stone-100 min-w-[1241px]">
-                        <div className="w-[80px] min-w-[80px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">NO.</div>
-                        <div className="w-[256px] min-w-[256px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">EVENTS</div>
-                        <div className="w-[224px] min-w-[224px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">HOUSE</div>
-                        <div className="w-[288px] min-w-[288px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">PARTICIPANTS</div>
-                        <div className="w-[176px] min-w-[176px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">POSITION</div>
-                        <div className="w-[160px] min-w-[160px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">POINTS</div>
-                        {isAdminMode && <div className="w-[57px] min-w-[57px] h-[60px] flex items-center justify-center text-3xl font-bold font-['Montserrat']">...</div>}
+                        <div className="w-[80px] min-w-[80px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">NO.</div>
+                        <div className="w-[256px] min-w-[256px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">EVENTS</div>
+                        <div className="w-[224px] min-w-[224px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">HOUSE</div>
+                        <div className="w-[288px] min-w-[288px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">PARTICIPANTS</div>
+                        <div className="w-[176px] min-w-[176px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">POSITION</div>
+                        <div className="w-[160px] min-w-[160px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">POINTS</div>
+                        {isAdminMode && <div className="w-[57px] min-w-[57px] h-[60px] flex items-center justify-center text-3xl font-mont">...</div>}
                     </div>
 
                     <div className="divide-y divide-stone-300">
@@ -125,12 +125,12 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
                             <div key={scoreItem._id || index} className="flex border-b border-stone-300 hover:bg-orange-50/50 transition-colors group min-w-[1241px]">
                                 <div className={`w-[80px] min-w-[80px] text-sm text-stone-600 ${tableCellClass}`}>{index + 1}</div>
                                 
-                                <div className={`w-[256px] min-w-[256px] text-base font-bold text-stone-800 ${tableCellClass} justify-start`}>
+                                <div className={`w-[256px] min-w-[256px] text-base font-mont text-stone-800 ${tableCellClass} justify-start`}>
                                     {getEventName(scoreItem.event)}
                                 </div>
                                 
                                 <div className={`w-[224px] min-w-[224px] ${tableCellClass}`}>
-                                    <span className="px-2.5 py-0.5 inline-flex text-sm font-bold rounded-sm bg-stone-200 text-stone-800 border border-stone-300">
+                                    <span className="px-2.5 py-0.5 inline-flex text-sm font-mont rounded-sm bg-stone-200 text-stone-800 border border-stone-300">
                                         {scoreItem.house}
                                     </span>
                                 </div>
@@ -140,7 +140,7 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
                                         {getParticipants(scoreItem).map((participant, i) => (
                                             <span 
                                                 key={participant._id || i} 
-                                                className="text-xs font-medium text-stone-600 bg-stone-100 px-2 py-1 rounded border border-stone-200"
+                                                className="text-xs font-mont text-stone-600 bg-stone-100 px-2 py-1 rounded border border-stone-200"
                                             >
                                                 {participant.fullName?.split(' ')[0] || 'Unknown'}
                                             </span>
@@ -149,7 +149,7 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
                                 </div>
 
                                 <div className={`w-[176px] min-w-[176px] ${tableCellClass}`}>
-                                    <span className={`px-3 py-1 inline-flex text-sm font-bold rounded-sm border-2 ${getPositionStyle(scoreItem.position)} uppercase tracking-wider`}>
+                                    <span className={`px-3 py-1 inline-flex text-sm font-mont rounded-sm border-2 ${getPositionStyle(scoreItem.position)} uppercase tracking-wider`}>
                                         {scoreItem.position}
                                     </span>
                                 </div>
@@ -176,23 +176,23 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
                 {displayedScores.map((scoreItem, index) => (
                     <div key={scoreItem._id || index} className="bg-white border-[3px] border-stone-900 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-4 space-y-3">
                         <div className="flex justify-between items-center border-b-2 border-stone-200 pb-2">
-                            <span className="text-sm font-bold text-stone-500">#{index + 1}</span>
+                            <span className="text-sm font-mont text-stone-500">#{index + 1}</span>
                             <span className="text-2xl font-extrabold text-desi-saffron">{scoreItem.points} pts</span>
                         </div>
                         <div>
-                            <div className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-1">Event</div>
-                            <div className="text-lg font-bold text-stone-800">{getEventName(scoreItem.event)}</div>
+                            <div className="text-xs font-mont text-stone-500 uppercase tracking-wide mb-1">Event</div>
+                            <div className="text-lg font-mont text-stone-800">{getEventName(scoreItem.event)}</div>
                         </div>
                         <div className="flex gap-3 flex-wrap">
                             <div className="flex-1 min-w-[120px]">
-                                <div className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-1">House</div>
-                                <span className="px-2.5 py-1 inline-flex text-sm font-bold rounded-sm bg-stone-200 text-stone-800 border border-stone-300">
+                                <div className="text-xs font-mont text-stone-500 uppercase tracking-wide mb-1">House</div>
+                                <span className="px-2.5 py-1 inline-flex text-sm font-mont rounded-sm bg-stone-200 text-stone-800 border border-stone-300">
                                     {scoreItem.house}
                                 </span>
                             </div>
                             <div className="flex-1 min-w-[120px]">
-                                <div className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-1">Position</div>
-                                <span className={`px-3 py-1 inline-flex text-sm font-bold rounded-sm border-2 ${getPositionStyle(scoreItem.position)} uppercase tracking-wider`}>
+                                <div className="text-xs font-mont text-stone-500 uppercase tracking-wide mb-1">Position</div>
+                                <span className={`px-3 py-1 inline-flex text-sm font-mont rounded-sm border-2 ${getPositionStyle(scoreItem.position)} uppercase tracking-wider`}>
                                     {scoreItem.position}
                                 </span>
                             </div>
@@ -204,12 +204,12 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
                             if (parts.length > 0) {
                                 return (
                                     <div>
-                                        <div className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Participants</div>
+                                        <div className="text-xs font-mont text-stone-500 uppercase tracking-wide mb-2">Participants</div>
                                         <div className="flex flex-wrap gap-2">
                                             {parts.map((participant, i) => (
                                                 <span 
                                                     key={participant._id || i} 
-                                                    className="text-xs font-medium text-stone-600 bg-stone-100 px-2 py-1 rounded border border-stone-200"
+                                                    className="text-xs font-mont text-stone-600 bg-stone-100 px-2 py-1 rounded border border-stone-200"
                                                 >
                                                     {participant.fullName?.split(' ')[0] || 'Unknown'}
                                                 </span>
@@ -222,10 +222,10 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
 
                         {isAdminMode && (
                             <div className="flex gap-2 pt-2 border-t-2 border-stone-200">
-                                <Link to={`/score/details/${scoreItem._id}`} className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white border-2 border-black text-sm font-bold hover:bg-blue-600 transition-colors">
+                                <Link to={`/score/details/${scoreItem._id}`} className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white border-2 border-black text-sm font-mont hover:bg-blue-600 transition-colors">
                                     <MdOutlineInfo size={16} /> Details
                                 </Link>
-                                <Link to={`/score/edit/${scoreItem._id}`} className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-desi-saffron text-white border-2 border-black text-sm font-bold hover:bg-amber-700 transition-colors">
+                                <Link to={`/score/edit/${scoreItem._id}`} className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-desi-saffron text-white border-2 border-black text-sm font-mont hover:bg-amber-700 transition-colors">
                                     <AiOutlineEdit size={16} /> Edit
                                 </Link>
                                 <Link to={`/score/delete/${scoreItem._id}`} className="flex items-center justify-center px-3 py-2 bg-red-500 text-white border-2 border-black hover:bg-red-600 transition-colors">

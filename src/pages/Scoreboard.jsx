@@ -5,11 +5,11 @@ import axios from "axios";
 import { MdEmojiEvents, MdScore, MdWarning, MdRefresh } from "react-icons/md";
 
 // Components
+import { Pointer } from "../components/Pointer";
 import Spinner from "../components/Spinner";
 import ScoreboardChart from "../components/ScoreboardChart";
 import ScoreTable from "../components/ScoreTable";
 import NegativeScoreTable from "../components/NegativeScoreTable";
-import Winner from "../components/Winner";
 import Footer from "../components/Footer";
 
 // Utility component for the repeating vertical floral images
@@ -86,30 +86,16 @@ const Scoreboard = () => {
         fetchScoreData();
 
         // 2. Set up Auto-Refresh (Polling) every 30 seconds
-        const intervalId = setInterval(fetchScoreData, 30000);
+        const intervalId = setInterval(fetchScoreData, 5000);
 
         // 3. Cleanup on unmount to prevent memory leaks
         return () => clearInterval(intervalId);
     }, [apiUrl]);
 
-    // Calculate winner from leaderboard
-    const getWinner = () => {
-        if (leaderboard.length === 0) return null;
-        
-        // Sort leaderboard by points in descending order
-        const sortedLeaderboard = [...leaderboard].sort((a, b) => b.points - a.points);
-        
-        // Get the winner (highest points)
-        const winner = sortedLeaderboard[0];
-        
-        return {
-            house: winner.name,
-            points: winner.points,
-            rank: 1
-        };
-    };
-
-    const winnerData = getWinner();
+    // Navigate to winners page
+const handleViewWinners = () => {
+    navigate(`/winners?data=${encodeURIComponent(JSON.stringify(leaderboard))}`);
+};
 
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-orange-100"><Spinner /></div>;
 
@@ -124,9 +110,12 @@ const Scoreboard = () => {
                 
                 {/* --- Custom SVG Back Button --- */}
                 <div className="fixed top-4 right-0 z-[60] px-6 sm:px-10 md:px-12">
+                    <Pointer>
+                                      <div className="text-2xl">👆</div>
+                                    </Pointer>
                     <button
                         onClick={() => navigate(-1)}
-                        className="group relative cursor-pointer select-none"
+                        className="group relative select-none"
                         title="Go Back"
                     >
                         {/* SVG Button Container */}
@@ -177,7 +166,7 @@ const Scoreboard = () => {
                         </h1>
                         
                         <div className="flex items-center justify-center gap-3 mt-4">
-                            <p className="text-stone-500 font-bold tracking-widest text-sm animate-pulse">
+                            <p className="text-stone-500 font-mont tracking-widest text-sm animate-pulse">
                                 LIVE UPDATES ENABLED
                             </p>
                             
@@ -188,12 +177,34 @@ const Scoreboard = () => {
                                 className="p-2 rounded-full hover:bg-black/5 transition-all text-stone-500 hover:text-stone-800 active:scale-95"
                                 title="Force Refresh Data"
                             >
+                                <Pointer>
+                                                  <div className="text-2xl">👆</div>
+                                                </Pointer>
                                 <MdRefresh 
                                     size={24} 
                                     className={`transition-transform duration-700 ${isRefreshing ? 'animate-spin text-desi-saffron' : ''}`} 
                                 />
                             </button>
                         </div>
+                      {/* View Winners Button */}
+                        {/* <div className="mt-6">
+                            
+                            <button
+                                onClick={handleViewWinners}
+                                className="group relative"
+                            >
+                                <Pointer>
+                                              <div className="text-2xl">👆</div>
+                                            </Pointer>
+                                <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-xl" style={{ backgroundColor: '#000' }} />
+                                <div className="relative px-8 py-4 rounded-xl border-4 border-stone-900 transform transition-all duration-300 group-hover:translate-x-2 group-hover:translate-y-2 group-hover:shadow-none shadow-lg flex items-center gap-3" style={{ backgroundColor: '#cb1760' }}>
+                                    <MdEmojiEvents className="text-white text-2xl" />
+                                    <span className="text-xl md:text-2xl font-black text-white tracking-wider">
+                                        VIEW WINNERS
+                                    </span>
+                                </div>
+                            </button>
+                        </div> */}
                     </header>
 
                     {/* --- 1. Leaderboard Chart Section --- */}
@@ -269,16 +280,6 @@ const Scoreboard = () => {
                 </main>
                 
             </div>
-            
-            {/* Winner Component with Dynamic Data */}
-            {/* {winnerData && (
-                <Winner 
-                    winner={winnerData.house}
-                    totalPoints={winnerData.points}
-                    rank={winnerData.rank}
-                />
-            )} */}
-            
             
             <Footer />
         </VerticalPatternBackground>
