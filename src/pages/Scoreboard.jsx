@@ -241,10 +241,9 @@ const Scoreboard = () => {
                         </div>
                     </section>
 
-                    {/* --- 3. Negative Scores Section --- */}
-                    <section className="pt-8 space-y-6">
+                    {/* --- 3. Negative Scores Section (COMMENTED OUT) --- */}
+                    {/* <section className="pt-8 space-y-6">
                         <div className="text-center relative pt-10 pb-5">
-                            {/* Title with Scrollwork Decoration */}
                             <div className="text-4xl font-extrabold text-stone-900 inline-block p-2">
                                 <div className="absolute left-0 right-1/2 top-[100px] border-t-2 border-black hidden md:block" style={{ marginRight: '240px' }}></div>
                                 <div className="absolute left-1/2 right-0 top-[100px] border-t-2 border-black hidden md:block" style={{ marginLeft: '240px' }}></div>
@@ -257,18 +256,15 @@ const Scoreboard = () => {
                             </div>
                         </div>
                         
-                        {/* Table Container */}
                         <div className="w-full mx-auto relative">
-                            {/* Background Shadow */}
                             <div className="w-full h-full absolute bg-stone-900 translate-x-2 translate-y-2" />
                             
-                            {/* Main White Bordered Table */}
                             <div className="w-full bg-white border-[3px] border-stone-900 relative overflow-hidden">
                                 <NegativeScoreTable scores={negativeScores} />
                             </div>
                         </div>
                     </section>
-                    
+                    */}
 
                 </main>
                 

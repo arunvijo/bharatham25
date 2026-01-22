@@ -12,10 +12,10 @@ import { ExportToExcel } from "../../ExportToExcel";
 const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
     const [filter, setFilter] = useState("");
 
-    // --- HELPER: Safe Event Name Access ---
+    // --- HELPER: Safe Event Name Access (Still used for search filtering) ---
     const getEventName = (event) => {
-        if (!event) return "Unknown Event";
-        return typeof event === "string" ? event : event.name || "Unknown";
+        if (!event) return "";
+        return typeof event === "string" ? event : event.name || "";
     };
 
     const negativeScores = scores.filter((score) => {
@@ -68,32 +68,29 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
             {/* Desktop Table */}
             <div className="hidden lg:block bg-white overflow-hidden mx-auto">
                 <div className="overflow-x-auto">
-                    <div className="flex border-b-[3px] border-stone-900 bg-red-50 min-w-[1241px]">
+                    {/* Header Row - UPDATED COLUMNS */}
+                    <div className="flex border-b-[3px] border-stone-900 bg-red-50 min-w-[1000px]">
                         <div className="w-[80px] min-w-[80px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">NO.</div>
-                        <div className="w-[256px] min-w-[256px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">EVENTS</div>
-                        <div className="w-[224px] min-w-[224px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">HOUSE</div>
-                        <div className="w-[440px] min-w-[440px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">REASON</div>
+                        <div className="w-[300px] min-w-[300px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">HOUSE</div>
+                        {/* REASON column expanded to fill space previously taken by Event */}
+                        <div className="w-[600px] min-w-[600px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">REASON</div>
                         <div className="w-[160px] min-w-[160px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">POINTS</div>
                         <div className="w-[80px] min-w-[80px] h-[60px]"></div> 
                     </div>
 
                     <div className="divide-y divide-stone-300">
                         {negativeScores.map((score, index) => (
-                            <div key={score._id} className="flex border-b border-stone-300 hover:bg-red-50/50 transition-colors group min-w-[1241px]">
+                            <div key={score._id} className="flex border-b border-stone-300 hover:bg-red-50/50 transition-colors group min-w-[1000px]">
                                 <div className={`w-[80px] min-w-[80px] text-sm text-stone-600 ${cellClass}`}>{index + 1}</div>
                                 
-                                <div className={`w-[256px] min-w-[256px] text-base font-bold text-stone-800 ${cellClass} justify-start`}>
-                                    {getEventName(score.event)}
-                                </div>
-                                
-                                <div className={`w-[224px] min-w-[224px] ${cellClass}`}>
-                                    <span className="px-2.5 py-0.5 inline-flex text-sm font-bold rounded-sm bg-stone-200 text-stone-800 border border-stone-300">
+                                <div className={`w-[300px] min-w-[300px] ${cellClass}`}>
+                                    <span className="px-3 py-1 inline-flex text-lg font-bold rounded-sm bg-stone-200 text-stone-800 border border-stone-300">
                                         {score.house}
                                     </span>
                                 </div>
                                 
-                                <div className={`w-[440px] min-w-[440px] text-sm text-stone-700 ${cellClass} justify-start italic text-wrap`}>
-                                    "{score.reason || 'Not specified'}"
+                                <div className={`w-[600px] min-w-[600px] text-base text-stone-700 ${cellClass} justify-start italic text-wrap`}>
+                                    "{score.reason || 'General House Penalty'}"
                                 </div>
 
                                 <div className={`w-[160px] min-w-[160px] text-2xl font-extrabold text-desi-maroon ${cellClass}`}>{score.points}</div>
@@ -122,18 +119,16 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
                                 <span className="text-2xl font-extrabold text-desi-maroon">{score.points} pts</span>
                             </div>
                         </div>
-                        <div>
-                             <div className="text-xs font-bold text-stone-500 uppercase">Event</div>
-                             <div className="text-lg font-bold text-stone-800">{getEventName(score.event)}</div>
-                        </div>
+                        
                         <div>
                              <div className="text-xs font-bold text-stone-500 uppercase">House</div>
-                             <span className="font-bold text-stone-800">{score.house}</span>
+                             <span className="font-bold text-xl text-stone-800">{score.house}</span>
                         </div>
+                        
                         <div>
                              <div className="text-xs font-bold text-stone-500 uppercase">Reason</div>
-                             <div className="text-sm text-stone-700 italic bg-red-50 p-3 rounded border border-red-200">
-                                "{score.reason || 'Not specified'}"
+                             <div className="text-sm text-stone-700 italic bg-red-50 p-3 rounded border border-red-200 mt-1">
+                                "{score.reason || 'General House Penalty'}"
                              </div>
                         </div>
                     </div>
