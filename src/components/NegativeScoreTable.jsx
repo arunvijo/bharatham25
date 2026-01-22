@@ -68,12 +68,6 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
             {/* Desktop Table */}
             <div className="hidden lg:block bg-white overflow-hidden mx-auto">
                 <div className="overflow-x-auto">
-                    <div className="flex border-b-[3px] border-stone-900 bg-red-50 min-w-[1241px]">
-                        <div className="w-[80px] min-w-[80px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">NO.</div>
-                        <div className="w-[256px] min-w-[256px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">EVENTS</div>
-                        <div className="w-[224px] min-w-[224px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">HOUSE</div>
-                        <div className="w-[440px] min-w-[440px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">REASON</div>
-                        <div className="w-[160px] min-w-[160px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">POINTS</div>
                     {/* Header Row - UPDATED COLUMNS */}
                     <div className="flex border-b-[3px] border-stone-900 bg-red-50 min-w-[1000px]">
                         <div className="w-[80px] min-w-[80px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">NO.</div>
