@@ -20,7 +20,7 @@ const CreateScore = () => {
   // --- STATE MANAGEMENT ---
   const [loading, setLoading] = useState(false);
   const [eventList, setEventList] = useState([]);
-  const [registrationList, setRegistrationList] = useState([]); // Now loaded dynamically
+  const [registrationList, setRegistrationList] = useState([]); 
   
   // Selection State
   const [selectedEventId, setSelectedEventId] = useState("");
@@ -119,7 +119,13 @@ const CreateScore = () => {
     const selectedReg = registrationList.find((r) => r._id === registrationId);
     if (!selectedReg) return;
 
-    // Construct Payload matching new Backend Logic
+    // --- FIX: Safe Data Extraction for Groups/Teams ---
+    const firstPart = selectedReg.participants?.[0];
+    // Fallback if participant list is empty (rare but possible)
+    const safeUid = firstPart?.uid || `TEAM-${selectedReg.house.toUpperCase()}`;
+    const safeName = firstPart?.fullName || `${selectedReg.house} Team`;
+
+    // Construct Payload
     const data = {
       event: {
         id: selectedEventObj._id,
@@ -127,15 +133,15 @@ const CreateScore = () => {
         type: selectedEventObj.participation
       },
       house: selectedReg.house,
-      registrationId: selectedReg._id, // Send ID linkage
-      registration: selectedReg,       // Keep full object for legacy support if needed
+      registrationId: selectedReg._id, 
+      registration: selectedReg,       
       position,
       points: parseInt(points),
       reason: isPenalty ? reason : "",
-      // Add Participant details for Duplicate Check
+      // Use the safe values here to prevent 400 Bad Request
       participant: {
-        uid: selectedReg.participants[0]?.uid,
-        name: selectedReg.participants[0]?.fullName
+        uid: safeUid,
+        name: safeName
       }
     };
 
@@ -200,7 +206,7 @@ const CreateScore = () => {
 
           <div className="space-y-6">
             
-            {/* 1. Event Selection (Optimized to use ID) */}
+            {/* 1. Event Selection */}
             <div>
               <label className="block text-xs font-bold text-stone-500 uppercase mb-1.5 flex items-center gap-1.5">
                 <MdEvent className="text-desi-saffron" /> Select Event
@@ -231,11 +237,8 @@ const CreateScore = () => {
                         <option value="">-- Choose Registration --</option>
                         {registrationList.map((r) => (
                         <option key={r._id} value={r._id}>
-                            {/* Smart Display: Show Student Name for Individual, House for Group */}
-                            {selectedEventObj?.participation === "Individual"
-                                ? `${r.participants[0]?.fullName || "Student"} (${r.house})`
-                                : `${r.house} House Team`
-                            }
+                            {/* FIX: Always show names to distinguish multiple teams from same house */}
+                            {r.house} — {r.participants.map(p => p.fullName).join(", ")}
                         </option>
                         ))}
                     </select>

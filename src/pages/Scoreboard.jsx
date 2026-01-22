@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { MdEmojiEvents, MdScore, MdWarning } from "react-icons/md";
+import { MdEmojiEvents, MdScore, MdWarning, MdRefresh } from "react-icons/md";
 
 // Components
 import { Pointer } from "../components/Pointer";
@@ -33,6 +33,7 @@ const Scoreboard = () => {
     const [leaderboard, setLeaderboard] = useState([]); // For the Chart
     const [recentScores, setRecentScores] = useState([]); // For the Tables
     const [loading, setLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false); // State for manual refresh button
     
     const navigate = useNavigate();
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5555";
@@ -40,10 +41,14 @@ const Scoreboard = () => {
     // --- OPTIMIZED DATA FETCHING STRATEGY ---
     const fetchScoreData = async () => {
         try {
+            // FIX: CACHE BUSTING
+            // Adding a timestamp query param forces the browser to fetch fresh data
+            const timestamp = Date.now();
+
             // Parallel Fetch: Get aggregated Leaderboard AND detailed History simultaneously
             const [leaderboardRes, historyRes] = await Promise.all([
-                axios.get(`${apiUrl}/score/leaderboard`), // Returns pre-calculated totals
-                axios.get(`${apiUrl}/score/`)             // Returns full list for tables
+                axios.get(`${apiUrl}/score/leaderboard?t=${timestamp}`), // Returns pre-calculated totals
+                axios.get(`${apiUrl}/score/?t=${timestamp}`)             // Returns full list for tables
             ]);
 
             // 1. Process Leaderboard Data for Chart
@@ -58,12 +63,22 @@ const Scoreboard = () => {
 
             setLeaderboard(formattedLeaderboard);
             setRecentScores(historyData);
-            setLoading(false); // Stop loading spinner after first fetch
+            
+            // Only stop main loading on the very first load
+            setLoading(false); 
 
         } catch (error) {
             console.error("Error fetching live scores:", error);
             setLoading(false);
         }
+    };
+
+    // Manual Refresh Handler
+    const handleManualRefresh = async () => {
+        setIsRefreshing(true);
+        await fetchScoreData();
+        // Small timeout to ensure the user sees the spin interaction
+        setTimeout(() => setIsRefreshing(false), 800);
     };
 
     useEffect(() => {
@@ -146,29 +161,25 @@ const handleViewWinners = () => {
                         >
                             Scoreboard
                         </h1>
-                        <p className="font-mont font-semibold tracking-widest mt-2 animate-pulse text-sm">
-                            LIVE UPDATES ENABLED (AUTO-REFRESH)
-                        </p>
-
-                        {/* View Winners Button */}
-                        {/* <div className="mt-6">
-                            <button
-                                onClick={handleViewWinners}
-                                className="group relative"
+                        
+                        <div className="flex items-center justify-center gap-3 mt-4">
+                            <p className="text-stone-500 font-bold tracking-widest text-sm animate-pulse">
+                                LIVE UPDATES ENABLED
+                            </p>
+                            
+                            {/* Manual Refresh Button */}
+                            <button 
+                                onClick={handleManualRefresh}
+                                disabled={isRefreshing}
+                                className="p-2 rounded-full hover:bg-black/5 transition-all text-stone-500 hover:text-stone-800 active:scale-95"
+                                title="Force Refresh Data"
                             >
-                                <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-xl" style={{ backgroundColor: '#000' }} />
-                                <Pointer>
-                                                      <div className="text-2xl">👆</div>
-                                                    </Pointer>
-                                <div className="relative px-8 py-4 rounded-xl border-4 border-stone-900 transform transition-all duration-300 group-hover:translate-x-2 group-hover:translate-y-2 group-hover:shadow-none shadow-lg flex items-center gap-3" style={{ backgroundColor: '#cb1760' }}>
-                                                    
-                                    <MdEmojiEvents className="text-white text-3xl" />
-                                    <span className="text-xl md:text-2xl font-mont font-semibold text-white tracking-wider">
-                                        VIEW WINNERS
-                                    </span>
-                                </div>
+                                <MdRefresh 
+                                    size={24} 
+                                    className={`transition-transform duration-700 ${isRefreshing ? 'animate-spin text-desi-saffron' : ''}`} 
+                                />
                             </button>
-                        </div> */}
+                        </div>
                     </header>
 
                     {/* --- 1. Leaderboard Chart Section --- */}
@@ -216,10 +227,9 @@ const handleViewWinners = () => {
                         </div>
                     </section>
 
-                    {/* --- 3. Negative Scores Section --- */}
-                    <section className="pt-8 space-y-6">
+                    {/* --- 3. Negative Scores Section (COMMENTED OUT) --- */}
+                    {/* <section className="pt-8 space-y-6">
                         <div className="text-center relative pt-10 pb-5">
-                            {/* Title with Scrollwork Decoration */}
                             <div className="text-4xl font-extrabold text-stone-900 inline-block p-2">
                                 <div className="absolute left-0 right-1/2 top-[100px] border-t-2 border-black hidden md:block" style={{ marginRight: '240px' }}></div>
                                 <div className="absolute left-1/2 right-0 top-[100px] border-t-2 border-black hidden md:block" style={{ marginLeft: '240px' }}></div>
@@ -232,18 +242,16 @@ const handleViewWinners = () => {
                             </div>
                         </div>
                         
-                        {/* Table Container */}
                         <div className="w-full mx-auto relative">
-                            {/* Background Shadow */}
                             <div className="w-full h-full absolute bg-stone-900 translate-x-2 translate-y-2" />
                             
-                            {/* Main White Bordered Table */}
                             <div className="w-full bg-white border-[3px] border-stone-900 relative overflow-hidden">
                                 <NegativeScoreTable scores={negativeScores} />
                             </div>
                         </div>
                     </section>
-                    
+                    */}
+
                 </main>
                 
             </div>

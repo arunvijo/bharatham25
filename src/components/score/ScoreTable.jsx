@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AiOutlineEdit } from "react-icons/ai";
 import { 
@@ -6,22 +6,27 @@ import {
   MdOutlineDelete, 
   MdOutlineInfo, 
   MdSearch,
-  MdScore 
+  MdScore,
+  MdChevronLeft,
+  MdChevronRight,
+  MdFirstPage,
+  MdLastPage
 } from "react-icons/md";
+// Adjusted import path to match standard structure (src/components/score/ -> src/ExportToExcel)
 import { ExportToExcel } from "../../../ExportToExcel";
 
 const ScoreTable = ({ scores, admin = false }) => {
   const [filter, setFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // --- HELPER 1: Safe Event Name Access ---
-  // Handles both new (Object) and old (String) data formats
   const getEventName = (event) => {
     if (!event) return "";
     return typeof event === "string" ? event : event.name || "";
   };
 
   // --- HELPER 2: Safe Participant Access ---
-  // Handles new direct participant data or old registration links
   const getParticipants = (score) => {
     if (score.participant && score.participant.name) {
         return [{ _id: score.participant.uid, fullName: score.participant.name }];
@@ -29,18 +34,55 @@ const ScoreTable = ({ scores, admin = false }) => {
     return score.registration?.participants || [];
   };
 
-  const filteredScores = scores.filter((score) => {
-    const eventName = getEventName(score.event).toLowerCase();
-    const houseName = (score.house || "").toLowerCase();
-    const positionName = (score.position || "").toLowerCase();
-    const search = filter.toLowerCase();
+  // --- HELPER 3: Position Rank for Sorting ---
+  const getPositionRank = (pos) => {
+    const p = (pos || "").toLowerCase();
+    if (p.includes("1") || p.includes("first")) return 1;
+    if (p.includes("2") || p.includes("second")) return 2;
+    if (p.includes("3") || p.includes("third")) return 3;
+    return 4; // Other/Negative
+  };
 
-    return (
-      eventName.includes(search) ||
-      houseName.includes(search) ||
-      positionName.includes(search)
-    );
-  });
+  // --- DATA PROCESSING: Filter -> Sort -> Pagination ---
+  const processedData = useMemo(() => {
+    // 1. FILTER
+    const filtered = scores.filter((score) => {
+      const eventName = getEventName(score.event).toLowerCase();
+      const houseName = (score.house || "").toLowerCase();
+      const positionName = (score.position || "").toLowerCase();
+      const search = filter.toLowerCase();
+
+      return (
+        eventName.includes(search) ||
+        houseName.includes(search) ||
+        positionName.includes(search)
+      );
+    });
+
+    // 2. SORT (Group by Event, then by Position)
+    return filtered.sort((a, b) => {
+      // Primary Sort: Event Name (A-Z)
+      const eventNameA = getEventName(a.event).toLowerCase();
+      const eventNameB = getEventName(b.event).toLowerCase();
+      if (eventNameA < eventNameB) return -1;
+      if (eventNameA > eventNameB) return 1;
+
+      // Secondary Sort: Position (1st -> 2nd -> 3rd)
+      return getPositionRank(a.position) - getPositionRank(b.position);
+    });
+  }, [scores, filter]);
+
+  // 3. PAGINATION SLICE
+  const totalPages = Math.ceil(processedData.length / itemsPerPage);
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return processedData.slice(startIndex, startIndex + itemsPerPage);
+  }, [processedData, currentPage, itemsPerPage]);
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, itemsPerPage]);
 
   // Helper for Position Badges
   const getPositionStyle = (pos) => {
@@ -58,11 +100,11 @@ const ScoreTable = ({ scores, admin = false }) => {
         <div className="flex items-center gap-4">
             <h3 className="text-2xl font-bold text-black font-reality tracking-wide flex items-center gap-2">
               <MdScore className="text-desi-saffron" />
-              Scores <span className="text-stone-400 text-base font-sans font-normal">({filteredScores?.length})</span>
+              Scores <span className="text-stone-400 text-base font-sans font-normal">({processedData.length})</span>
             </h3>
             {admin && (
               <div className="opacity-80 hover:opacity-100 transition-opacity">
-                  <ExportToExcel apiData={scores} fileName={"scores"} />
+                  <ExportToExcel apiData={processedData} fileName={"scores_grouped"} />
               </div>
             )}
         </div>
@@ -103,11 +145,13 @@ const ScoreTable = ({ scores, admin = false }) => {
                 </tr>
             </thead>
             <tbody className="bg-white divide-y divide-stone-200">
-                {filteredScores
+                {paginatedData
                   .filter((s) => s.position !== "Negative")
                   .map((score, index) => (
                 <tr key={score._id} className="hover:bg-orange-50/30 transition-colors group">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-400">{index + 1}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-stone-400">
+                        {((currentPage - 1) * itemsPerPage) + index + 1}
+                    </td>
                     
                     {/* Event Name Safe Render */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-stone-800">
@@ -155,6 +199,65 @@ const ScoreTable = ({ scores, admin = false }) => {
             </tbody>
             </table>
         </div>
+
+        {/* Pagination Footer */}
+        {processedData.length > 0 && (
+          <div className="px-6 py-4 bg-stone-50 border-t border-stone-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="text-sm text-stone-500">
+              Showing <span className="font-bold text-stone-800">{((currentPage - 1) * itemsPerPage) + 1}</span> to <span className="font-bold text-stone-800">{Math.min(currentPage * itemsPerPage, processedData.length)}</span> of <span className="font-bold text-stone-800">{processedData.length}</span> entries
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <select 
+                value={itemsPerPage} 
+                onChange={(e) => setItemsPerPage(Number(e.target.value))} 
+                className="bg-white border border-stone-200 text-stone-600 text-xs rounded-lg px-2 py-1 outline-none mr-4"
+              >
+                {[10, 20, 50, 100].map(v => <option key={v} value={v}>{v} per page</option>)}
+              </select>
+
+              <button 
+                onClick={() => setCurrentPage(1)} 
+                disabled={currentPage === 1} 
+                className="p-1 rounded-md hover:bg-stone-200 disabled:opacity-30 transition-colors"
+              >
+                <MdFirstPage size={20} />
+              </button>
+              <button 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+                disabled={currentPage === 1} 
+                className="p-1 rounded-md hover:bg-stone-200 disabled:opacity-30 transition-colors"
+              >
+                <MdChevronLeft size={20} />
+              </button>
+              
+              <span className="text-sm font-medium text-stone-600 px-2">
+                Page {currentPage} of {totalPages || 1}
+              </span>
+              
+              <button 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+                disabled={currentPage === totalPages} 
+                className="p-1 rounded-md hover:bg-stone-200 disabled:opacity-30 transition-colors"
+              >
+                <MdChevronRight size={20} />
+              </button>
+              <button 
+                onClick={() => setCurrentPage(totalPages)} 
+                disabled={currentPage === totalPages} 
+                className="p-1 rounded-md hover:bg-stone-200 disabled:opacity-30 transition-colors"
+              >
+                <MdLastPage size={20} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {processedData.length === 0 && (
+            <div className="p-12 text-center text-stone-400">
+                <p>No scores found matching your criteria.</p>
+            </div>
+        )}
       </div>
     </div>
   );
