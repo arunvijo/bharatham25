@@ -10,7 +10,7 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-// Register ChartJS components (Crucial for Chart.js to work)
+// Register ChartJS components
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -19,14 +19,6 @@ ChartJS.register(
     Tooltip,
     Legend
 );
-
-const HOUSE_COLORS = {
-    Mughals: "rgba(205, 105, 50, 0.9)",
-    Aryans: "rgba(215, 185, 75, 0.9)",
-    Vikings: "rgba(90, 190, 105, 0.9)",
-    Spartans: "rgba(200, 70, 65, 0.9)",
-    Rajputs: "rgba(70, 140, 165, 0.9)",
-};
 
 const HOUSE_GRADIENTS = {
     Mughals: { start: "rgba(188, 80, 18, 1)", end: "rgba(114, 39, 14, 0.9)" },
@@ -45,12 +37,51 @@ const HOUSE_PATTERN_TINTS = {
 };
 
 const ScoreboardChart = ({ scores = [] }) => {
+    // --- 1. DEFINE ALL HOOKS FIRST (Prevents Render Error) ---
     const chartRef = React.useRef(null);
     const patternImage = React.useRef(null);
     const mascotImages = React.useRef({});
-    const [imageLoaded, setImageLoaded] = React.useState(false);
-    const [mascotsLoaded, setMascotsLoaded] = React.useState(false);
     
+    // Track loading state to trigger re-renders once images are ready
+    const [assetsLoaded, setAssetsLoaded] = React.useState(false);
+
+    // --- 2. DATA PROCESSING ---
+    // SORTING: Largest on Left (Descending: b - a)
+    const sortedScores = React.useMemo(() => {
+        if (!scores || !Array.isArray(scores)) return [];
+        return [...scores].sort((a, b) => b.points - a.points);
+    }, [scores]);
+
+    // --- 3. IMAGE LOADING EFFECTS ---
+    React.useEffect(() => {
+        let loadedCount = 0;
+        const totalImages = 6; // 1 pattern + 5 mascots
+
+        const checkDone = () => {
+            loadedCount++;
+            if (loadedCount === totalImages) setAssetsLoaded(true);
+        };
+
+        // Load Pattern
+        const pImg = new Image();
+        pImg.onload = () => { patternImage.current = pImg; checkDone(); };
+        pImg.onerror = () => { checkDone(); }; // Proceed even if error
+        pImg.src = '/images/pattern.png';
+
+        // Load Mascots
+        const houses = ['Mughals', 'Aryans', 'Vikings', 'Spartans', 'Rajputs'];
+        houses.forEach(house => {
+            const mImg = new Image();
+            mImg.onload = () => { 
+                mascotImages.current[house] = mImg; 
+                checkDone(); 
+            };
+            mImg.onerror = () => { checkDone(); };
+            mImg.src = `/images/${house.toLowerCase()}_mascot.png`;
+        });
+    }, []);
+
+    // --- 4. CONDITIONAL RETURN (After Hooks) ---
     if (!scores || !Array.isArray(scores) || scores.length === 0) {
         return (
             <div className="text-center p-4 text-stone-600 font-['Montserrat']">
@@ -58,170 +89,108 @@ const ScoreboardChart = ({ scores = [] }) => {
             </div>
         );
     }
-    
-    const sortedScores = [...scores].sort((a, b) => b.points - a.points);
-
-    // Load pattern image
-    React.useEffect(() => {
-        const img = new Image();
-        img.onload = () => {
-            patternImage.current = img;
-            setImageLoaded(true);
-        };
-        img.onerror = () => {
-            console.error('Failed to load pattern.png');
-            setImageLoaded(true); // Continue without pattern
-        };
-        img.src = '/images/pattern.png';
-    }, []);
-
-    // Load mascot images for each house
-    React.useEffect(() => {
-        const houses = ['Mughals', 'Aryans', 'Vikings', 'Spartans', 'Rajputs'];
-        let loadedCount = 0;
-        
-        houses.forEach(house => {
-            const img = new Image();
-            img.onload = () => {
-                mascotImages.current[house] = img;
-                loadedCount++;
-                if (loadedCount === houses.length) {
-                    setMascotsLoaded(true);
-                }
-            };
-            img.onerror = () => {
-                console.error(`Failed to load ${house.toLowerCase()}_mascot.png`);
-                loadedCount++;
-                if (loadedCount === houses.length) {
-                    setMascotsLoaded(true);
-                }
-            };
-            img.src = `/images/${house.toLowerCase()}_mascot.png`;
-        });
-    }, []);
 
     const labels = sortedScores.map((house) => house.name);
     const dataPoints = sortedScores.map((house) => house.points);
 
     const maxScore = Math.max(...dataPoints, 0);
-    const yAxisMax = Math.max(100, maxScore * 1.1);
+    const yAxisMax = Math.max(100, maxScore * 1.15); // Headroom for mascots
     const stepSize = yAxisMax > 500 ? Math.round(yAxisMax / 5) : 50;
 
-    // Custom plugin to draw pattern overlay on bars
+    // --- 5. ANIMATION PLUGIN ---
     const patternOverlayPlugin = {
         id: 'patternOverlay',
-        beforeDatasetsDraw: (chart) => {
-            // Draw mascots before bars so we can calculate needed space
-            const ctx = chart.ctx;
-            const meta = chart.getDatasetMeta(0);
-            
-            meta.data.forEach((bar, index) => {
-                const { x, y, width } = bar.getProps(['x', 'y', 'width'], true);
-                const barWidth = width * 0.7;
-                
-                const houseName = sortedScores[index].name;
-                const mascotImg = mascotImages.current[houseName];
-                
-                if (mascotImg) {
-                    const maxMascotWidth = barWidth * 1.1;
-                    const mascotAspectRatio = mascotImg.width / mascotImg.height;
-                    let mascotWidth = maxMascotWidth;
-                    let mascotHeight = mascotWidth / mascotAspectRatio;
-                    
-                    const mascotGap = 10;
-                    const offsetRight = 15; // Offset to the right
-                    const mascotX = (x - barWidth / 2) + (barWidth - mascotWidth) / 2 + offsetRight;
-                    const mascotY = y - mascotHeight - mascotGap;
-                    
-                    ctx.save();
-                    ctx.drawImage(mascotImg, mascotX, mascotY, mascotWidth, mascotHeight);
-                    ctx.restore();
-                }
-            });
-        },
         afterDatasetsDraw: (chart) => {
             const ctx = chart.ctx;
             const meta = chart.getDatasetMeta(0);
             
             meta.data.forEach((bar, index) => {
-                const { x, y, width, height, base } = bar.getProps(['x', 'y', 'width', 'height', 'base'], true);
+                // KEY FIX FOR SMOOTH ANIMATION:
+                // Use getProps(..., false) to get the INTERMEDIATE values during animation frames.
+                // This makes the pattern/mascot grow WITH the bar.
+                const { x, y, width, height, base } = bar.getProps(['x', 'y', 'width', 'height', 'base'], false);
                 
-                // Reduce bar width by 30%
                 const barWidth = width * 0.7;
                 const barX = x - barWidth / 2;
                 const barHeight = base - y;
                 
-                // Get house name for this bar
                 const houseName = sortedScores[index].name;
-                const gradientColors = HOUSE_GRADIENTS[houseName] || { 
-                    start: 'rgba(128, 128, 128, 1)', 
-                    end: 'rgba(100, 100, 100, 0.9)' 
-                };
+                const gradientColors = HOUSE_GRADIENTS[houseName] || { start: '#888', end: '#666' };
                 
-                // Create radial gradient background (from center to edges)
-                const centerX = x; // Center of the bar
-                const centerY = y + barHeight / 2; // Middle height of the bar
-                const radius = Math.max(barWidth, barHeight) / 1.5; // Gradient radius
+                // A. Draw Gradient Background
+                const centerX = x; 
+                const centerY = y + barHeight / 2; 
+                const radius = Math.max(barWidth, barHeight) / 1.5; 
                 
-                const gradient = ctx.createRadialGradient(
-                    centerX, centerY, 0,           // Inner circle (center point, radius 0)
-                    centerX, centerY, radius       // Outer circle (center point, calculated radius)
-                );
-                gradient.addColorStop(0, gradientColors.start);    // Center color (lighter)
-                gradient.addColorStop(1, gradientColors.end);      // Edge color (darker)
+                const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+                gradient.addColorStop(0, gradientColors.start);    
+                gradient.addColorStop(1, gradientColors.end);      
                 
-                // Draw gradient background
                 ctx.fillStyle = gradient;
                 ctx.fillRect(barX, y, barWidth, barHeight);
                 
-                // Draw border first (below pattern)
+                // B. Draw Border
                 ctx.strokeStyle = 'rgb(0, 0, 0)';
                 ctx.lineWidth = 2;
                 ctx.strokeRect(barX, y, barWidth, barHeight);
                 
-                // Draw pattern overlay on top of everything
+                // C. Draw Pattern Overlay
                 if (patternImage.current) {
                     ctx.save();
-                    
-                    // Calculate pattern dimensions to maintain aspect ratio
+                    // Scale pattern to fit bar
                     const patternAspectRatio = patternImage.current.width / patternImage.current.height;
                     let patternWidth = patternImage.current.width;
                     let patternHeight = patternImage.current.height;
                     
-                    // Scale pattern to fit bar height while maintaining aspect ratio
                     if (patternHeight > barHeight) {
                         patternHeight = barHeight;
                         patternWidth = patternHeight * patternAspectRatio;
                     }
                     
-                    // Center the pattern horizontally and vertically
                     const patternX = barX + (barWidth - patternWidth) / 2;
                     const patternY = y + (barHeight - patternHeight) / 2;
                     
-                    // Create a temporary canvas to tint the pattern
+                    // Create temp canvas for tinting
                     const tempCanvas = document.createElement('canvas');
                     tempCanvas.width = patternWidth;
                     tempCanvas.height = patternHeight;
                     const tempCtx = tempCanvas.getContext('2d');
                     
-                    // Draw the pattern on temp canvas at original quality
-                    tempCtx.drawImage(
-                        patternImage.current,
-                        0, 0,
-                        patternWidth,
-                        patternHeight
-                    );
-                    
-                    // Apply tint color using globalCompositeOperation
+                    tempCtx.drawImage(patternImage.current, 0, 0, patternWidth, patternHeight);
                     const tintColor = HOUSE_PATTERN_TINTS[houseName] || 'rgba(255, 255, 255, 0.3)';
                     tempCtx.globalCompositeOperation = 'source-atop';
                     tempCtx.fillStyle = tintColor;
                     tempCtx.fillRect(0, 0, patternWidth, patternHeight);
                     
-                    // Draw the tinted pattern onto the main canvas (centered)
-                    ctx.globalAlpha = 0.6; // Pattern opacity
-                    ctx.drawImage(tempCanvas, patternX, patternY);
+                    // Clip to bar area so pattern doesn't bleed
+                    ctx.globalAlpha = 0.5;
+                    ctx.beginPath();
+                    ctx.rect(barX, y, barWidth, barHeight);
+                    ctx.clip();
                     
+                    ctx.drawImage(tempCanvas, patternX, patternY);
+                    ctx.restore();
+                }
+
+                // D. Draw Mascot (Floating on Top)
+                const mascotImg = mascotImages.current[houseName];
+                if (mascotImg) {
+                    const maxMascotWidth = barWidth * 1.4;
+                    const mascotAspectRatio = mascotImg.width / mascotImg.height;
+                    let mascotWidth = maxMascotWidth;
+                    let mascotHeight = mascotWidth / mascotAspectRatio;
+                    
+                    const mascotGap = 5;
+                    const mascotX = x - (mascotWidth / 2); 
+                    const mascotY = y - mascotHeight - mascotGap; 
+                    
+                    ctx.save();
+                    // Add subtle shadow to pop mascot from background
+                    ctx.shadowColor = "rgba(0,0,0,0.3)";
+                    ctx.shadowBlur = 8;
+                    ctx.shadowOffsetY = 4;
+                    
+                    ctx.drawImage(mascotImg, mascotX, mascotY, mascotWidth, mascotHeight);
                     ctx.restore();
                 }
             });
@@ -234,7 +203,7 @@ const ScoreboardChart = ({ scores = [] }) => {
             {
                 label: "House Points",
                 data: dataPoints,
-                backgroundColor: 'transparent', // We draw colors in the plugin
+                backgroundColor: 'transparent',
                 borderColor: 'transparent',
                 borderWidth: 0,
                 borderRadius: 6,
@@ -245,18 +214,38 @@ const ScoreboardChart = ({ scores = [] }) => {
     const options = {
         responsive: true,
         maintainAspectRatio: false,
+        // SMOOTH REORDERING ANIMATION CONFIG
+        animation: {
+            duration: 1000, 
+            easing: 'easeInOutQuart', 
+        },
+        transitions: {
+            active: {
+                animation: {
+                    duration: 500
+                }
+            }
+        },
         plugins: {
             legend: { display: false },
             title: { display: false },
             tooltip: {
-                backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                titleColor: 'white',
+                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                titleColor: '#FEE89B',
                 bodyColor: 'white',
-                padding: 10,
+                padding: 12,
+                titleFont: { family: 'Montserrat', size: 14, weight: 'bold' },
+                bodyFont: { family: 'Montserrat', size: 13 },
+                displayColors: false,
+                callbacks: {
+                    label: function(context) {
+                        return `${context.parsed.y} Points`;
+                    }
+                }
             }
         },
         layout: {
-            padding: { top: 120, bottom: 20, left: 10, right: 10 } // Increased top padding significantly for mascots
+            padding: { top: 120, bottom: 20, left: 10, right: 10 }
         },
         scales: {
             y: {
@@ -266,23 +255,19 @@ const ScoreboardChart = ({ scores = [] }) => {
                 ticks: {
                     stepSize: stepSize,
                     color: 'black',
-                    font: { family: 'Montserrat', size: 14, weight: 'normal' },
+                    font: { family: 'Montserrat', size: 12, weight: '600' },
                     padding: 10,
                 },
-                grid: {
-                    color: 'rgba(0, 0, 0, 0.15)',
-                }
+                grid: { color: 'rgba(0, 0, 0, 0.1)', lineWidth: 1 }
             },
             x: {
                 border: { color: 'black', width: 3 },
                 ticks: {
                     color: 'black',
-                    font: { family: 'Montserrat', size: 14, weight: 'normal' },
+                    font: { family: 'Montserrat', size: 13, weight: 'bold' },
                     padding: 10,
                 },
-                grid: {
-                    display: false,
-                },
+                grid: { display: false },
             },
         },
     };

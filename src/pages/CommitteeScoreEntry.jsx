@@ -5,9 +5,9 @@ import {
   MdEmojiEvents, 
   MdEvent, 
   MdGroups, 
-  MdWarning,
-  MdLock,
-  MdCheckCircle,
+  MdWarning, 
+  MdLock, 
+  MdCheckCircle, 
   MdHistory
 } from "react-icons/md";
 import Spinner from "../components/Spinner";
@@ -77,9 +77,13 @@ const CommitteeScoreEntry = () => {
     setLoading(true);
     try {
         const res = await axios.get(`${apiUrl}/registration/by-event/${eventId}`);
+        if(res.data.data.length === 0) {
+            enqueueSnackbar("No registrations found", { variant: "info" });
+        }
         setRegistrationList(res.data.data);
     } catch (error) {
         console.error(error);
+        enqueueSnackbar("Error fetching participants", { variant: "error" });
     } finally {
         setLoading(false);
     }
@@ -95,6 +99,7 @@ const CommitteeScoreEntry = () => {
 
   // --- 5. SUBMIT (FAST ENTRY MODE) ---
   const handleSaveScore = () => {
+    // 1. Basic Validation
     if (!selectedEventId || !registrationId || !position || points === "") {
         enqueueSnackbar("Missing fields", { variant: "warning" });
         return;
@@ -103,25 +108,28 @@ const CommitteeScoreEntry = () => {
     const selectedReg = registrationList.find((r) => r._id === registrationId);
     if (!selectedReg) return;
 
-    const participantName = selectedEventObj.participation === "Individual" 
-        ? selectedReg.participants[0]?.fullName 
-        : `${selectedReg.house} Team`;
+    // 2. Safe Participant Data Extraction (Fixes the 400 Error)
+    // Use first participant for ID linkage, or fallback for pure House teams
+    const firstParticipant = selectedReg.participants && selectedReg.participants[0];
+    const safeParticipantUid = firstParticipant?.uid || `TEAM-${selectedReg.house.toUpperCase()}`;
+    const safeParticipantName = firstParticipant?.fullName || `${selectedReg.house} Team`;
 
+    // 3. Construct Payload
     const data = {
       event: {
         id: selectedEventObj._id,
         name: selectedEventObj.name,
-        type: selectedEventObj.participation
+        type: selectedEventObj.participation || "Group" 
       },
       house: selectedReg.house,
       registrationId: selectedReg._id, 
       registration: selectedReg,       
       position,
-      points: parseInt(points),
+      points: parseInt(points), // Ensure it's a number
       reason: isPenalty ? reason : "",
       participant: {
-        uid: selectedReg.participants[0]?.uid,
-        name: selectedReg.participants[0]?.fullName
+        uid: safeParticipantUid,
+        name: safeParticipantName
       }
     };
 
@@ -129,19 +137,18 @@ const CommitteeScoreEntry = () => {
     axios.post(`${apiUrl}/score/`, data)
       .then(() => {
         setLoading(false);
-        enqueueSnackbar("Score Saved!", { variant: "success" });
+        enqueueSnackbar(isPenalty ? "Penalty Applied" : "Score Saved!", { variant: "success" });
 
-        // Add to local session history (Visual confirmation)
+        // Update Session History
         setSessionHistory(prev => [{
             id: Date.now(),
             event: selectedEventObj.name,
-            winner: participantName,
+            winner: safeParticipantName,
             position: position,
             time: new Date().toLocaleTimeString()
         }, ...prev]);
 
-        // RESET FORM (But keep Event selected for speed if needed, or reset all?)
-        // Strategy: Reset Winner/Position but keep Event (usually entering multiple for same event)
+        // Reset Form for Next Entry
         setRegistrationId("");
         setPosition("");
         setPoints(0);
@@ -150,7 +157,9 @@ const CommitteeScoreEntry = () => {
       })
       .catch((error) => {
         setLoading(false);
-        enqueueSnackbar("Error saving score", { variant: "error" });
+        console.error("Server Error:", error.response?.data);
+        const msg = error.response?.data?.message || "Error saving score";
+        enqueueSnackbar(msg, { variant: "error" });
       });
   };
 
@@ -176,6 +185,7 @@ const CommitteeScoreEntry = () => {
     );
   }
 
+  // --- VIEW: SCORE ENTRY FORM ---
   return (
     <div className="min-h-screen bg-stone-100 pb-12 font-sans">
        {/* Header */}
@@ -204,7 +214,7 @@ const CommitteeScoreEntry = () => {
                     </select>
                 </div>
 
-                {/* Winner Select */}
+                {/* Winner Select (Updated to Show Names) */}
                 {selectedEventId && (
                     <div className="mb-6 animate-fade-in">
                     <label className="text-xs font-bold text-stone-400 uppercase mb-2 block flex items-center gap-2">
@@ -214,12 +224,14 @@ const CommitteeScoreEntry = () => {
                         <option value="">-- Choose Entry --</option>
                         {registrationList.map(r => (
                             <option key={r._id} value={r._id}>
-                            {selectedEventObj?.participation === "Individual" 
-                                ? `${r.participants[0]?.fullName} (${r.house})` 
-                                : `${r.house} House Team`}
+                                {/* Show Names even for Groups to distinguish teams */}
+                                {r.house} — {r.participants.map(p => p.fullName).join(", ")}
                             </option>
                         ))}
                     </select>
+                    <p className="text-xs text-right mt-1 text-stone-400">
+                        {registrationList.length} qualified entries found
+                    </p>
                     </div>
                 )}
 
