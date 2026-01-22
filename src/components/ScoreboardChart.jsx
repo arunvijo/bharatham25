@@ -53,7 +53,7 @@ const ScoreboardChart = ({ scores = [] }) => {
     
     if (!scores || !Array.isArray(scores) || scores.length === 0) {
         return (
-            <div className="text-center p-4 text-stone-600 font-['Montserrat']">
+            <div className="text-center p-4 font-mont_light">
                 No score data available to display the leaderboard.
             </div>
         );
@@ -266,7 +266,7 @@ const ScoreboardChart = ({ scores = [] }) => {
                 ticks: {
                     stepSize: stepSize,
                     color: 'black',
-                    font: { family: 'Montserrat', size: 14, weight: 'normal' },
+                    font: { family: 'Mont', size: 14, weight: 'normal' },
                     padding: 10,
                 },
                 grid: {
@@ -277,7 +277,7 @@ const ScoreboardChart = ({ scores = [] }) => {
                 border: { color: 'black', width: 3 },
                 ticks: {
                     color: 'black',
-                    font: { family: 'Montserrat', size: 14, weight: 'normal' },
+                    font: { family: 'Mont', size: 14, weight: 'normal' },
                     padding: 10,
                 },
                 grid: {
@@ -288,7 +288,7 @@ const ScoreboardChart = ({ scores = [] }) => {
     };
 
     return (
-        <div className="w-full h-full font-['Montserrat'] min-h-[400px]"> 
+        <div className="w-full h-full font-mont min-h-[400px]"> 
             <Bar 
                 ref={chartRef} 
                 options={options} 

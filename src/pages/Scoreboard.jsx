@@ -5,11 +5,11 @@ import axios from "axios";
 import { MdEmojiEvents, MdScore, MdWarning } from "react-icons/md";
 
 // Components
+import { Pointer } from "../components/Pointer";
 import Spinner from "../components/Spinner";
 import ScoreboardChart from "../components/ScoreboardChart";
 import ScoreTable from "../components/ScoreTable";
 import NegativeScoreTable from "../components/NegativeScoreTable";
-import Winner from "../components/Winner";
 import Footer from "../components/Footer";
 
 // Utility component for the repeating vertical floral images
@@ -77,24 +77,10 @@ const Scoreboard = () => {
         return () => clearInterval(intervalId);
     }, [apiUrl]);
 
-    // Calculate winner from leaderboard
-    const getWinner = () => {
-        if (leaderboard.length === 0) return null;
-        
-        // Sort leaderboard by points in descending order
-        const sortedLeaderboard = [...leaderboard].sort((a, b) => b.points - a.points);
-        
-        // Get the winner (highest points)
-        const winner = sortedLeaderboard[0];
-        
-        return {
-            house: winner.name,
-            points: winner.points,
-            rank: 1
-        };
-    };
-
-    const winnerData = getWinner();
+    // Navigate to winners page
+const handleViewWinners = () => {
+    navigate(`/winners?data=${encodeURIComponent(JSON.stringify(leaderboard))}`);
+};
 
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-orange-100"><Spinner /></div>;
 
@@ -160,9 +146,29 @@ const Scoreboard = () => {
                         >
                             Scoreboard
                         </h1>
-                        <p className="text-stone-500 font-bold tracking-widest mt-2 animate-pulse text-sm">
+                        <p className="font-mont font-semibold tracking-widest mt-2 animate-pulse text-sm">
                             LIVE UPDATES ENABLED (AUTO-REFRESH)
                         </p>
+
+                        {/* View Winners Button */}
+                        {/* <div className="mt-6">
+                            <button
+                                onClick={handleViewWinners}
+                                className="group relative"
+                            >
+                                <div className="absolute inset-0 translate-x-2 translate-y-2 rounded-xl" style={{ backgroundColor: '#000' }} />
+                                <Pointer>
+                                                      <div className="text-2xl">👆</div>
+                                                    </Pointer>
+                                <div className="relative px-8 py-4 rounded-xl border-4 border-stone-900 transform transition-all duration-300 group-hover:translate-x-2 group-hover:translate-y-2 group-hover:shadow-none shadow-lg flex items-center gap-3" style={{ backgroundColor: '#cb1760' }}>
+                                                    
+                                    <MdEmojiEvents className="text-white text-3xl" />
+                                    <span className="text-xl md:text-2xl font-mont font-semibold text-white tracking-wider">
+                                        VIEW WINNERS
+                                    </span>
+                                </div>
+                            </button>
+                        </div> */}
                     </header>
 
                     {/* --- 1. Leaderboard Chart Section --- */}
@@ -238,20 +244,9 @@ const Scoreboard = () => {
                         </div>
                     </section>
                     
-
                 </main>
                 
             </div>
-            
-            {/* Winner Component with Dynamic Data */}
-            {/* {winnerData && (
-                <Winner 
-                    winner={winnerData.house}
-                    totalPoints={winnerData.points}
-                    rank={winnerData.rank}
-                />
-            )} */}
-            
             
             <Footer />
         </VerticalPatternBackground>

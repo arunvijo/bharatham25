@@ -26,6 +26,7 @@ export default {
         'qawatone': ["Qawatone", "sans-serif"],
         // Keep these for backward compatibility if needed, but prefer 'heading'/'body'
         'mont': ["Mont", "sans-serif"],
+        'mont_light': ["Mont_light", "sans-serif"],
         'sans': ['Inter', 'system-ui', 'sans-serif'], 
       },
       // ... keep your existing keyframes and animation

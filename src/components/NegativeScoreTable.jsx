@@ -36,11 +36,11 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
     const cellClass = "px-6 py-4 border-r-[3px] border-stone-300 flex items-center justify-center text-center";
 
     return (
-        <div className="space-y-6 font-['Montserrat'] w-full">
+        <div className="space-y-6 w-full">
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-end items-center gap-4 bg-transparent p-5">
                 <div className="flex items-center gap-4">
-                    <h3 className="text-2xl font-bold text-black tracking-wide flex items-center gap-2">
+                    <h3 className="text-2xl font-mont text-black tracking-wide flex items-center gap-2">
                         <MdWarning className="text-desi-maroon" /> 
                         Penalties <span className="text-stone-400 text-base font-normal">({negativeScores.length})</span>
                     </h3>
@@ -59,7 +59,7 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
                             placeholder="Search penalties..."
                             value={filter}
                             onChange={(e) => setFilter(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 bg-white text-black focus:outline-none transition-all text-sm font-['Montserrat']"
+                            className="w-full pl-10 pr-4 py-2 bg-white text-black focus:outline-none transition-all text-sm"
                         />
                     </div>
                 </div>
@@ -69,11 +69,11 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
             <div className="hidden lg:block bg-white overflow-hidden mx-auto">
                 <div className="overflow-x-auto">
                     <div className="flex border-b-[3px] border-stone-900 bg-red-50 min-w-[1241px]">
-                        <div className="w-[80px] min-w-[80px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">NO.</div>
-                        <div className="w-[256px] min-w-[256px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">EVENTS</div>
-                        <div className="w-[224px] min-w-[224px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">HOUSE</div>
-                        <div className="w-[440px] min-w-[440px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">REASON</div>
-                        <div className="w-[160px] min-w-[160px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-bold font-['Montserrat']">POINTS</div>
+                        <div className="w-[80px] min-w-[80px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">NO.</div>
+                        <div className="w-[256px] min-w-[256px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">EVENTS</div>
+                        <div className="w-[224px] min-w-[224px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">HOUSE</div>
+                        <div className="w-[440px] min-w-[440px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">REASON</div>
+                        <div className="w-[160px] min-w-[160px] h-[60px] border-r-[3px] border-stone-900 flex items-center justify-center text-3xl font-mont">POINTS</div>
                         <div className="w-[80px] min-w-[80px] h-[60px]"></div> 
                     </div>
 
@@ -82,12 +82,12 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
                             <div key={score._id} className="flex border-b border-stone-300 hover:bg-red-50/50 transition-colors group min-w-[1241px]">
                                 <div className={`w-[80px] min-w-[80px] text-sm text-stone-600 ${cellClass}`}>{index + 1}</div>
                                 
-                                <div className={`w-[256px] min-w-[256px] text-base font-bold text-stone-800 ${cellClass} justify-start`}>
+                                <div className={`w-[256px] min-w-[256px] text-base font-mont text-stone-800 ${cellClass} justify-start`}>
                                     {getEventName(score.event)}
                                 </div>
                                 
                                 <div className={`w-[224px] min-w-[224px] ${cellClass}`}>
-                                    <span className="px-2.5 py-0.5 inline-flex text-sm font-bold rounded-sm bg-stone-200 text-stone-800 border border-stone-300">
+                                    <span className="px-2.5 py-0.5 inline-flex text-sm font-mont rounded-sm bg-stone-200 text-stone-800 border border-stone-300">
                                         {score.house}
                                     </span>
                                 </div>
@@ -96,7 +96,7 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
                                     "{score.reason || 'Not specified'}"
                                 </div>
 
-                                <div className={`w-[160px] min-w-[160px] text-2xl font-extrabold text-desi-maroon ${cellClass}`}>{score.points}</div>
+                                <div className={`w-[160px] min-w-[160px] text-2xl font-mont text-desi-maroon ${cellClass}`}>{score.points}</div>
 
                                 <div className={`w-[80px] min-w-[80px] ${cellClass}`}>
                                     {isAdminMode && (
@@ -116,22 +116,22 @@ const NegativeScoreTable = ({ scores = [], admin: isAdminMode = false }) => {
                 {negativeScores.map((score, index) => (
                     <div key={score._id} className="bg-white border-[3px] border-stone-900 shadow-[4px_4px_0px_0px_rgba(127,29,29,1)] p-4 space-y-3 border-l-8 border-l-desi-maroon">
                         <div className="flex justify-between items-center border-b-2 border-red-200 pb-2 bg-red-50 -m-4 mb-3 p-4">
-                            <span className="text-sm font-bold text-stone-500">#{index + 1}</span>
+                            <span className="text-sm font-mont text-stone-500">#{index + 1}</span>
                             <div className="flex items-center gap-2">
                                 <MdWarning className="text-red-600" size={20} />
-                                <span className="text-2xl font-extrabold text-desi-maroon">{score.points} pts</span>
+                                <span className="text-2xl font-mont text-desi-maroon">{score.points} pts</span>
                             </div>
                         </div>
                         <div>
-                             <div className="text-xs font-bold text-stone-500 uppercase">Event</div>
-                             <div className="text-lg font-bold text-stone-800">{getEventName(score.event)}</div>
+                             <div className="text-xs font-mont text-stone-500 uppercase">Event</div>
+                             <div className="text-lg font-mont text-stone-800">{getEventName(score.event)}</div>
                         </div>
                         <div>
-                             <div className="text-xs font-bold text-stone-500 uppercase">House</div>
-                             <span className="font-bold text-stone-800">{score.house}</span>
+                             <div className="text-xs font-mont text-stone-500 uppercase">House</div>
+                             <span className="font-mont text-stone-800">{score.house}</span>
                         </div>
                         <div>
-                             <div className="text-xs font-bold text-stone-500 uppercase">Reason</div>
+                             <div className="text-xs font-mont text-stone-500 uppercase">Reason</div>
                              <div className="text-sm text-stone-700 italic bg-red-50 p-3 rounded border border-red-200">
                                 "{score.reason || 'Not specified'}"
                              </div>
