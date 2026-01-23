@@ -71,7 +71,7 @@ const App = () => {
         <Suspense 
           fallback={
             <div className="flex h-screen w-full items-center justify-center bg-black text-white">
-              <div className="text-xl animate-pulse">Loading Bharatham 2025...</div>
+              <div className="text-xl animate-pulse">Loading Bharatham 2026...</div>
             </div>
           }
         >
