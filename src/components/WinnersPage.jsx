@@ -281,6 +281,9 @@ const WinnersPage = () => {
     const [curtainOpen, setCurtainOpen] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
     const [winners, setWinners] = useState([]);
+    const [showRank1, setShowRank1] = useState(false);
+    const [showRank2, setShowRank2] = useState(false);
+    const [showRank3, setShowRank3] = useState(false);
 
  useEffect(() => {
         // Get leaderboard data from URL parameters or localStorage
@@ -311,7 +314,11 @@ const WinnersPage = () => {
 
     const handleReveal = () => {
         setCurtainOpen(true);
-        setTimeout(() => setShowConfetti(true), 1500);
+        // Sequential reveal: Rank 1 → Rank 2 → Rank 3
+        setTimeout(() => setShowRank1(true), 1500);
+        setTimeout(() => setShowRank2(true), 3500);
+        setTimeout(() => setShowRank3(true), 5500);
+        setTimeout(() => setShowConfetti(true), 2000);
     };
 
     const goBack = () => {
@@ -470,7 +477,9 @@ const WinnersPage = () => {
                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-4 items-end justify-items-center max-w-6xl mx-auto px-4">
                                     {/* Rank 2 - Left, lower than 1st */}
                                     {winners[1] && (
-                                    <div className="w-full flex justify-center lg:mt-24 order-2 lg:order-1">
+                                    <div className={`w-full flex justify-center lg:mt-24 order-2 lg:order-1 transition-all duration-700 ${
+                                        showRank2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                                    }`}>
                                         <WinnerCard
                                         winner={winners[1].house}
                                         totalPoints={winners[1].points}
@@ -483,7 +492,9 @@ const WinnersPage = () => {
 
                                     {/* Rank 1 */}
                                     {winners[0] && (
-                                    <div className="w-full flex justify-center order-1 lg:order-2">
+                                    <div className={`w-full flex justify-center order-1 lg:order-2 transition-all duration-700 ${
+                                        showRank1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                                    }`}>
                                         <WinnerCard
                                         winner={winners[0].house}
                                         totalPoints={winners[0].points}
@@ -496,7 +507,9 @@ const WinnersPage = () => {
 
                                     {/* Rank 3 */}
                                     {winners[2] && (
-                                    <div className="w-full flex justify-center lg:mt-40 order-3 lg:order-3">
+                                    <div className={`w-full flex justify-center lg:mt-40 order-3 lg:order-3 transition-all duration-700 ${
+                                        showRank3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+                                    }`}>
                                         <WinnerCard
                                         winner={winners[2].house}
                                         totalPoints={winners[2].points}

@@ -143,7 +143,7 @@ const ScoreboardChart = ({ scores = [] }) => {
                 ctx.strokeRect(barX, y, barWidth, barHeight);
                 
                 // C. Draw Pattern Overlay
-                if (patternImage.current) {
+                if (patternImage.current && barHeight > 0) {
                     ctx.save();
                     const patternAspectRatio = patternImage.current.width / patternImage.current.height;
                     let patternWidth = patternImage.current.width;
@@ -154,26 +154,29 @@ const ScoreboardChart = ({ scores = [] }) => {
                         patternWidth = patternHeight * patternAspectRatio;
                     }
                     
-                    const patternX = barX + (barWidth - patternWidth) / 2;
-                    const patternY = y + (barHeight - patternHeight) / 2;
-                    
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = patternWidth;
-                    tempCanvas.height = patternHeight;
-                    const tempCtx = tempCanvas.getContext('2d');
-                    
-                    tempCtx.drawImage(patternImage.current, 0, 0, patternWidth, patternHeight);
-                    const tintColor = HOUSE_PATTERN_TINTS[houseName] || 'rgba(255, 255, 255, 0.3)';
-                    tempCtx.globalCompositeOperation = 'source-atop';
-                    tempCtx.fillStyle = tintColor;
-                    tempCtx.fillRect(0, 0, patternWidth, patternHeight);
-                    
-                    ctx.globalAlpha = 0.5;
-                    ctx.beginPath();
-                    ctx.rect(barX, y, barWidth, barHeight);
-                    ctx.clip();
-                    
-                    ctx.drawImage(tempCanvas, patternX, patternY);
+                    // Ensure canvas has valid dimensions
+                    if (patternWidth > 0 && patternHeight > 0) {
+                        const patternX = barX + (barWidth - patternWidth) / 2;
+                        const patternY = y + (barHeight - patternHeight) / 2;
+                        
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = Math.max(1, Math.floor(patternWidth));
+                        tempCanvas.height = Math.max(1, Math.floor(patternHeight));
+                        const tempCtx = tempCanvas.getContext('2d');
+                        
+                        tempCtx.drawImage(patternImage.current, 0, 0, tempCanvas.width, tempCanvas.height);
+                        const tintColor = HOUSE_PATTERN_TINTS[houseName] || 'rgba(255, 255, 255, 0.3)';
+                        tempCtx.globalCompositeOperation = 'source-atop';
+                        tempCtx.fillStyle = tintColor;
+                        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                        
+                        ctx.globalAlpha = 0.5;
+                        ctx.beginPath();
+                        ctx.rect(barX, y, barWidth, barHeight);
+                        ctx.clip();
+                        
+                        ctx.drawImage(tempCanvas, patternX, patternY);
+                    }
                     ctx.restore();
                 }
 
@@ -203,10 +206,10 @@ const ScoreboardChart = ({ scores = [] }) => {
                 ctx.textAlign = 'center';
                 
                 if (barHeight > 35) {
-                    // Inside the rectangle (White with shadow)
-                    ctx.fillStyle = '#FFFFFF'; 
+                    // Inside the rectangle (Black with shadow)
+                    ctx.fillStyle = '#000000'; 
                     ctx.textBaseline = 'top';
-                    ctx.shadowColor = "rgba(0,0,0,0.6)"; 
+                    ctx.shadowColor = "rgb(255, 255, 255)"; 
                     ctx.shadowBlur = 4;
                     ctx.shadowOffsetX = 1;
                     ctx.shadowOffsetY = 1;
