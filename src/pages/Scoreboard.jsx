@@ -81,16 +81,24 @@ const Scoreboard = () => {
         setTimeout(() => setIsRefreshing(false), 800);
     };
 
-    useEffect(() => {
-        // 1. Initial Load
-        fetchScoreData();
+useEffect(() => {
+    // 1. Initial Load
+    fetchScoreData();
 
-        // 2. Set up Auto-Refresh (Polling) every 30 seconds
+    // 2. CRITICAL FIX: Delay the polling start by 3 seconds
+    // This gives the chart time to animate on first load
+    const startPollingTimer = setTimeout(() => {
         const intervalId = setInterval(fetchScoreData, 5000);
-
-        // 3. Cleanup on unmount to prevent memory leaks
+        
+        // Store interval ID for cleanup
         return () => clearInterval(intervalId);
-    }, [apiUrl]);
+    }, 3000); // Wait 3 seconds before starting polling
+
+    // 3. Cleanup
+    return () => {
+        clearTimeout(startPollingTimer);
+    };
+}, [apiUrl]);
 
     // Navigate to winners page
 const handleViewWinners = () => {
