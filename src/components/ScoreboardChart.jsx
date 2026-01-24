@@ -86,7 +86,7 @@ const ScoreboardChart = ({ scores = [] }) => {
     // --- 4. CONDITIONAL RETURN ---
     if (!scores || !Array.isArray(scores) || scores.length === 0) {
         return (
-            <div className="text-center p-4 text-stone-600 font-['Montserrat']">
+            <div className="text-center p-4 text-stone-600 font-['Mont']">
                 No score data available to display the leaderboard.
             </div>
         );
@@ -189,7 +189,8 @@ const ScoreboardChart = ({ scores = [] }) => {
                     let mascotHeight = mascotWidth / mascotAspectRatio;
                     
                     const mascotGap = 5; 
-                    const mascotX = x - (mascotWidth / 2); 
+                    const mascotOffsetX = 12; // Offset to the right
+                    const mascotX = x - (mascotWidth / 2) + mascotOffsetX; 
                     const mascotY = y - mascotHeight - mascotGap; 
                     
                     ctx.save();
@@ -202,7 +203,7 @@ const ScoreboardChart = ({ scores = [] }) => {
 
                 // E. Draw Points Text (Inside or Above Bar)
                 ctx.save();
-                ctx.font = 'bold 15px Montserrat'; 
+                ctx.font = 'bold 15px Mont'; 
                 ctx.textAlign = 'center';
                 
                 if (barHeight > 35) {
@@ -245,7 +246,18 @@ const ScoreboardChart = ({ scores = [] }) => {
         // --- ANIMATION SETTINGS ---
         animation: {
             duration: 2500, // 2.5s Smooth Animation
-            easing: 'easeInOutCubic', 
+            easing: 'easeInOutCubic',
+            // Delay bars based on their position (ascending order - lowest first)
+            delay: (context) => {
+                if (context.type === 'data' && context.mode === 'default') {
+                    // Since bars are sorted descending (highest on left),
+                    // we reverse the index so lowest score animates first
+                    const totalBars = context.chart.data.labels.length;
+                    const reversedIndex = totalBars - 1 - context.dataIndex;
+                    return reversedIndex * 300; // 300ms delay between each bar
+                }
+                return 0;
+            }
         },
         transitions: {
             active: {
@@ -268,7 +280,7 @@ const ScoreboardChart = ({ scores = [] }) => {
                 ticks: {
                     stepSize: stepSize,
                     color: 'black',
-                    font: { family: 'Montserrat', size: 12, weight: '600' },
+                    font: { family: 'Mont', size: 12, weight: '600' },
                     padding: 10,
                 },
                 grid: { color: 'rgba(0, 0, 0, 0.1)', lineWidth: 1 }
@@ -277,7 +289,7 @@ const ScoreboardChart = ({ scores = [] }) => {
                 border: { color: 'black', width: 3 },
                 ticks: {
                     color: 'black',
-                    font: { family: 'Montserrat', size: 13, weight: 'bold' },
+                    font: { family: 'Mont', size: 13, weight: 'bold' },
                     padding: 10,
                 },
                 grid: { display: false },
@@ -286,7 +298,7 @@ const ScoreboardChart = ({ scores = [] }) => {
     };
 
     return (
-        <div className="w-full h-full font-['Montserrat'] min-h-[400px]"> 
+        <div className="w-full h-full font-['Mont'] min-h-[400px]"> 
             <Bar 
                 ref={chartRef} 
                 options={options} 
