@@ -36,6 +36,7 @@ const HOUSE_PATTERN_TINTS = {
     Rajputs: "rgba(90, 170, 186, 1)",
 };
 
+
 const ScoreboardChart = ({ scores = [] }) => {
     // --- 1. DEFINE HOOKS ---
     const chartRef = React.useRef(null);
@@ -58,6 +59,13 @@ const ScoreboardChart = ({ scores = [] }) => {
     React.useEffect(() => {
         liveScoresRef.current = sortedScores;
     }, [sortedScores]);
+
+    // Force chart re-animation when data changes AND assets are loaded
+    React.useEffect(() => {
+        if (assetsLoaded && chartRef.current) {
+            chartRef.current.update('show'); // Trigger animation
+        }
+    }, [sortedScores, assetsLoaded]);
 
     // --- 3. IMAGE LOADING EFFECTS ---
     React.useEffect(() => {
@@ -84,6 +92,17 @@ const ScoreboardChart = ({ scores = [] }) => {
     }, []);
 
     // --- 4. CONDITIONAL RETURN ---
+    // Don't render chart until assets are loaded to prevent animation timing issues
+    if (!assetsLoaded) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px] text-stone-600 font-['Mont']">
+                <div className="text-center">
+                    <div className="animate-pulse text-lg">Loading leaderboard...</div>
+                </div>
+            </div>
+        );
+    }
+    
     if (!scores || !Array.isArray(scores) || scores.length === 0) {
         return (
             <div className="text-center p-4 text-stone-600 font-['Mont']">
