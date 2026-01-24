@@ -42,71 +42,73 @@ const ScoreboardChart = ({ scores = [] }) => {
     const patternImage = React.useRef(null);
     const mascotImages = React.useRef({});
     const [assetsLoaded, setAssetsLoaded] = React.useState(false);
-    const [isFirstLoad, setIsFirstLoad] = React.useState(true);
+    const [hasAnimated, setHasAnimated] = React.useState(false);
+    const [chartKey, setChartKey] = React.useState(0); // Force remount
     const previousScoresRef = React.useRef(null);
+    const mountTimeRef = React.useRef(Date.now());
 
     // --- 2. DATA PROCESSING & LIVE REF ---
-    // SORTING: Largest on Left (Descending: b - a)
     const sortedScores = React.useMemo(() => {
         if (!scores || !Array.isArray(scores)) return [];
         return [...scores].sort((a, b) => b.points - a.points);
     }, [scores]);
 
-    // FIX: Create a Ref to hold the latest sorted scores
-    // This allows the plugin to always access "fresh" data without stale closures
     const liveScoresRef = React.useRef(sortedScores);
 
-    // Update the Ref whenever sortedScores changes
     React.useEffect(() => {
         liveScoresRef.current = sortedScores;
     }, [sortedScores]);
 
-    // CRITICAL FIX: Force animation on FIRST load only
-    // This prevents constant re-animations from polling updates
+    // CRITICAL FIX: Only animate on TRUE first load with data
     React.useEffect(() => {
-        if (assetsLoaded && chartRef.current && isFirstLoad && sortedScores.length > 0) {
-            // Small delay to ensure DOM is ready
-            const timer = setTimeout(() => {
-                if (chartRef.current) {
-                    // Reset the chart to trigger fresh animation
-                    chartRef.current.update('none'); // Update without animation first
-                    requestAnimationFrame(() => {
-                        if (chartRef.current) {
-                            chartRef.current.update('show'); // Then animate
-                            setIsFirstLoad(false);
-                        }
-                    });
-                }
-            }, 100);
-            
-            return () => clearTimeout(timer);
-        }
-    }, [assetsLoaded, isFirstLoad, sortedScores.length]);
+        if (!assetsLoaded || hasAnimated || sortedScores.length === 0) return;
 
-    // Handle subsequent updates WITHOUT animation (for polling updates)
+        // Check if this is genuinely the first data load
+        const timeSinceMount = Date.now() - mountTimeRef.current;
+        
+        // Only animate if:
+        // 1. Assets are loaded
+        // 2. Haven't animated yet
+        // 3. Have data
+        // 4. It's been less than 2 seconds since mount (prevents late polling from triggering)
+        if (timeSinceMount < 2000 && chartRef.current) {
+            const animationTimer = setTimeout(() => {
+                if (chartRef.current && !hasAnimated) {
+                    chartRef.current.update('show');
+                    setHasAnimated(true);
+                }
+            }, 150);
+
+            return () => clearTimeout(animationTimer);
+        } else if (timeSinceMount >= 2000) {
+            // If mounted for >2s, skip animation and just show the chart
+            setHasAnimated(true);
+        }
+    }, [assetsLoaded, hasAnimated, sortedScores.length]);
+
+    // Handle subsequent updates silently
     React.useEffect(() => {
-        if (!isFirstLoad && chartRef.current && assetsLoaded) {
-            // Check if data actually changed
+        if (hasAnimated && chartRef.current && assetsLoaded) {
             const prev = previousScoresRef.current;
             const current = sortedScores;
             
             if (prev && JSON.stringify(prev) !== JSON.stringify(current)) {
-                // Data changed from polling - update without animation
                 chartRef.current.update('none');
             }
             
             previousScoresRef.current = current;
         }
-    }, [sortedScores, isFirstLoad, assetsLoaded]);
+    }, [sortedScores, hasAnimated, assetsLoaded]);
 
     // --- 3. IMAGE LOADING EFFECTS ---
     React.useEffect(() => {
         let loadedCount = 0;
-        const totalImages = 6; 
+        const totalImages = 6;
+        let isMounted = true;
 
         const checkDone = () => {
             loadedCount++;
-            if (loadedCount === totalImages) {
+            if (loadedCount === totalImages && isMounted) {
                 setAssetsLoaded(true);
             }
         };
@@ -123,10 +125,13 @@ const ScoreboardChart = ({ scores = [] }) => {
             mImg.onerror = () => { checkDone(); };
             mImg.src = `/images/${house.toLowerCase()}_mascot.png`;
         });
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     // --- 4. CONDITIONAL RETURN ---
-    // Don't render chart until assets are loaded to prevent animation timing issues
     if (!assetsLoaded) {
         return (
             <div className="flex items-center justify-center min-h-[400px] text-stone-600 font-['Mont']">
@@ -158,21 +163,17 @@ const ScoreboardChart = ({ scores = [] }) => {
         afterDatasetsDraw: (chart) => {
             const ctx = chart.ctx;
             const meta = chart.getDatasetMeta(0);
-            
-            // FIX: Access the FRESH data from the Ref
             const currentData = liveScoresRef.current;
 
             meta.data.forEach((bar, index) => {
-                // Smooth Animation values
                 const { x, y, width, height, base } = bar.getProps(['x', 'y', 'width', 'height', 'base'], false);
                 
                 const barWidth = width * 0.7;
                 const barX = x - barWidth / 2;
                 const barHeight = base - y;
                 
-                // Get data for this specific bar index from our Live Ref
                 const scoreItem = currentData[index];
-                if (!scoreItem) return; // Safety check
+                if (!scoreItem) return;
 
                 const houseName = scoreItem.name;
                 const housePoints = scoreItem.points;
@@ -207,7 +208,6 @@ const ScoreboardChart = ({ scores = [] }) => {
                         patternWidth = patternHeight * patternAspectRatio;
                     }
                     
-                    // Ensure canvas has valid dimensions
                     if (patternWidth > 0 && patternHeight > 0) {
                         const patternX = barX + (barWidth - patternWidth) / 2;
                         const patternY = y + (barHeight - patternHeight) / 2;
@@ -242,7 +242,7 @@ const ScoreboardChart = ({ scores = [] }) => {
                     let mascotHeight = mascotWidth / mascotAspectRatio;
                     
                     const mascotGap = 5; 
-                    const mascotOffsetX = 12; // Offset to the right
+                    const mascotOffsetX = 12;
                     const mascotX = x - (mascotWidth / 2) + mascotOffsetX; 
                     const mascotY = y - mascotHeight - mascotGap; 
                     
@@ -254,13 +254,12 @@ const ScoreboardChart = ({ scores = [] }) => {
                     ctx.restore();
                 }
 
-                // E. Draw Points Text (Inside or Above Bar)
+                // E. Draw Points Text
                 ctx.save();
                 ctx.font = 'bold 15px Mont'; 
                 ctx.textAlign = 'center';
                 
                 if (barHeight > 35) {
-                    // Inside the rectangle (Black with shadow)
                     ctx.fillStyle = '#000000'; 
                     ctx.textBaseline = 'top';
                     ctx.shadowColor = "rgb(255, 255, 255)"; 
@@ -269,7 +268,6 @@ const ScoreboardChart = ({ scores = [] }) => {
                     ctx.shadowOffsetY = 1;
                     ctx.fillText(`${housePoints} pts`, x, y + 10); 
                 } else {
-                    // Above the bar (Black)
                     ctx.fillStyle = '#1c1917'; 
                     ctx.textBaseline = 'bottom';
                     ctx.fillText(`${housePoints} pts`, x, y - 5);
@@ -296,18 +294,14 @@ const ScoreboardChart = ({ scores = [] }) => {
     const options = {
         responsive: true,
         maintainAspectRatio: false,
-        // --- ANIMATION SETTINGS ---
         animation: {
-            duration: 2500, // 2.5s Smooth Animation
+            duration: 2500,
             easing: 'easeInOutCubic',
-            // Delay bars based on their position (ascending order - lowest first)
             delay: (context) => {
                 if (context.type === 'data' && context.mode === 'default') {
-                    // Since bars are sorted descending (highest on left),
-                    // we reverse the index so lowest score animates first
                     const totalBars = context.chart.data.labels.length;
                     const reversedIndex = totalBars - 1 - context.dataIndex;
-                    return reversedIndex * 300; // 300ms delay between each bar
+                    return reversedIndex * 300;
                 }
                 return 0;
             }
@@ -353,6 +347,7 @@ const ScoreboardChart = ({ scores = [] }) => {
     return (
         <div className="w-full h-full font-['Mont'] min-h-[400px]"> 
             <Bar 
+                key={chartKey}
                 ref={chartRef} 
                 options={options} 
                 data={data}
