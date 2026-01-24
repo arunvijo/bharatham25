@@ -36,13 +36,14 @@ const HOUSE_PATTERN_TINTS = {
     Rajputs: "rgba(90, 170, 186, 1)",
 };
 
-
 const ScoreboardChart = ({ scores = [] }) => {
     // --- 1. DEFINE HOOKS ---
     const chartRef = React.useRef(null);
     const patternImage = React.useRef(null);
     const mascotImages = React.useRef({});
     const [assetsLoaded, setAssetsLoaded] = React.useState(false);
+    const [isFirstLoad, setIsFirstLoad] = React.useState(true);
+    const previousScoresRef = React.useRef(null);
 
     // --- 2. DATA PROCESSING & LIVE REF ---
     // SORTING: Largest on Left (Descending: b - a)
@@ -60,12 +61,43 @@ const ScoreboardChart = ({ scores = [] }) => {
         liveScoresRef.current = sortedScores;
     }, [sortedScores]);
 
-    // Force chart re-animation when data changes AND assets are loaded
+    // CRITICAL FIX: Force animation on FIRST load only
+    // This prevents constant re-animations from polling updates
     React.useEffect(() => {
-        if (assetsLoaded && chartRef.current) {
-            chartRef.current.update('show'); // Trigger animation
+        if (assetsLoaded && chartRef.current && isFirstLoad && sortedScores.length > 0) {
+            // Small delay to ensure DOM is ready
+            const timer = setTimeout(() => {
+                if (chartRef.current) {
+                    // Reset the chart to trigger fresh animation
+                    chartRef.current.update('none'); // Update without animation first
+                    requestAnimationFrame(() => {
+                        if (chartRef.current) {
+                            chartRef.current.update('show'); // Then animate
+                            setIsFirstLoad(false);
+                        }
+                    });
+                }
+            }, 100);
+            
+            return () => clearTimeout(timer);
         }
-    }, [sortedScores, assetsLoaded]);
+    }, [assetsLoaded, isFirstLoad, sortedScores.length]);
+
+    // Handle subsequent updates WITHOUT animation (for polling updates)
+    React.useEffect(() => {
+        if (!isFirstLoad && chartRef.current && assetsLoaded) {
+            // Check if data actually changed
+            const prev = previousScoresRef.current;
+            const current = sortedScores;
+            
+            if (prev && JSON.stringify(prev) !== JSON.stringify(current)) {
+                // Data changed from polling - update without animation
+                chartRef.current.update('none');
+            }
+            
+            previousScoresRef.current = current;
+        }
+    }, [sortedScores, isFirstLoad, assetsLoaded]);
 
     // --- 3. IMAGE LOADING EFFECTS ---
     React.useEffect(() => {
@@ -74,7 +106,9 @@ const ScoreboardChart = ({ scores = [] }) => {
 
         const checkDone = () => {
             loadedCount++;
-            if (loadedCount === totalImages) setAssetsLoaded(true);
+            if (loadedCount === totalImages) {
+                setAssetsLoaded(true);
+            }
         };
 
         const pImg = new Image();
