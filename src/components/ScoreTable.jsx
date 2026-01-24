@@ -6,14 +6,16 @@ import {
     MdOutlineDelete, 
     MdOutlineInfo, 
     MdSearch,
-    MdScore 
+    MdScore,
+    MdChevronLeft,
+    MdChevronRight
 } from "react-icons/md";
-// Ensure this path is correct for your project structure. 
-// If ExportToExcel is in 'src/', use "../ExportToExcel"
 import { ExportToExcel } from "../../ExportToExcel"; 
 
 const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) => {
     const [searchInput, setSearchInput] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     // --- HELPER 1: Safe Event Name Access ---
     const getEventName = (event) => {
@@ -48,6 +50,21 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
             positionName.includes(search)
         );
     });
+
+    // --- PAGINATION LOGIC ---
+    const totalPages = Math.ceil(displayedScores.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedScores = displayedScores.slice(startIndex, endIndex);
+
+    // Reset to page 1 when search changes
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchInput]);
+
+    const goToPage = (page) => {
+        setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+    };
 
     // --- POSITION BADGE STYLES ---
     const getPositionStyle = (positionString) => {
@@ -121,9 +138,11 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
                     </div>
 
                     <div className="divide-y divide-stone-300">
-                        {displayedScores.map((scoreItem, index) => (
+                        {paginatedScores.map((scoreItem, index) => (
                             <div key={scoreItem._id || index} className="flex border-b border-stone-300 hover:bg-orange-50/50 transition-colors group min-w-[1241px]">
-                                <div className={`w-[80px] min-w-[80px] text-sm text-stone-600 ${tableCellClass}`}>{index + 1}</div>
+                                <div className={`w-[80px] min-w-[80px] text-sm text-stone-600 ${tableCellClass}`}>
+                                    {startIndex + index + 1}
+                                </div>
                                 
                                 <div className={`w-[256px] min-w-[256px] text-base font-mont text-stone-800 ${tableCellClass} justify-start`}>
                                     {getEventName(scoreItem.event)}
@@ -173,10 +192,10 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
 
             {/* --- MOBILE CARD VIEW --- */}
             <div className="lg:hidden space-y-4">
-                {displayedScores.map((scoreItem, index) => (
+                {paginatedScores.map((scoreItem, index) => (
                     <div key={scoreItem._id || index} className="bg-white border-[3px] border-stone-900 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-4 space-y-3">
                         <div className="flex justify-between items-center border-b-2 border-stone-200 pb-2">
-                            <span className="text-sm font-mont text-stone-500">#{index + 1}</span>
+                            <span className="text-sm font-mont text-stone-500">#{startIndex + index + 1}</span>
                             <span className="text-2xl font-extrabold text-desi-saffron">{scoreItem.points} pts</span>
                         </div>
                         <div>
@@ -236,6 +255,72 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
                     </div>
                 ))}
             </div>
+
+            {/* --- PAGINATION CONTROLS --- */}
+            {displayedScores.length > itemsPerPage && (
+                <div className="flex items-center justify-between px-5 py-4 bg-white border-t-[3px] border-stone-300">
+                    <div className="text-sm text-stone-600 font-mont">
+                        Showing <span className="font-semibold text-stone-900">{startIndex + 1}</span> to{" "}
+                        <span className="font-semibold text-stone-900">{Math.min(endIndex, displayedScores.length)}</span> of{" "}
+                        <span className="font-semibold text-stone-900">{displayedScores.length}</span> records
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => goToPage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="p-2 border-2 border-black bg-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-stone-100 transition-colors"
+                            title="Previous page"
+                        >
+                            <MdChevronLeft className="text-xl" />
+                        </button>
+
+                        <div className="flex gap-1">
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                                // Show first page, last page, current page, and pages around current
+                                if (
+                                    page === 1 ||
+                                    page === totalPages ||
+                                    (page >= currentPage - 1 && page <= currentPage + 1)
+                                ) {
+                                    return (
+                                        <button
+                                            key={page}
+                                            onClick={() => goToPage(page)}
+                                            className={`px-3 py-1 border-2 border-black text-sm font-mont transition-colors ${
+                                                currentPage === page
+                                                    ? "bg-desi-saffron text-white"
+                                                    : "bg-white hover:bg-stone-100"
+                                            }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    );
+                                } else if (
+                                    page === currentPage - 2 ||
+                                    page === currentPage + 2
+                                ) {
+                                    return (
+                                        <span key={page} className="px-2 py-1 text-stone-500">
+                                            ...
+                                        </span>
+                                    );
+                                }
+                                return null;
+                            })}
+                        </div>
+
+                        <button
+                            onClick={() => goToPage(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="p-2 border-2 border-black bg-white disabled:opacity-30 disabled:cursor-not-allowed hover:bg-stone-100 transition-colors"
+                            title="Next page"
+                        >
+                            <MdChevronRight className="text-xl" />
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
