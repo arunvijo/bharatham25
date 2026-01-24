@@ -236,39 +236,47 @@ const CommitteeScoreEntry = () => {
                 )}
 
                 {/* Position & Points */}
-                {registrationId && (
-                <div className="mb-6 animate-fade-in">
-                    <label className="text-xs font-bold text-stone-400 uppercase mb-2 block">Position</label>
-                    <div className="grid grid-cols-4 gap-2 mb-4">
-                        {[
-                        {l: "1st", p: 10, v:"First"}, {l: "2nd", p: 7, v:"Second"}, 
-                        {l: "3rd", p: 5, v:"Third"}, {l: "Pen", p: -5, v:"Negative"}
-                        ].map((opt) => (
-                            <button 
-                            key={opt.l} onClick={() => handlePositionSelect(opt.v, opt.p)}
-                            className={`p-2 rounded-lg font-bold border-2 transition-all ${
-                                position === opt.v ? 'bg-stone-800 text-white border-stone-800' : 'bg-white border-stone-100 text-stone-500'
-                            }`}
-                            >
-                            {opt.l}
-                            </button>
-                        ))}
-                    </div>
+{registrationId && (
+<div className="mb-6 animate-fade-in">
+    <label className="text-xs font-bold text-stone-400 uppercase mb-2 block">Position</label>
+    
+    {/* Updated Grid for More Options */}
+    <div className="grid grid-cols-4 gap-2 mb-4">
+        {[
+        {l: "1st", p: 10, v:"First"}, 
+        {l: "2nd", p: 7, v:"Second"}, 
+        {l: "3rd", p: 5, v:"Third"}, 
+        {l: "4th", p: 3, v:"Fourth"}, // Added
+        {l: "5th", p: 1, v:"Fifth"},  // Added
+        {l: "A Grd", p: 8, v:"A Grade"}, // Added (Default 8 for literary)
+        {l: "B Grd", p: 5, v:"B Grade"}, // Added (Default 5 for literary)
+        {l: "Pen", p: -5, v:"Negative"}
+        ].map((opt) => (
+            <button 
+            key={opt.l} onClick={() => handlePositionSelect(opt.v, opt.p)}
+            className={`p-2 rounded-lg font-bold border-2 text-sm transition-all ${
+                position === opt.v ? 'bg-stone-800 text-white border-stone-800' : 'bg-white border-stone-100 text-stone-500'
+            }`}
+            >
+            {opt.l}
+            </button>
+        ))}
+    </div>
 
-                    <div className="flex gap-4">
-                        <div className="flex-1">
-                            <label className="text-xs font-bold text-stone-400 uppercase">Points</label>
-                            <input type="number" value={points} onChange={e => setPoints(e.target.value)} className="w-full p-3 border rounded-lg font-bold text-xl" />
-                        </div>
-                        {isPenalty && (
-                            <div className="flex-[2]">
-                                <label className="text-xs font-bold text-red-400 uppercase">Reason</label>
-                                <input type="text" value={reason} onChange={e => setReason(e.target.value)} className="w-full p-3 border border-red-200 bg-red-50 rounded-lg text-red-800" />
-                            </div>
-                        )}
-                    </div>
-                </div>
-                )}
+    <div className="flex gap-4">
+        <div className="flex-1">
+            <label className="text-xs font-bold text-stone-400 uppercase">Points (Edit if needed)</label>
+            <input type="number" value={points} onChange={e => setPoints(e.target.value)} className="w-full p-3 border rounded-lg font-bold text-xl" />
+        </div>
+        {isPenalty && (
+            <div className="flex-[2]">
+                <label className="text-xs font-bold text-red-400 uppercase">Reason</label>
+                <input type="text" value={reason} onChange={e => setReason(e.target.value)} className="w-full p-3 border border-red-200 bg-red-50 rounded-lg text-red-800" />
+            </div>
+        )}
+    </div>
+</div>
+)}
 
                 <button 
                 onClick={handleSaveScore}

@@ -249,45 +249,58 @@ const CreateScore = () => {
             )}
 
             {/* 3. Position Podiums */}
-            {registrationId && (
-                <div className="animate-fade-in space-y-6">
-                    <div>
-                        <label className="block text-xs font-bold text-stone-500 uppercase mb-3">Position</label>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <PositionCard label="1st Place" value="First" defaultPoints={10} color="yellow" icon={MdEmojiEvents} />
-                            <PositionCard label="2nd Place" value="Second" defaultPoints={7} color="stone" icon={MdEmojiEvents} />
-                            <PositionCard label="3rd Place" value="Third" defaultPoints={5} color="orange" icon={MdEmojiEvents} />
-                            <PositionCard label="Penalty" value="Negative" defaultPoints={-5} color="red" icon={MdWarning} />
-                        </div>
-                    </div>
+{registrationId && (
+    <div className="animate-fade-in space-y-6">
+        <div>
+            <label className="block text-xs font-bold text-stone-500 uppercase mb-3">Position / Grade</label>
+            
+            {/* Standard Positions */}
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-3 mb-3">
+                <PositionCard label="1st" value="First" defaultPoints={10} color="yellow" icon={MdEmojiEvents} />
+                <PositionCard label="2nd" value="Second" defaultPoints={7} color="stone" icon={MdEmojiEvents} />
+                <PositionCard label="3rd" value="Third" defaultPoints={5} color="orange" icon={MdEmojiEvents} />
+                <PositionCard label="4th" value="Fourth" defaultPoints={3} color="blue" icon={MdEmojiEvents} />
+                <PositionCard label="5th" value="Fifth" defaultPoints={1} color="indigo" icon={MdEmojiEvents} />
+            </div>
 
-                    {/* 4. Points & Reason */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-xs font-bold text-stone-500 uppercase mb-1.5">Points Awarded</label>
-                            <input
-                                type="number"
-                                value={points}
-                                onChange={(e) => setPoints(e.target.value)}
-                                className={`w-full p-3 bg-stone-50 border rounded-lg outline-none font-bold text-lg ${isPenalty ? 'text-red-600 border-red-200 focus:ring-red-500' : 'text-green-600 border-stone-200 focus:ring-desi-saffron'}`}
-                            />
-                        </div>
+            {/* Special Grades & Penalty */}
+            <div className="grid grid-cols-3 gap-3">
+                <PositionCard label="A Grade" value="A Grade" defaultPoints={8} color="teal" icon={MdEmojiEvents} />
+                <PositionCard label="B Grade" value="B Grade" defaultPoints={5} color="cyan" icon={MdEmojiEvents} />
+                <PositionCard label="Penalty" value="Negative" defaultPoints={-5} color="red" icon={MdWarning} />
+            </div>
+        </div>
 
-                        {isPenalty && (
-                            <div className="animate-fade-in">
-                                <label className="block text-xs font-bold text-red-500 uppercase mb-1.5">Reason for Penalty</label>
-                                <input
-                                    type="text"
-                                    value={reason}
-                                    onChange={(e) => setReason(e.target.value)}
-                                    placeholder="e.g. Late Submission / Disqualification"
-                                    className="w-full p-3 bg-red-50 border border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-red-800"
-                                />
-                            </div>
-                        )}
-                    </div>
+        {/* 4. Points & Reason */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label className="block text-xs font-bold text-stone-500 uppercase mb-1.5">Points Awarded</label>
+                <input
+                    type="number"
+                    value={points}
+                    onChange={(e) => setPoints(e.target.value)}
+                    className={`w-full p-3 bg-stone-50 border rounded-lg outline-none font-bold text-lg ${isPenalty ? 'text-red-600 border-red-200 focus:ring-red-500' : 'text-green-600 border-stone-200 focus:ring-desi-saffron'}`}
+                />
+                <p className="text-[10px] text-stone-400 mt-1">
+                    *Check Manual: A Grade = 8 or 15 pts | 4th = 10 or 20 pts
+                </p>
+            </div>
+
+            {isPenalty && (
+                <div className="animate-fade-in">
+                    <label className="block text-xs font-bold text-red-500 uppercase mb-1.5">Reason for Penalty</label>
+                    <input
+                        type="text"
+                        value={reason}
+                        onChange={(e) => setReason(e.target.value)}
+                        placeholder="e.g. Late Submission / Disqualification"
+                        className="w-full p-3 bg-red-50 border border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-red-800"
+                    />
                 </div>
             )}
+        </div>
+    </div>
+)}
 
           </div>
 
