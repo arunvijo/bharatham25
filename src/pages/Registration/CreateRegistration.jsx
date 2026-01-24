@@ -49,7 +49,8 @@ const CreateRegistration = () => {
     "Vogue", 
     "Short Film", 
     "Making of Bharatham", 
-    "Adzap"
+    "Adzap",
+    "General House Penalty"
   ];
 
   const languageEvents = [...new Set([...literaryEventsForLanguage, ...diversityRuleEvents])]; 
@@ -195,10 +196,10 @@ const CreateRegistration = () => {
 
     if (diversityRuleEvents.includes(event) && !isHouseEntry) {
       const langs = new Set(participants.map(p => p.language).filter(Boolean));
-      if (langs.size < 2) {
-        enqueueSnackbar("Must include participants from at least 2 different languages.", { variant: "error" });
-        return;
-      }
+      // if (langs.size < 2) {
+      //   enqueueSnackbar("Must include participants from at least 2 different languages.", { variant: "error" });
+      //   return;
+      // }
     }
 
     setLoading(true);

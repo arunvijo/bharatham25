@@ -261,7 +261,7 @@ const handleViewWinners = () => {
                     </section>
 
                     {/* --- 3. Negative Scores Section (COMMENTED OUT) --- */}
-                    {/* <section className="pt-8 space-y-6">
+                    <section className="pt-8 space-y-6">
                         <div className="text-center relative pt-10 pb-5">
                             <div className="text-4xl font-extrabold text-stone-900 inline-block p-2">
                                 <div className="absolute left-0 right-1/2 top-[100px] border-t-2 border-black hidden md:block" style={{ marginRight: '240px' }}></div>
@@ -283,7 +283,7 @@ const handleViewWinners = () => {
                             </div>
                         </div>
                     </section>
-                    */}
+                   
 
                 </main>
                 
