@@ -209,11 +209,21 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
                                     {scoreItem.house}
                                 </span>
                             </div>
-                            <div className="flex-1 min-w-[120px]">
-                                <div className="text-xs font-mont text-stone-500 uppercase tracking-wide mb-1">Position</div>
-                                <span className={`px-3 py-1 inline-flex text-sm font-mont rounded-sm border-2 ${getPositionStyle(scoreItem.position)} uppercase tracking-wider`}>
-                                    {scoreItem.position}
-                                </span>
+                        </div>
+                    </section>
+
+                    {/* --- 3. Negative Scores Section (COMMENTED OUT) --- */}
+                    <section className="pt-8 space-y-6">
+                        <div className="text-center relative pt-10 pb-5">
+                            <div className="text-4xl font-extrabold text-stone-900 inline-block p-2">
+                                <div className="absolute left-0 right-1/2 top-[100px] border-t-2 border-black hidden md:block" style={{ marginRight: '240px' }}></div>
+                                <div className="absolute left-1/2 right-0 top-[100px] border-t-2 border-black hidden md:block" style={{ marginLeft: '240px' }}></div>
+
+                                <h1 className="text-5xl md:text-7xl font-black text-stone-900 inline-block p-2 relative z-10"
+                                    style={{ textShadow: '5px 5px 0px #FEE89B' }}
+                                >
+                                    Penalties
+                                </h1>
                             </div>
                         </div>
 
@@ -251,9 +261,12 @@ const ScoreTable = ({ scores: inputScores = [], admin: isAdminMode = false }) =>
                                     <MdOutlineDelete size={18} />
                                 </Link>
                             </div>
-                        )}
-                    </div>
-                ))}
+                        </div>
+                    </section>
+                   
+
+                </main>
+                
             </div>
 
             {/* --- PAGINATION CONTROLS --- */}
