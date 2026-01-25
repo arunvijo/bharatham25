@@ -50,7 +50,9 @@ const CreateRegistration = () => {
     "Short Film", 
     "Making of Bharatham", 
     "Adzap",
-    "General House Penalty"
+    "General House Penalty",
+    "Logo Modelling",
+    "Banner Making"
   ];
 
   const languageEvents = [...new Set([...literaryEventsForLanguage, ...diversityRuleEvents])]; 
